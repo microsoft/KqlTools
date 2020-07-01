@@ -1,53 +1,41 @@
----
-page_type: sample
-languages:
-- csharp
-products:
-- dotnet
-description: "Add 150 character max description"
-urlFragment: "update-this-to-unique-url-stub"
----
+# Real-Time KQL Tools
 
-# Official Microsoft Sample
+The KQL tools are intended for anyone who wants to explore events in the Windows or Linux OS logs and high-volume logging/tracing streams. Examples of people who might find this useful are security researchers, security incident responders, IT administrators, OS developers and support professionals. 
 
-<!-- 
-Guidelines on README format: https://review.docs.microsoft.com/help/onboard/admin/samples/concepts/readme-template?branch=master
+The tools use the same [Kusto Query Language (KQL)](https://docs.microsoft.com/en-us/azure/data-explorer/kusto/query/), that powers Azure services such as Azure Data Explorer (ADX), Log Analytics and App Insights.
+In all these services the assumption is that the data is uploaded to the cloud first, before it can be queried.
 
-Guidance on onboarding samples to docs.microsoft.com/samples: https://review.docs.microsoft.com/help/onboard/admin/samples/process/onboarding?branch=master
+In contrast, the Real-Time KQL Tools apply standing-query directly on the stream of events:
 
-Taxonomies for products and languages: https://review.docs.microsoft.com/new-hope/information-architecture/metadata/taxonomies?branch=master
--->
+![StandingQuery.JPG](StandingQuery.JPG)
 
-Give a short description for your sample here. What does it do and why is it important?
+Here the eel symbol stands for [Rx.KQL](Source/Rx.Kql/Readme.md): a stream-processing library, which  is the main component included in all the tools.
 
-## Contents
+Note that Rx.KQL supports only [subset](Source/Rx.Kql/Docs/KqlSubset.md) of the KQL language. If you need some operator that is not supported, you will have to upload the data to ADX.
 
-Outline the file contents of the repository. It helps users navigate the codebase, build configuration and any related assets.
+## Output choices
 
-| File/folder       | Description                                |
-|-------------------|--------------------------------------------|
-| `src`             | Sample source code.                        |
-| `.gitignore`      | Define what to ignore at commit time.      |
-| `CHANGELOG.md`    | List of changes to the sample.             |
-| `CONTRIBUTING.md` | Guidelines for contributing to the sample. |
-| `README.md`       | This README file.                          |
-| `LICENSE`         | The license for the sample.                |
+The simplest mode of using the tools is exporting to local files. This works even if the machine is disconnected from the network, and is useful to get general idea what events exist and when they occur. 
 
-## Prerequisites
+It is also useful to observe the behavior in real-time mode. For example, set the output to console and try various actions to see if the trigger events.
 
-Outline the required components and tools that a user might need to have on their machine in order to run the sample. This can be anything from frameworks, SDKs, OS versions or IDE releases.
+The option to upload events to ADX allows more complex analysis such as:
+- the full KQL language
+- Joins with other clusters or tables such as reference data or events uploaded from different OS/machines
 
-## Setup
+In this mode you can upload all events without processing, or apply pre-processing query such as filtering only the events of interest, transformation and aggregation.
 
-Explain how to prepare the sample once the user clones or downloads the repository. The section should outline every step necessary to install dependencies and set up any settings (for example, API keys and output folders).
+## Tools and input choices 
 
-## Running the sample
+There are different tools for different log types:
+![SummaryTable.JPG](SummaryTable.JPG)
 
-Outline step-by-step instructions to execute the sample and see its output. Include steps for executing the sample from the IDE, starting specific services in the Azure portal or anything related to the overall launch of the code.
+- [WinLogKql](Source/WinLogKql/Readme.md): for Windows OS logs and *.evtx files
+- [EtwKql](Source/EtwKql/Readme.md): for Event Tracing for Windows (ETW)
+- [SyslogKql](Source/SyslogKql/Readme.md): For Syslog local files or to listen to Syslog in real-time
+- [EbpfKQL](Source/EbpfKql/Readme.md): For dynamic interception of kernel calls in Linux
 
-## Key concepts
-
-Provide users with more context on the tools and services used in the sample. Explain some of the code that is being used and how services interact with each other.
+Each tool has a command-line option to choose between one-time processing/upload of files or continuous real-time processing/upload
 
 ## Contributing
 
