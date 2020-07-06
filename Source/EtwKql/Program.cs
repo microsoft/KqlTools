@@ -30,6 +30,7 @@ namespace EtwKql
         static string _queryFile;
         static bool _demoMode;
         static bool _resetTable;
+        static bool _logToConsole;
         static readonly TimeSpan UploadTimespan = TimeSpan.FromMilliseconds(5);
 
         static KustoConnectionStringBuilder kscbIngest;
@@ -56,6 +57,7 @@ namespace EtwKql
 
             _resetTable = false;
             _demoMode = false;
+            _logToConsole = false;
 
             ParseArgs(args);
 
@@ -244,6 +246,14 @@ namespace EtwKql
                         }
                         break;
 
+                    case "logtoconsole":
+                        bool logToConsole;
+                        if (bool.TryParse(value, out logToConsole))
+                        {
+                            _logToConsole = logToConsole;
+                        }
+                        break;
+
                     default:
                         ExitWithInvalidArgument(a);
                         break;
@@ -258,7 +268,7 @@ namespace EtwKql
             }
 
             // Both output to file and Kusto destination details should not be empty
-            if (string.IsNullOrEmpty(_outputFileName))
+            if (_logToConsole == false && string.IsNullOrEmpty(_outputFileName))
             {
                 if (_cluster == null)
                     ExitWithMissingArgument("clusteraddress");
@@ -297,14 +307,12 @@ namespace EtwKql
 
         static void PrintHelpAndExit()
         {
-
-            // - password can be optionally pass as parameter or manually entered in the console
             Console.WriteLine(
-@"Etw2Kusto is tool for uploading raw ETW events into Kusto. Usage examples:
+@"EtwKql is tool for uploading raw ETW events into Kusto. Usage examples:
 
 1) Real-time session
 
-    EtwKql cluster:CDOC database:GeorgiTest table:EtwTcp session:tcp demomode:true resettable:true query:QueryFile.csl
+    EtwKql clusteraddress:CDOC.kusto.windows.net database:GeorgiTest table:EtwTcp session:tcp demomode:true resettable:true query:QueryFile.csl
 
 To use real-time mode:
 - the tool must be run with administrative permissions 
@@ -326,7 +334,7 @@ tcp is the name of the session we created using create trace
 
 2) Previously recorded Event Trace Log (.etl files)
 
-    EtwKql cluster:CDOC database:GeorgiTest table:EtwTcp file:*.etl query:QueryFile.csl
+    EtwKql clusteraddress:CDOC.kusto.windows.net database:GeorgiTest table:EtwTcp file:*.etl query:QueryFile.csl
 
 Note:
 
@@ -340,40 +348,11 @@ Note: Save data to text file instead of Kusto
 When Kusto is not accessible, we can log the data to a text file.
 
     EtwKql outputfile:OutputLog.json file:*.etl query:QueryFile.csl
+
+Note: Use commandline argument logtoconsole:true to log to console. Logging to console negates other outputs the results to console only.
+    EtwKql logtoconsole:true file:*.etl query:QueryFile.csl
 ");
             Environment.Exit(1);
-        }
-
-        static string GetPasswordForUser()
-        {
-            Console.Write("Enter password: ");
-            string password = "";
-
-            do
-            {
-                ConsoleKeyInfo key = Console.ReadKey(true);
-
-                // Backspace Should Not Work
-                if (key.Key != ConsoleKey.Backspace && key.Key != ConsoleKey.Enter)
-                {
-                    password += key.KeyChar;
-                    Console.Write("*");
-                }
-                else
-                {
-                    if (key.Key == ConsoleKey.Backspace && password.Length > 0)
-                    {
-                        password = password.Substring(0, (password.Length - 1));
-                        Console.Write("\b \b");
-                    }
-                    else if (key.Key == ConsoleKey.Enter)
-                    {
-                        break;
-                    }
-                }
-            } while (true);
-
-            return password;
         }
     }
 

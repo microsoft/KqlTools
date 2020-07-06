@@ -35,6 +35,7 @@ namespace WinLogKql
         static bool _demoMode;
         static bool _resetTable;
         static bool _readExisting;
+        static bool _logToConsole;
         static readonly TimeSpan UploadTimespan = TimeSpan.FromMilliseconds(5);
 
         static KustoConnectionStringBuilder kscbIngest;
@@ -50,6 +51,7 @@ namespace WinLogKql
             _resetTable = false;
             _demoMode = false;
             _readExisting = true;
+            _logToConsole = false;
 
             ParseArgs(args);
 
@@ -273,6 +275,14 @@ namespace WinLogKql
                         }
                         break;
 
+                    case "logtoconsole":
+                        bool logToConsole;
+                        if (bool.TryParse(value, out logToConsole))
+                        {
+                            _logToConsole = logToConsole;
+                        }
+                        break;
+
                     default:
                         ExitWithInvalidArgument(a);
                         break;
@@ -287,7 +297,7 @@ namespace WinLogKql
             }
 
             // Both output to file and Kusto destination details should not be empty
-            if (string.IsNullOrEmpty(_outputFileName))
+            if (_logToConsole == false && string.IsNullOrEmpty(_outputFileName))
             {
                 if (_cluster == null)
                     ExitWithMissingArgument("clusteraddress");
@@ -333,18 +343,17 @@ namespace WinLogKql
 
         static void PrintHelpAndExit()
         {
-
             // - password can be optionally pass as parameter or manually entered in the console
             Console.WriteLine(
-@"WinLog2Kusto is tool for uploading WinLog events into Kusto. Usage examples:
+@"WinLogKql usage examples:
 
 1) Real-time session using WecFilter xml
 
-    WinLog2Kusto clusteraddress:CDOC.kusto.windows.net database:GeorgiTest table:SecurityEvtx wecFile:WecFilter.xml readexisting:true demomode:true resettable:true query:QueryFile.csl
+    WinLogKql clusteraddress:CDOC.kusto.windows.net database:GeorgiTest table:EvtxOutput wecFile:WecFilter.xml readexisting:true demomode:true resettable:true query:QueryFile.csl
 
 2) Real-time session using Log
 
-    WinLog2Kusto clusteraddress:CDOC.kusto.windows.net database:GeorgiTest table:SecurityEvtx logName:""Azure Information Protection"" readexisting:true demomode:true resettable:true query:QueryFile.csl
+    WinLogKql clusteraddress:CDOC.kusto.windows.net database:GeorgiTest table:AzInfoProtectOutput logName:""Azure Information Protection"" readexisting:true demomode:true resettable:true query:QueryFile.csl
 
 To use real-time mode:
 - the tool must be run with winlog reader permissions 
@@ -359,7 +368,7 @@ readexisting is an optional parameter and when not present, the tool reads exist
 
 3) Previously recorded Evtx Trace Log (.evtx files)
 
-    WinLog2Kusto clusteraddress:CDOC.kusto.windows.net database:GeorgiTest table:SecurityEvtx file:*.evtx query:QueryFile.csl
+    WinLogKql clusteraddress:CDOC.kusto.windows.net database:GeorgiTest table:SecurityEvtx file:*.evtx query:ProcessCreation.csl
 
 To replay recorded Evtx Trace:
 - query contains the optional Query file that filters the events
@@ -367,41 +376,12 @@ To replay recorded Evtx Trace:
 Note: Save data to text file instead of Kusto
 When Kusto is not accessible, we can log the data to a text file.
 
-    WinLog2Kusto outputfile:AzInfoProtectionLog.json logName:""Azure Information Protection"" readexisting:true demomode:true resettable:true query:QueryFile.csl
+    WinLogKql outputfile:AzInfoProtectionLog.json logName:""Azure Information Protection"" readexisting:true demomode:true resettable:true query:QueryFile.csl
+
+Note: Use commandline argument logtoconsole:true to log to console. Logging to console negates other outputs the results to console only.
+    WinLogKql logtoconsole:true logName:""Azure Information Protection"" readexisting:true query:QueryFile.csl
 ");
             Environment.Exit(1);
-        }
-
-        static string GetPasswordForUser()
-        {
-            Console.Write("Enter password: ");
-            string password = "";
-
-            do
-            {
-                ConsoleKeyInfo key = Console.ReadKey(true);
-
-                // Backspace Should Not Work
-                if (key.Key != ConsoleKey.Backspace && key.Key != ConsoleKey.Enter)
-                {
-                    password += key.KeyChar;
-                    Console.Write("*");
-                }
-                else
-                {
-                    if (key.Key == ConsoleKey.Backspace && password.Length > 0)
-                    {
-                        password = password.Substring(0, (password.Length - 1));
-                        Console.Write("\b \b");
-                    }
-                    else if (key.Key == ConsoleKey.Enter)
-                    {
-                        break;
-                    }
-                }
-            } while (true);
-
-            return password;
         }
     }
 

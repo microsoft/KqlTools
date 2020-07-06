@@ -65,7 +65,7 @@
   </ItemGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\WinLogKql\WinLogKql.csproj" />
+    <ProjectReference Include="..\Rx.Kql\Rx.Kql.csproj" />
   </ItemGroup>
 
 </Project>

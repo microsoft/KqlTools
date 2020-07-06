@@ -11,6 +11,7 @@ namespace WinLogKql
     using Kusto.Data.Net.Client;
     using Kusto.Ingest;
     using Newtonsoft.Json;
+    using Newtonsoft.Json.Linq;
     using System;
     using System.Collections.Generic;
     using System.IO;
@@ -115,22 +116,37 @@ namespace WinLogKql
                         {
                             var data = new DictionaryDataReader(_currentBatch);
                             _ingestClient.IngestFromDataReader(data, _ingestionProperties);
+
+                            Console.Write("{0} ", _currentBatch.Count);
                         }
-                        else
+                        else if (outputFile != null)
                         {
                             string content = lastBatch ?
                                 $"{JsonConvert.SerializeObject(_currentBatch, Formatting.Indented).Trim(new char[] { '[', ']' })}" :
                                 $"{JsonConvert.SerializeObject(_currentBatch, Formatting.Indented).Trim(new char[] { '[', ']' })},";
 
-                            outputFile.Write(content);
+                            try
+                            {
+                                outputFile.Write(content);
+                            }
+                            catch
+                            {
+
+                            }
+
+                            Console.Write("{0} ", _currentBatch.Count);
+                        }
+                        else
+                        {
+                            foreach (var item in _currentBatch)
+                            {
+                                Console.WriteLine(string.Join("\t", item.Values));
+                            }
                         }
                     }
 
-                    int recordsUploaded = _currentBatch.Count;
                     _currentBatch = null;
                     _lastUploadTime = DateTime.UtcNow;
-
-                    Console.Write("{0} ", recordsUploaded);
                 }
                 catch (Exception e)
                 {
@@ -144,6 +160,11 @@ namespace WinLogKql
             if (_fields == null)
             {
                 _fields = value.Keys.ToArray();
+
+                if (_ingestClient == null && outputFile == null)
+                {
+                    Console.WriteLine(string.Join("\t", _fields));
+                }
             }
 
             if (AdminCsb != null && 
@@ -174,8 +195,14 @@ namespace WinLogKql
             if (error != true)
             {
                 UploadBatch(true);
-                outputFile.Write($"]{Environment.NewLine}");
-                outputFile.Dispose();
+
+                if (outputFile != null)
+                {
+                    outputFile.Write($"]{Environment.NewLine}");
+                    outputFile.Dispose();
+                    outputFile = null;
+                }
+
                 Console.WriteLine("Completed!");
                 Completed.Set();
             }
@@ -212,15 +239,22 @@ namespace WinLogKql
 
         private readonly Dictionary<Type, string> _columnType = new Dictionary<Type, string>
         {
-            {typeof(string), typeof(string).ToString() },
-            {typeof(ushort), typeof(int).ToString() },
-            {typeof(byte), typeof(int).ToString() },
-            {typeof(int), typeof(int).ToString() },
-            {typeof(uint), typeof(int).ToString() },
-            {typeof(long), typeof(long).ToString() },
-            {typeof(DateTime), typeof(DateTime).ToString() },
-            {typeof(Guid), typeof(Guid).ToString() },
-            {typeof(Dictionary<string, object>), typeof(Newtonsoft.Json.Linq.JToken).ToString() }
+            { typeof(string), typeof(string).ToString() },
+            { typeof(bool), typeof(bool).ToString() },
+            { typeof(ushort), typeof(int).ToString() },
+            { typeof(byte), typeof(int).ToString() },
+            { typeof(int), typeof(int).ToString() },
+            { typeof(uint), typeof(int).ToString() },
+            { typeof(long), typeof(long).ToString() },
+            { typeof(DateTime), typeof(DateTime).ToString() },
+            { typeof(TimeSpan), typeof(TimeSpan).ToString() },
+            { typeof(Guid), typeof(Guid).ToString() },
+            // Dynamic type
+            { typeof(Dictionary<string, object>), typeof(JToken).ToString() },
+            { typeof(IDictionary<string, object>), typeof(JToken).ToString() },
+            { typeof(JToken), typeof(JToken).ToString() },
+            { typeof(JObject), typeof(JToken).ToString() },
+            { typeof(object), typeof(JToken).ToString() }
         };
     }
 }

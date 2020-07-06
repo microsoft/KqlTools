@@ -334,11 +334,11 @@ namespace Microsoft.EvtxEventXmlScrubber
         /// </summary>
         /// <param name="eventData">the xElement of the windows event</param>
         /// <param name="eventDataProperties">the properties created from teh windows eventdata</param>
-        public static ExpandoObject ParseEventData(XElement eventData)
+        public static IDictionary<string, object> ParseEventData(XElement eventData)
         {
             int dataNameCounter = 0;
 
-            var namedProperties = new ExpandoObject();
+            var namedProperties = new Dictionary<string, object>();
             var dict = (IDictionary<string, object>) namedProperties;
 
             foreach (var data in eventData.Elements(ElementNames.Data))
@@ -384,9 +384,9 @@ namespace Microsoft.EvtxEventXmlScrubber
         ///     Parse the extended data properties from a windows event into the receiving dynamic parameter object
         /// </summary>
         /// <param name="userData">the xElement of the windows event</param>
-        public static ExpandoObject ParseUserData(XElement userData)
+        public static IDictionary<string, object> ParseUserData(XElement userData)
         {
-            var namedProperties = new ExpandoObject();
+            var namedProperties = new Dictionary<string, object>();
 
             foreach (var data in userData.Elements(ElementNames.RuleAndFileData))
             {
@@ -493,9 +493,9 @@ namespace Microsoft.EvtxEventXmlScrubber
             return namedProperties;
         }
 
-        private static ExpandoObject GetNestedAttributes(XElement extendedElement)
+        private static Dictionary<string, object> GetNestedAttributes(XElement extendedElement)
         {
-            ExpandoObject namedProperties = new ExpandoObject();
+            Dictionary<string, object> namedProperties = new Dictionary<string, object>();
 
             foreach (var data in extendedElement.Elements())
             {
@@ -527,10 +527,9 @@ namespace Microsoft.EvtxEventXmlScrubber
         /// <summary>
         ///     Extension method that turns a dictionary of string and object to an ExpandoObject
         /// </summary>
-        public static ExpandoObject ToExpando(this IDictionary<string, object> dictionary)
+        public static Dictionary<string, object> ToDictionary(this IDictionary<string, object> dictionary)
         {
-            var expando = new ExpandoObject();
-            var expandoDic = (IDictionary<string, object>) expando;
+            var retValDict = new Dictionary<string, object>();
 
             // go through the items in the dictionary and copy over the key value pairs)
             foreach (var kvp in dictionary)
@@ -538,8 +537,8 @@ namespace Microsoft.EvtxEventXmlScrubber
                 // if the value can also be turned into an ExpandoObject, then do it!
                 if (kvp.Value is IDictionary<string, object>)
                 {
-                    var expandoValue = ((IDictionary<string, object>) kvp.Value).ToExpando();
-                    expandoDic.Add(kvp.Key, expandoValue);
+                    var expandoValue = ((IDictionary<string, object>) kvp.Value).ToDictionary();
+                    retValDict.Add(kvp.Key, expandoValue);
                 }
                 else if (kvp.Value is ICollection)
                 {
@@ -550,7 +549,7 @@ namespace Microsoft.EvtxEventXmlScrubber
                     {
                         if (item is IDictionary<string, object>)
                         {
-                            var expandoItem = ((IDictionary<string, object>) item).ToExpando();
+                            var expandoItem = ((IDictionary<string, object>) item).ToDictionary();
                             itemList.Add(expandoItem);
                         }
                         else
@@ -559,15 +558,15 @@ namespace Microsoft.EvtxEventXmlScrubber
                         }
                     }
 
-                    expandoDic.Add(kvp.Key, itemList);
+                    retValDict.Add(kvp.Key, itemList);
                 }
                 else
                 {
-                    expandoDic.Add(kvp);
+                    retValDict.Add(kvp.Key, kvp.Value);
                 }
             }
 
-            return expando;
+            return retValDict;
         }
     }
 }

@@ -1,13 +1,13 @@
-# WinLog2Kusto command line tool
+# WinLogKql command line tool
 
-This tool is intended for uploading Windows OS logs
+This tool is intended for uploading Windows OS logs. For upload to Kusto to work, the tool assumes the current logged on user has table creation priviliges in the Azure Data Explorer (Kusto) cluster.
 
 ### Real time mode
 
 In real-time mode the tool listens to local or remote OS Log and continuously uploads the events. To upload a single log run the following from administrator command prompt :
 
 ```
-WinLog2Kusto cluster:CDOC database:GeorgiTest table:SecurityEvtx logName:"Security"
+WinLogKql clusteraddress:CDOC.kusto.windows.net database:GeorgiTest table:SecurityEvtx logName:"Security"
 ```
 
 The tool can also upload selected set of logs, filtered by provider ID,  event IDs and everything else that can be described with XPath. To do this, the set of XPath queries can be described in standard XML file:
@@ -24,15 +24,21 @@ The tool can also upload selected set of logs, filtered by provider ID,  event I
 
 This file can be passed from the command line as follows
 ```
-WinLog2Kusto cluster:CDOC database:GeorgiTest table:SecurityEvtx wecFile:WecFilter.xml 
+WinLogKql clusteraddress:CDOC.kusto.windows.net database:GeorgiTest table:SecurityEvtx wecFile:WecFilter.xml 
 ```
 
 ### File upload mode
 
 In this mode you can upload existing EVTX file:
 ```
-WinLog2Kusto cluster:CDOC database:GeorgiTest table:Test file:*.evtx 
+WinLogKql clusteraddress:CDOC.kusto.windows.net database:GeorgiTest table:Test file:*.evtx 
 ```
+
+### Output results to local JSON file
+
+In situations where you cannot connect to Azure, the data can be redirected to local JSON.
+
+    WinLogKql outputfile:SecurityEvents.json logName:"Security"
 
 ## Pre-processing with Rx.KQL
 
@@ -40,7 +46,7 @@ Typically, you would want to use one of the modes above to upload all the data t
 
 At that point you can use Rx.KQL on the real-time stream to pre-process the events before uploading:
 ```
-WinLog2Kusto cluster:CDOC database:GeorgiTest table:EtwTcp logName:"Security" query:ProcessCreation.csl
+WinLogKql clusteraddress:CDOC.kusto.windows.net database:GeorgiTest table:SecurityEvents logName:"Security" query:ProcessCreation.csl
 ```
 
 Here the pre-processing query is filtering Security Events by EventId 4688 and listing some properties:
