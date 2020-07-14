@@ -12,7 +12,6 @@ namespace Rx.Kql.UnitTest
     using System.Reactive.Kql;
     using System.Reactive.Subjects;
     using Microsoft.VisualStudio.TestTools.UnitTesting;
-    using WinLog.Helpers;
 
     [TestClass]
     public class BooleanExpressions : TestBase

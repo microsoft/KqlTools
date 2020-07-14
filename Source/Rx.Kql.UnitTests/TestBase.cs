@@ -4,17 +4,13 @@
 // *                                                       *
 // ********************************************************/
 
-using System.IO;
-using System.Reflection;
-using WinLog;
-
 namespace Rx.Kql.UnitTest
 {
+    using Microsoft.VisualStudio.TestTools.UnitTesting;
     using System;
     using System.Collections.Generic;
     using System.Reactive.Kql;
     using System.Reactive.Subjects;
-    using Microsoft.VisualStudio.TestTools.UnitTesting;
 
     public class TestBase
     {

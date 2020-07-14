@@ -14,8 +14,8 @@
   </ItemGroup>
 
   <ItemGroup>
+    <ProjectReference Include="..\EvtxEventXmlScrubber\EvtxEventXmlScrubber.csproj" />
     <ProjectReference Include="..\Rx.Kql\Rx.Kql.csproj" />
-    <ProjectReference Include="..\WinLog\WinLog.csproj" />
   </ItemGroup>
 
   <ItemGroup>
@@ -53,5 +53,4 @@
     <Folder Include="OperatorsTest\" />
   </ItemGroup>
 
- 
 </Project>

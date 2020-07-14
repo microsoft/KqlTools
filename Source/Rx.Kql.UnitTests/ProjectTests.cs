@@ -4,20 +4,15 @@
 // *                                                       *
 // ********************************************************/
 
-using System.Diagnostics;
-
 namespace Rx.Kql.UnitTest
 {
+    using Microsoft.EvtxEventXmlScrubber;
+    using Microsoft.VisualStudio.TestTools.UnitTesting;
     using System;
     using System.Collections.Generic;
-    using System.Dynamic;
     using System.IO;
-    using System.Linq;
     using System.Reactive.Kql;
-    using System.Reactive.Kql.CustomTypes;
     using System.Reflection;
-    using Microsoft.VisualStudio.TestTools.UnitTesting;
-    using WinLog;
 
     [TestClass]
     public class ProjectTests
@@ -57,7 +52,7 @@ namespace Rx.Kql.UnitTest
             });
 
             // Add the detections.
-            var eventDynamic = LogReader.ParseEvent(eventXmlOf4688);
+            var eventDynamic = EvtxExtensions.Deserialize(eventXmlOf4688);
             node.OnNext((IDictionary<string, object>)eventDynamic);
             
             Assert.IsTrue(results.Count == 2);
@@ -106,7 +101,7 @@ namespace Rx.Kql.UnitTest
             });
 
             // Add the detections.
-            var eventDynamic = LogReader.ParseEvent(eventXmlOf4688);
+            var eventDynamic = EvtxExtensions.Deserialize(eventXmlOf4688);
             node.OnNext((IDictionary<string, object>)eventDynamic);
 
             Assert.IsTrue(results.Count == 1);
@@ -152,8 +147,8 @@ namespace Rx.Kql.UnitTest
             });
 
             // Add the detections.
-            var eventDynamic = LogReader.ParseEvent(eventXmlOf4688);
-            node.OnNext((IDictionary<string, object>)eventDynamic);
+            var eventDynamic = EvtxExtensions.Deserialize(eventXmlOf4688);
+            node.OnNext(eventDynamic);
 
             Assert.IsTrue(results.Count == 1);
 

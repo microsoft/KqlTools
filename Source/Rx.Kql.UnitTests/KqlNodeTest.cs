@@ -8,16 +8,15 @@ using System.Diagnostics;
 
 namespace Rx.Kql.UnitTest
 {
+    using Microsoft.EvtxEventXmlScrubber;
+    using Microsoft.VisualStudio.TestTools.UnitTesting;
     using System;
     using System.Collections.Generic;
     using System.Dynamic;
     using System.IO;
     using System.Linq;
     using System.Reactive.Kql;
-    using System.Reactive.Kql.CustomTypes;
     using System.Reflection;
-    using Microsoft.VisualStudio.TestTools.UnitTesting;
-    using WinLog;
 
     [TestClass]
     public class KqlNodeTest
@@ -107,7 +106,7 @@ namespace Rx.Kql.UnitTest
             string evt4720 =
                 "<Event xmlns=\'http://schemas.microsoft.com/win/2004/08/events/event\' xml:lang=\'en-US\'><System><Provider Name=\'Microsoft-Windows-Security-Auditing\' Guid=\'{54849625-5478-4994-A5BA-3E3B0328C30D}\'/><EventID>4720</EventID><Version>0</Version><Level>0</Level><Task>13824</Task><Opcode>0</Opcode><Keywords>0x8020000000000000</Keywords><TimeCreated SystemTime=\'2017-08-31T19:38:21.509585500Z\'/><EventRecordID>2079336</EventRecordID><Correlation/><Execution ProcessID=\'2092\' ThreadID=\'42656\'/><Channel>Security</Channel><Computer>SN2SCH101140124.phx.gbl</Computer><Security/></System><EventData><Data Name=\'TargetUserName\'>QTU-bs_el_idsv-7</Data><Data Name=\'TargetDomainName\'>SN2SCH101140124</Data><Data Name=\'TargetSid\'>S-1-5-21-1266794097-2621680504-1140025688-1442</Data><Data Name=\'SubjectUserSid\'>S-1-5-21-606747145-1563985344-839522115-25776942</Data><Data Name=\'SubjectUserName\'>_qcloud1</Data><Data Name=\'SubjectDomainName\'>PHX</Data><Data Name=\'SubjectLogonId\'>0x21a3d239e</Data><Data Name=\'PrivilegeList\'>-</Data><Data Name=\'SamAccountName\'>QTU-bs_el_idsv-7</Data><Data Name=\'DisplayName\'>%%1793</Data><Data Name=\'UserPrincipalName\'>-</Data><Data Name=\'HomeDirectory\'>%%1793</Data><Data Name=\'HomePath\'>%%1793</Data><Data Name=\'ScriptPath\'>%%1793</Data><Data Name=\'ProfilePath\'>%%1793</Data><Data Name=\'UserWorkstations\'>%%1793</Data><Data Name=\'PasswordLastSet\'>%%1794</Data><Data Name=\'AccountExpires\'>%%1794</Data><Data Name=\'PrimaryGroupId\'>513</Data><Data Name=\'AllowedToDelegateTo\'>-</Data><Data Name=\'OldUacValue\'>0x0</Data><Data Name=\'NewUacValue\'>0x15</Data><Data Name=\'UserAccountControl\'>\r\n\t\t%%2080\r\n\t\t%%2082\r\n\t\t%%2084</Data><Data Name=\'UserParameters\'>%%1793</Data><Data Name=\'SidHistory\'>-</Data><Data Name=\'LogonHours\'>%%1797</Data></EventData></Event>";
 
-            dynamic eventDynamic = LogReader.ParseEvent(evt4720);
+            dynamic eventDynamic = EvtxExtensions.Deserialize(evt4720);
 
             // Subscribe to the sucessful detections.
             var list = new List<object>();
@@ -144,8 +143,8 @@ namespace Rx.Kql.UnitTest
                 "<Event xmlns='http://schemas.microsoft.com/win/2004/08/events/event' xml:lang='en-US'><System><Provider Name='Microsoft-Windows-Eventlog' Guid='{fc65ddd8-d6ef-4962-83d5-6e5cfe9ce148}'/><EventID>1102</EventID><Version>0</Version><Level>4</Level><Task>104</Task><Opcode>0</Opcode><Keywords>0x4020000000000000</Keywords><TimeCreated SystemTime='2017-08-03T17:11:29.255592600Z'/><EventRecordID>36837151</EventRecordID><Correlation/><Execution ProcessID='996' ThreadID='11180'/><Channel>Security</Channel><Computer>GFTVMHostDev.redmond.corp.microsoft.com</Computer><Security/></System><UserData><LogFileCleared xmlns='http://manifests.microsoft.com/win/2004/08/windows/eventlog'><SubjectUserSid>S-1-5-21-2127521184-1604012920-1887927527-9916173</SubjectUserSid><SubjectUserName>rbiles</SubjectUserName><SubjectDomainName>REDMOND</SubjectDomainName><SubjectLogonId>0x34d1b1eb</SubjectLogonId></LogFileCleared></UserData></Event>";
 
             // Add the detections.
-            var eventDynamic = LogReader.ParseEvent(eventXmlOf1102);
-            node.OnNext((IDictionary<string, object>) eventDynamic);
+            var eventDynamic = EvtxExtensions.Deserialize(eventXmlOf1102);
+            node.OnNext(eventDynamic);
         }
 
         [TestMethod]
@@ -223,8 +222,8 @@ namespace Rx.Kql.UnitTest
             node.Subscribe(evt => { list.Add(evt); });
 
             // Add the detections.
-            var eventDynamic = LogReader.ParseEvent(eventXmlOf1116AntiMalware);
-            node.OnNext((IDictionary<string, object>) eventDynamic);
+            var eventDynamic = EvtxExtensions.Deserialize(eventXmlOf1116AntiMalware);
+            node.OnNext(eventDynamic);
         }
     }
 }

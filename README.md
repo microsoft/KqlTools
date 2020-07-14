@@ -1,4 +1,5 @@
 # Real-Time KQL Tools
+![.NET Core Desktop](https://github.com/microsoft/KqlTools/workflows/.NET%20Core%20Desktop/badge.svg?branch=master&event=push)
 
 The KQL tools are intended for anyone who wants to explore events in the Windows or Linux OS logs and high-volume logging/tracing streams. Examples of people who might find this useful are security researchers, security incident responders, IT administrators, OS developers and support professionals. 
 
