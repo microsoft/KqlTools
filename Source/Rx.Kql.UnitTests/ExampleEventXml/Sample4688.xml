@@ -1,0 +1,36 @@
+﻿<?xml version="1.0" encoding="utf-8" ?>
+<Event xmlns="http://schemas.microsoft.com/win/2004/08/events/event">
+  <System>
+    <Provider Name="Microsoft-Windows-Security-Auditing" Guid="{54849625-5478-4994-a5ba-3e3b0328c30d}" />
+    <EventID>4688</EventID>
+    <Version>2</Version>
+    <Level>0</Level>
+    <Task>13312</Task>
+    <Opcode>0</Opcode>
+    <Keywords>0x8020000000000000</Keywords>
+    <TimeCreated SystemTime="2020-07-08T22:32:41.858432700Z" />
+    <EventRecordID>15180291</EventRecordID>
+    <Correlation />
+    <Execution ProcessID="4" ThreadID="39952" />
+    <Channel>Security</Channel>
+    <Computer>RussellHPDev.redmond.corp.microsoft.com</Computer>
+    <Security />
+  </System>
+  <EventData>
+    <Data Name="SubjectUserSid">S-1-5-18</Data>
+    <Data Name="SubjectUserName">RUSSELLHPDEV$</Data>
+    <Data Name="SubjectDomainName">REDMOND</Data>
+    <Data Name="SubjectLogonId">0x3e7</Data>
+    <Data Name="NewProcessId">0x6134</Data>
+    <Data Name="NewProcessName">C:\Windows\System32\backgroundTaskHost.exe</Data>
+    <Data Name="TokenElevationType">%%1938</Data>
+    <Data Name="ProcessId">0x41c</Data>
+    <Data Name="CommandLine">"C:\windows\system32\backgroundTaskHost.exe" -ServerName:App.AppXmtcan0h2tfbfy7k9kn8hbxb6dmzz1zh0.mca</Data>
+    <Data Name="TargetUserSid">S-1-5-21-2127521184-1604012920-1887927527-9916173</Data>
+    <Data Name="TargetUserName">rbiles</Data>
+    <Data Name="TargetDomainName">REDMOND</Data>
+    <Data Name="TargetLogonId">0x2f48cc</Data>
+    <Data Name="ParentProcessName">C:\Windows\System32\svchost.exe</Data>
+    <Data Name="MandatoryLabel">S-1-16-4096</Data>
+  </EventData>
+</Event>

@@ -19,6 +19,12 @@ namespace System.Reactive.Kql
             return node.Expressions.Select(e => e.Element.Visit(visitor)).ToList();
         }
 
+        public override List<RxKqlScalarValue> VisitProjectOperator(Kusto.Language.Syntax.ProjectOperator node)
+        {
+            var visitor = new RxKqlScalarValueConverter();
+            return node.Expressions.Select(e => e.Element.Visit(visitor)).ToList();
+        }
+
         public override List<RxKqlScalarValue> VisitExpressionStatement(ExpressionStatement node)
         {
             return node.Expression.Visit(this);

@@ -53,7 +53,14 @@ namespace System.Reactive.Kql
                         break;
 
                     case "project":
-                        result = result.Project(args);
+                        if (stage.Contains("="))
+                        {
+                            result = result.ProjectExpressions(args);
+                        }
+                        else
+                        {
+                            result = result.ProjectValues(args);
+                        }
                         break;
 
                     case "evaluate":
@@ -97,7 +104,7 @@ namespace System.Reactive.Kql
                 }));
         }
 
-        public static IObservable<IDictionary<string, object>> Project(this IObservable<IDictionary<string, object>> source, string fieldList)
+        public static IObservable<IDictionary<string, object>> ProjectValues(this IObservable<IDictionary<string, object>> source, string fieldList)
         {
             var fields = new List<string>(fieldList.Split(',').Select(s => s.Trim()));
 
@@ -116,6 +123,25 @@ namespace System.Reactive.Kql
 
                 return result;
             });
+        }
+
+        public static IObservable<IDictionary<string, object>> ProjectExpressions(this IObservable<IDictionary<string, object>> source, string expression)
+        {
+            var project = new ProjectOperator(expression);
+            return Observable.Create<IDictionary<string, object>>(
+                observer => source.Subscribe(e =>
+                {
+                    try
+                    {
+                        var r = project.Project(e);
+                        observer.OnNext(r);
+                    }
+                    catch (Exception ex)
+                    {
+                        RxKqlEventSource.Log.LogException(ex.ToString());
+                        observer.OnError(ex);
+                    }
+                }));
         }
 
         public static IObservable<IDictionary<string, object>> Extend(this IObservable<IDictionary<string, object>> source, string expression)

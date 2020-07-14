@@ -1,0 +1,5 @@
+// FILTER_4720_KnownAccountExclusions
+.create-or-alter function FILTER_4720_KnownAccountExclusions(TargetUserName:string) 
+{
+     not(TargetUserName startswith "UT_" or TargetUserName == "JWTSECURITYTESTUSER")
+}

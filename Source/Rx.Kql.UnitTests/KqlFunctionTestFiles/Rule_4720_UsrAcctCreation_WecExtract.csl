@@ -1,0 +1,31 @@
+// GLOBAL - 4720 - User Account Created
+.create-or-alter function FILTER_4720_AutopilotServerFilterList(AttackerUserName:string, TargetDomainName:string )
+{
+    not(AttackerUserName contains "$" and TargetDomainName startswith "EAP")
+} 
+
+.create-or-alter function FILTER_IdentityManagementGroupExclusions(AttackerUserName:string)
+{
+    not(AttackerUserName in ("_msnsecamt1", "_wlt-aqm-SGA1", "_wlt-aqm-SGA2", "_wlp-aqm-SGA1", 
+    "_wlp-aqm-SGA2", "_RAMAD", "_SCHDOMPROD2", "_wpsetwtt", "_SCHDOMPROD1", "_PHXEPPSA", 
+    "_JITDISCPILOT", "_CTPDOMProd2", "_jitproxy0", "_jitproxy1", "_qcloud1", "_qcloud2", "_gsgoacct"))
+} 
+
+.create-or-alter function FILTER_4720_KnownAccountExclusions(TargetUserName:string) 
+{
+     not(TargetUserName startswith "UT_" or TargetUserName == "JWTSECURITYTESTUSER")
+} 
+
+
+WecExtract 
+| where EventId == 4720 
+| extend AttackerUserName = EventData.SubjectUserName, TargetUserName = EventData.TargetUserName, TargetDomainName = EventData.TargetDomainName
+| where FILTER_4720_AutopilotServerFilterList(AttackerUserName, TargetDomainName)
+    and FILTER_IdentityManagementGroupExclusions(AttackerUserName)
+    and FILTER_4720_KnownAccountExclusions(TargetUserName) 
+    and not(TargetUserName == "_msnsecamt1")
+| project AttackerUserName, TargetUserName, TargetDomainName
+
+
+
+

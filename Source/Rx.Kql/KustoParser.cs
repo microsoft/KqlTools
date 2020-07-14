@@ -176,12 +176,69 @@ namespace System.Reactive.Kql
     {
         public string[] Fields { get; set; }
 
+        public List<RxKqlScalarValue> Expressions;
+
+
+        public ProjectOperator()
+        {
+            Expressions = new List<RxKqlScalarValue>();
+        }
+
+        private List<RxKqlScalarValue> ParseExpressionKusto(string extend)
+        {
+            extend = extend.Trim();
+            if (!extend.StartsWith("project "))
+            {
+                extend = "project " + extend;
+            }
+
+            KustoCode query;
+            lock (parserLock)
+            {
+                query = KustoCode.Parse(extend);
+            }
+
+            var diagnostics = query.GetSyntaxDiagnostics()
+                .Select(d => $"({d.Start}..{d.Start + d.Length}): {d.Message}");
+
+            if (diagnostics.Any())
+            {
+                var errors = string.Join("\n", diagnostics);
+                throw new QueryParsingException($"Error parsing expression {extend}: {errors}");
+            }
+
+            var syntax = query.Syntax.GetDescendants<Statement>()[0];
+            return syntax.Visit(new ListRxKqlScalarValueConverter());
+        }
+
         public ProjectOperator(string args)
         {
-            Fields = args.Split(new[]
+            Expressions = ParseExpressionKusto(args);
+        }
+        public dynamic Project(IDictionary<string, object> instance)
+        {
+            var result = new ExpandoObject();
+            var inst = instance;
+
+
+            foreach (var exp in Expressions)
             {
-                ','
-            }, StringSplitOptions.RemoveEmptyEntries).Select(t => t.Trim()).ToArray();
+                string name = exp.Left;
+                var value = exp.Right.GetValue(instance);
+
+                // As per Kusto functionality, if extending an existing field in a query
+                // the value of the extended field overrides the object value
+                if (((IDictionary<string, object>)result).ContainsKey(name))
+                {
+                    ((IDictionary<string, object>)result)[name] = value;
+                }
+                else
+                {
+                    ((IDictionary<string, object>)result).Add(name, value);
+                }
+            }
+
+            return result;
         }
 
         public override string ToString()

@@ -11,6 +11,10 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "WinLogKql", "WinLogKql\WinL
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "EvtxEventXmlScrubber", "EvtxEventXmlScrubber\EvtxEventXmlScrubber.csproj", "{63C1EA51-F283-4833-9AC9-F7291910B0E5}"
 EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Rx.Kql.UnitTests", "Rx.Kql.UnitTests\Rx.Kql.UnitTests.csproj", "{AEE84508-B390-40EB-8779-18D4BC155D1C}"
+EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "WinLog", "WinLog\WinLog.csproj", "{495BF20E-EF21-4708-9C7E-278DF5D4F0A9}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -51,6 +55,22 @@ Global
 		{63C1EA51-F283-4833-9AC9-F7291910B0E5}.Release|Any CPU.Build.0 = Release|Any CPU
 		{63C1EA51-F283-4833-9AC9-F7291910B0E5}.Release|x64.ActiveCfg = Release|Any CPU
 		{63C1EA51-F283-4833-9AC9-F7291910B0E5}.Release|x64.Build.0 = Release|Any CPU
+		{AEE84508-B390-40EB-8779-18D4BC155D1C}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{AEE84508-B390-40EB-8779-18D4BC155D1C}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{AEE84508-B390-40EB-8779-18D4BC155D1C}.Debug|x64.ActiveCfg = Debug|x64
+		{AEE84508-B390-40EB-8779-18D4BC155D1C}.Debug|x64.Build.0 = Debug|x64
+		{AEE84508-B390-40EB-8779-18D4BC155D1C}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{AEE84508-B390-40EB-8779-18D4BC155D1C}.Release|Any CPU.Build.0 = Release|Any CPU
+		{AEE84508-B390-40EB-8779-18D4BC155D1C}.Release|x64.ActiveCfg = Release|x64
+		{AEE84508-B390-40EB-8779-18D4BC155D1C}.Release|x64.Build.0 = Release|x64
+		{495BF20E-EF21-4708-9C7E-278DF5D4F0A9}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{495BF20E-EF21-4708-9C7E-278DF5D4F0A9}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{495BF20E-EF21-4708-9C7E-278DF5D4F0A9}.Debug|x64.ActiveCfg = Debug|Any CPU
+		{495BF20E-EF21-4708-9C7E-278DF5D4F0A9}.Debug|x64.Build.0 = Debug|Any CPU
+		{495BF20E-EF21-4708-9C7E-278DF5D4F0A9}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{495BF20E-EF21-4708-9C7E-278DF5D4F0A9}.Release|Any CPU.Build.0 = Release|Any CPU
+		{495BF20E-EF21-4708-9C7E-278DF5D4F0A9}.Release|x64.ActiveCfg = Release|Any CPU
+		{495BF20E-EF21-4708-9C7E-278DF5D4F0A9}.Release|x64.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
