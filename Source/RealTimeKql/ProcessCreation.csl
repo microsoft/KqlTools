@@ -1,0 +1,5 @@
+﻿Security 
+| where EventId == 4688
+| extend ProcessName = EventData.NewProcessName
+| extend ParentProcessName = EventData.ParentProcessName
+| project TimeCreated, ProcessName, ParentProcessName

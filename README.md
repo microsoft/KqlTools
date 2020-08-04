@@ -1,42 +1,73 @@
-# Real-Time KQL Tools
+# Real-Time KQL 
 ![.NET Core Desktop](https://github.com/microsoft/KqlTools/workflows/.NET%20Core%20Desktop/badge.svg?branch=master&event=push)
 
-The KQL tools are intended for anyone who wants to explore events in the Windows or Linux OS logs and high-volume logging/tracing streams. Examples of people who might find this useful are security researchers, security incident responders, IT administrators, OS developers and support professionals. 
-
-The tools use the same [Kusto Query Language (KQL)](https://docs.microsoft.com/en-us/azure/data-explorer/kusto/query/), that powers Azure services such as Azure Data Explorer (ADX), Log Analytics and App Insights.
-In all these services the assumption is that the data is uploaded to the cloud first, before it can be queried.
-
-In contrast, the Real-Time KQL Tools apply standing-query directly on the stream of events:
+The Real-Time KQL tools allow the user to explore the events by directly viewing and querying real-time streams. For example, you can filter the stream and show only the events of interest. You can choose which properties of the events to display, and group/count certain events in a time window:
 
 ![StandingQuery.JPG](StandingQuery.JPG)
 
-Here the eel symbol stands for [Rx.KQL](Source/Rx.Kql/Readme.md): a stream-processing library, which  is the main component included in all the tools.
+Instead of "loading data" **and then** "querying" everything happens **as events arrive**. 
 
-Note that Rx.KQL supports only [subset](Source/Rx.Kql/Docs/KqlSubset.md) of the KQL language. If you need some operator that is not supported, you will have to upload the data to ADX.
+For example:
+
+- if an event does not match a filter it is ignored
+- if the event fits in predefined time-window, its numerical data is added to the aggregation computational state. At the end of the window, the aggregation result is produced as output event and the state is reset.
+
+The tool can be used in offline mode, on the source machine. In this mode, it is just a better alternative of the limited OS tools like grep in Linux and EventVwr in Windows.
+
+Here is how to use the tool to see processes started on a Windows machine:
+
+	RealTimeKql winlog --logname=Security --kqlquery=ProcessCreation.kql --logtoconsole
+
+The same on Linux:
+
+	Syslog Example ???
+
+Optionally, the tool can be used for prepossessing the steam and then uploading to a database, such as Azure Data Explorer (ADX = Kuso)
+
+## Input choices
+
+The tool is designed to work on a real-time stream, which may never end. Optionally, you can pass in files(s) and they will be read only once and processed as a stream.  
+
+The supported options are:
+
+- Windows:
+	- **winlog**: OS or application log you see in EventVwr
+	- **evtx**: log file(s) on disk. Example is file(s) copied from another machine
+	- **etwSession**: real-time session in Event Tracing for Windows (ETW)
+	- **etl**: previously recorded "Event Trace Log" by using ETW
+- Linux:
+	- **syslog**: the OS log (coming soon)
+	- **ebpf**: dynamic interception of kernel and user mode functions (coming soon)
+
+## Query file
+
+The query file describes what processing to apply to the events on the stream. It uses a subset of the Kusto Query Language(KQL) which is specifically useful for real-time viewing and prepossessing of streams.
+
+The best practice to create query files is:
+
+- Upload some raw events into Kusto (ADX), without specifying query-file
+- Look at the data, and define some useful query that shows what you want as output
+- Save the query as **.kql** file and pass this in the RealTimeKQL command line
+
+Here are the query files for the two example command-lines above:
+
+- Processes started on Windows
+- Processes started on Linux
 
 ## Output choices
 
-The simplest mode of using the tools is exporting to local files. This works even if the machine is disconnected from the network, and is useful to get general idea what events exist and when they occur. 
+The output of the tool is also treated as a stream, and can be infinite.
+Here are the options:
 
-It is also useful to observe the behavior in real-time mode. For example, set the output to console and try various actions to see if the trigger events.
-
-The option to upload events to ADX allows more complex analysis such as:
-- the full KQL language
-- Joins with other clusters or tables such as reference data or events uploaded from different OS/machines
-
-In this mode you can upload all events without processing, or apply pre-processing query such as filtering only the events of interest, transformation and aggregation.
-
-## Tools and input choices 
-
-There are different tools for different log types:
-![SummaryTable.JPG](SummaryTable.JPG)
-
-- [WinLogKql](Source/WinLogKql/Readme.md): for Windows OS logs and *.evtx files
-- [EtwKql](Source/EtwKql/Readme.md): for Event Tracing for Windows (ETW)
-- [SyslogKql](Source/SyslogKql/Readme.md): For Syslog local files or to listen to Syslog in real-time
-- [EbpfKQL](Source/EbpfKql/Readme.md): For dynamic interception of kernel calls in Linux
-
-Each tool has a command-line option to choose between one-time processing/upload of files or continuous real-time processing/upload
+- Real-Time user experiences:
+	- **consoleOutput**: the result is printed on screen (standard output), and it will roll-off depending how you setup the console window buffer
+	- **webEvents** the tool acts as real-time server for events. Users whose browser is compatible with HTML5 standard can see events in real-time.
+- Files
+	- **csvOutput**: Each event is a row in Comma Separated Value table
+	- **jsonOutput**: Each event is a JSON dictionary
+	- **htmlOutput**: Each event formatted as human-readable DIV element
+- Upload 
+	- **adxOutput**: Upload to Kusto (Azure Data Explorer)
 
 ## Contributing
 
