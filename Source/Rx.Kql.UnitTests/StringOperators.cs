@@ -300,7 +300,7 @@ namespace Rx.Kql.UnitTest
             var result4 = RunAtomicQuery(evt, query4);
             Assert.AreEqual(result4[0].idx4, -1);
 
-            string query5 = "extend idx5 = indexof(\"abcdefg\",\"cde\", -1)"; // invalid input
+            // string query5 = "extend idx5 = indexof(\"abcdefg\",\"cde\", -1)"; // invalid input
             // TODO: Resolve negative parameter parsing.  
             // var result5 = RunAtomicQuery(evt, query5);
             // Assert.AreEqual(result5[0].idx5, 2);
@@ -309,7 +309,7 @@ namespace Rx.Kql.UnitTest
             var result6 = RunAtomicQuery(evt, query6);
             Assert.AreEqual(result6[0].idx6, 4);
 
-            string query7 = "extend idx7 = indexof(\"abcdefg\",\"cde\",2, -1)"; // lookup found in input string
+            // string query7 = "extend idx7 = indexof(\"abcdefg\",\"cde\",2, -1)"; // lookup found in input string
             // TODO: Resolve negative parameter parsing.  
             // var result7 = RunAtomicQuery(evt, query7);
             // Assert.AreEqual(result7[0].idx7, 2);
@@ -318,7 +318,7 @@ namespace Rx.Kql.UnitTest
             var result8 = RunAtomicQuery(evt, query8);
             Assert.AreEqual(result8[0].idx8, 9);
 
-            string query9 = "extend idx9 = indexof(\"abcdefgabcdefg\", \"cde\", 1, -1, 3)"; // the third occurrence of lookup is not in researched range
+            // string query9 = "extend idx9 = indexof(\"abcdefgabcdefg\", \"cde\", 1, -1, 3)"; // the third occurrence of lookup is not in researched range
             // TODO: Resolve negative parameter parsing.  
             // var result9 = RunAtomicQuery(evt, query9);
             // Assert.AreEqual(result9[0].idx9, 2);
@@ -345,17 +345,17 @@ namespace Rx.Kql.UnitTest
             var result4 = RunAtomicQuery(evt, query4);
             Assert.AreEqual(result4[0].idx4, -1);
 
-            string query6 = "extend idx3 = indexof_regex(\"abcabc\", \"a.c\", 1, -1, 2)"; // there is no second occurrence in the search range
+            // string query6 = "extend idx3 = indexof_regex(\"abcabc\", \"a.c\", 1, -1, 2)"; // there is no second occurrence in the search range
             // TODO: Resolve negative parameter parsing.  
             // var result3 = RunAtomicQuery(evt, query3);
             // Assert.AreEqual(result3[0].idx3, -1);
 
-            string query7 = "extend idx4 = indexof_regex(\"ababaa\", \"a.a\", 0, -1, 2)"; // Plain string matches do not overlap so full lookup can't be found
+            // string query7 = "extend idx4 = indexof_regex(\"ababaa\", \"a.a\", 0, -1, 2)"; // Plain string matches do not overlap so full lookup can't be found
             // TODO: Resolve negative parameter parsing.  
             // var result4 = RunAtomicQuery(evt, query4);
             // Assert.AreEqual(result4[0].idx4, -1);
 
-            string query5 = "extend idx5 = indexof_regex(\"abcabc\", \"a|ab\", -1)"; // invalid input
+            // string query5 = "extend idx5 = indexof_regex(\"abcabc\", \"a|ab\", -1)"; // invalid input
             // TODO: Resolve negative parameter parsing.  
             // var result5 = RunAtomicQuery(evt, query5);
             // Assert.AreEqual(result5[0].idx5, 2);

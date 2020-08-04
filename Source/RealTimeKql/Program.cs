@@ -1,6 +1,6 @@
 ﻿// /********************************************************
 // *                                                       *
-// *   Copyright (C) Microsoft. All rights reserved.       *
+// *   Copyright (C) Microsoft                             *
 // *                                                       *
 // ********************************************************/
 
@@ -11,14 +11,20 @@ namespace RealTimeKql
     using System.Diagnostics.Tracing;
     using System.IO;
     using System.Linq;
+    using System.Net;
+    using System.Net.NetworkInformation;
+    using System.Net.Sockets;
     using System.Reactive.Kql;
     using System.Reactive.Kql.EventTypes;
     using System.Reactive.Linq;
     using System.Reflection;
     using System.Threading.Tasks;
     using Kusto.Data;
+    using Kusto.Language;
     using Microsoft.EvtxEventXmlScrubber;
     using Microsoft.Extensions.CommandLineUtils;
+    using Microsoft.Syslog;
+    using Microsoft.Syslog.Parsing;
     using Newtonsoft.Json;
     using Tx.Windows;
     using EventLevel = System.Diagnostics.Tracing.EventLevel;
@@ -67,6 +73,7 @@ namespace RealTimeKql
 
             app.Command("WinLog", InvokeWinLog);
             app.Command("Etw", InvokeEtw);
+            app.Command("Syslog", InvokeSyslog);
 
             try
             {
@@ -82,69 +89,391 @@ namespace RealTimeKql
             }
         }
 
+        public static Tuple<KustoConnectionStringBuilder, KustoConnectionStringBuilder> GetKustoConnectionStrings(
+            string authority, 
+            string clusterAddress, 
+            string database, 
+            string appClientId, 
+            string appKey)
+        {
+            KustoConnectionStringBuilder kscbAdmin = null;
+            KustoConnectionStringBuilder kscbIngest = null;
+
+            if (!string.IsNullOrEmpty(authority))
+            {
+                if (!string.IsNullOrEmpty(appClientId) && !string.IsNullOrEmpty(appKey))
+                {
+                    kscbIngest = new KustoConnectionStringBuilder($"https://ingest-{clusterAddress}", database).WithAadApplicationKeyAuthentication(appClientId, appKey, authority);
+                    kscbAdmin = new KustoConnectionStringBuilder($"https://{clusterAddress}", database).WithAadApplicationKeyAuthentication(appClientId, appKey, authority);
+                }
+#if NET462
+                else
+                {
+                    kscbIngest = new KustoConnectionStringBuilder($"https://ingest-{clusterAddress}", database).WithAadUserPromptAuthentication(authority);
+                    kscbAdmin = new KustoConnectionStringBuilder($"https://{clusterAddress}", database).WithAadUserPromptAuthentication(authority);
+                }
+#endif
+            }
+
+            return new Tuple<KustoConnectionStringBuilder, KustoConnectionStringBuilder>(kscbIngest, kscbAdmin);
+        }
+
+        public static void InvokeSyslog(CommandLineApplication command)
+        {
+            command.Description = "Realtime processing of Syslog Events";
+            command.ExtendedHelpText = Environment.NewLine + "Use this option to listen to Syslog Events." + Environment.NewLine
+                + Environment.NewLine + "Real-time SysLog Events"
+                + Environment.NewLine + "\tRealtimeKql syslog --query=QueryFile.csl --adxcluster=CDOC.kusto.windows.net --adxdatabase=GeorgiTest --adxtable=EvtxOutput --adxquickingest --adxreset" + Environment.NewLine;
+
+            command.HelpOption("-?|-h|--help");
+
+            // input
+            var adapterNameOption = command.Option(
+                "-n|--networkAdapter <value>",
+                "Optional: Network Adapter Name. When not specified, listner listens on all adapters.",
+                CommandOptionType.SingleValue);
+
+            var listnerUdpPortOption = command.Option(
+                "-p|--udpport <value>",
+                "Optional: UDP Port to listen on. When not specified listner is listening on port 514.",
+                CommandOptionType.SingleValue);
+
+            // query for real-time view or pre-processing
+            var kqlQueryOption = command.Option("-q|--query <value>",
+                "Optional: KQL filter query file that describes what processing to apply to the events on the stream. It uses a subset of Kusto Query Language, https://docs.microsoft.com/en-us/azure/data-explorer/kusto/query/",
+                CommandOptionType.SingleValue);
+
+            // output
+            var consoleLogOption = command.Option("-oc|--outputconsole",
+                "Log the output to console.",
+                CommandOptionType.NoValue);
+
+            var outputFileOption = command.Option("-oj|--outputjson <value>",
+                "Write output to JSON file. eg, --outputjson=FilterOutput.json",
+                CommandOptionType.SingleValue);
+
+            var adAuthority = command.Option("-ad|--adxauthority <value>",
+                "Azure Data Explorer (ADX) authority. Optional when not specified microsoft.com is used. eg, --adxauthority=microsoft.com",
+                CommandOptionType.SingleValue);
+
+            var adClientAppId = command.Option("-aclid|--adxclientid <value>",
+                "Azure Data Explorer (ADX) ClientId. Optional ClientId that has permissions to access Azure Data Explorer.",
+                CommandOptionType.SingleValue);
+
+            var adKey = command.Option("-akey|--adxkey <value>",
+                "Azure Data Explorer (ADX) Access Key. Used along with ClientApp Id",
+                CommandOptionType.SingleValue);
+
+            var clusterAddressOption = command.Option("-ac|--adxcluster <value>",
+                "Azure Data Explorer (ADX) cluster address. eg, --adxcluster=CDOC.kusto.windows.net",
+                CommandOptionType.SingleValue);
+
+            var databaseOption = command.Option("-ad|--adxdatabase <value>",
+                "Azure Data Explorer (ADX) database name. eg, --adxdatabase=TestDb",
+                CommandOptionType.SingleValue);
+
+            var tableOption = command.Option("-at|--adxtable <value>",
+                "Azure Data Explorer (ADX) table name. eg, --adxtable=OutputTable",
+                CommandOptionType.SingleValue);
+
+            var resetTableOption = command.Option("-ar|--adxreset",
+                "The existing data in the destination table is dropped before new data is logged.",
+                CommandOptionType.NoValue);
+
+            var quickIngestOption = command.Option("-ad|--adxdirect",
+                "Default upload to ADX is using queued ingest. Use this option to do a direct ingest to ADX.",
+                CommandOptionType.NoValue);
+
+            command.OnExecute(() =>
+            {
+                KustoConnectionStringBuilder kscbIngest = null;
+                KustoConnectionStringBuilder kscbAdmin = null;
+
+                if (kqlQueryOption.HasValue() && !File.Exists(kqlQueryOption.Value()))
+                {
+                    Console.WriteLine("KqlQuery file doesnt exist: {0}", kqlQueryOption.Value());
+                    return -1;
+                }
+
+                if (!outputFileOption.HasValue() && !consoleLogOption.HasValue())
+                {
+                    if (!clusterAddressOption.HasValue())
+                    {
+                        Console.WriteLine("Missing Cluster Address");
+                        return -1;
+                    }
+
+                    if (!databaseOption.HasValue())
+                    {
+                        Console.WriteLine("Missing Database Name");
+                        return -1;
+                    }
+
+                    if (!tableOption.HasValue())
+                    {
+                        Console.WriteLine("Missing Table Name");
+                        return -1;
+                    }
+
+                    string authority = "microsoft.com";
+                    if (adAuthority.HasValue())
+                    {
+                        authority = adAuthority.Value();
+                    }
+
+                    if (clusterAddressOption.HasValue() && databaseOption.HasValue())
+                    {
+                        var connectionStrings = GetKustoConnectionStrings(
+                            authority, 
+                            clusterAddressOption.Value(), 
+                            databaseOption.Value(), 
+                            adClientAppId.Value(), 
+                            adKey.Value());
+
+                        kscbIngest = connectionStrings.Item1;
+                        kscbAdmin = connectionStrings.Item2;
+                    }
+                }
+
+                int udpPort = 514;
+                if (listnerUdpPortOption.HasValue())
+                {
+                    int.TryParse(listnerUdpPortOption.Value(), out udpPort);
+                }
+
+                string adapterName;
+                if (adapterNameOption.HasValue())
+                {
+                    adapterName = adapterNameOption.Value();
+                }
+
+                try
+                {
+                    UploadSyslogRealTime(
+                        adapterNameOption.Value(),
+                        udpPort,
+                        kqlQueryOption.Value(),
+                        outputFileOption.Value(),
+                        kscbAdmin,
+                        kscbIngest,
+                        quickIngestOption.HasValue(),
+                        tableOption.Value(),
+                        resetTableOption.HasValue());
+                }
+                catch (Exception ex)
+                {
+                    Console.WriteLine("Exception:");
+                    Console.WriteLine(ex.Message);
+                    Console.WriteLine(ex.StackTrace);
+                }
+
+                return 0;
+            });
+        }
+
+        static void UploadSyslogRealTime(
+            string listenerAdapterName, 
+            int listenerUdpPort,
+            string queryFile,
+            string outputFileName, 
+            KustoConnectionStringBuilder kscbAdmin, 
+            KustoConnectionStringBuilder kscbIngest, 
+            bool quickIngest, 
+            string tableName, 
+            bool resetTable)
+        {
+            var parser = CreateSIEMfxSyslogParser();
+
+            IPAddress localIp = null;
+            if (!string.IsNullOrEmpty(listenerAdapterName))
+            {
+                localIp = GetLocalIp(listenerAdapterName);
+            }
+
+            localIp ??= IPAddress.IPv6Any;
+            var endPoint = new IPEndPoint(localIp, listenerUdpPort);
+            var PortListener = new UdpClient(AddressFamily.InterNetworkV6);
+            PortListener.Client.DualMode = true;
+            PortListener.Client.Bind(endPoint);
+            PortListener.Client.ReceiveBufferSize = 10 * 1024 * 1024;
+
+            using var listener = new SyslogListener(parser, PortListener);
+
+            var filter = new SyslogFilter();
+            if (filter != null)
+            {
+                listener.Filter = filter.Allow;
+            }
+
+            listener.Error += Listener_Error;
+            listener.EntryReceived += Listener_EntryReceived;
+
+            var _converter = new SyslogEntryToRecordConverter();
+            listener.Subscribe(_converter);
+            listener.Start();
+
+            Console.WriteLine();
+            Console.WriteLine("Listening to Syslog events. Press any key to terminate");
+
+            var ku = CreateUploader(UploadTimespan, outputFileName, kscbAdmin, kscbIngest, quickIngest, tableName, resetTable);
+            Task task = Task.Factory.StartNew(() =>
+            {
+                RunUploader(ku, _converter, queryFile);
+            });
+
+            string readline = Console.ReadLine();
+            listener.Stop();
+
+            ku.OnCompleted();
+        }
+
+        /// <summary>Creates syslog parser for SIEMfx. Adds specific keyword and pattern-based extractors to default parser. </summary>
+        /// <returns></returns>
+        public static SyslogParser CreateSIEMfxSyslogParser()
+        {
+            var parser = SyslogParser.CreateDefault();
+            parser.AddValueExtractors(new KeywordValuesExtractor(), new PatternBasedValuesExtractor());
+            return parser;
+        }
+
+        /// <summary>
+        /// Returns the IPv4 address associated with the local adapter name provided.
+        /// </summary>
+        /// <param name="adapterName">The name of the local adapter to reference.</param>
+        /// <returns>IP address for the local adapter provided.</returns>
+        internal static IPAddress GetLocalIp(string adapterName)
+        {
+            // return IPAddress.Parse("127.0.0.1");
+            UnicastIPAddressInformation unicastIPAddressInformation = NetworkInterface
+                .GetAllNetworkInterfaces()
+                .Where(i => i.Name == adapterName)
+                .SelectMany(i => i.GetIPProperties().UnicastAddresses)
+                .FirstOrDefault(i =>
+                    //i.PrefixOrigin != PrefixOrigin.WellKnown
+                    //&& 
+                    i.Address.AddressFamily.Equals(AddressFamily.InterNetwork)
+                    && !IPAddress.IsLoopback(i.Address)
+                    && i.Address != IPAddress.None);
+
+            IPAddress localAddr = null;
+            if (unicastIPAddressInformation != null)
+            {
+                localAddr = unicastIPAddressInformation.Address;
+            }
+
+            if (localAddr == null)
+            {
+                throw new Exception($"Unable to find local address for adapter {adapterName}.");
+            }
+
+            return localAddr;
+        }
+
+        private static void Listener_Error(object sender, SyslogErrorEventArgs e)
+        {
+            Console.WriteLine(e.Error.ToString());
+        }
+
+        private static void Listener_EntryReceived(object sender, SyslogEntryEventArgs e)
+        {
+            var parseErrors = e.ServerEntry.ParseErrorMessages;
+            if (parseErrors != null && parseErrors.Count > 0)
+            {
+                var strErrors = "Parser errors encounered: " + string.Join(Environment.NewLine, parseErrors);
+                Console.WriteLine(strErrors);
+            }
+        }
+
+        static void SyslogDataSender()
+        {
+            //var localIp = GetLocalIp(_listenerAdapterName);
+            var localIp = IPAddress.Parse("127.0.0.1");
+            var _sender = new SyslogClient(localIp.ToString());
+
+            foreach (var message in SyslogMessageGenerator.CreateTestSyslogStream(500))
+            {
+                _sender.Send(message);
+            }
+        }
+
         public static void InvokeWinLog(CommandLineApplication command)
         {
             command.Description = "Realtime filter of Winlog Events";
 
             command.ExtendedHelpText = Environment.NewLine + "Use this option to filter OS or application log you see in EventVwr. This option can also be used with log file(s) on disk. Example is file(s) copied from another machine." + Environment.NewLine
                 + Environment.NewLine + "Real-time session using WecFilter xml"
-                + Environment.NewLine + "\tRealtimeKql winlog --clusteraddress=CDOC.kusto.windows.net --database=GeorgiTest --table=EvtxOutput --wecFile=WecFilter.xml --readexisting --quickingest --resettable --kqlquery=QueryFile.csl" + Environment.NewLine
+                + Environment.NewLine + "\tRealtimeKql winlog --wecfile=WecFilter.xml --readexisting --query=QueryFile.csl --adxcluster=CDOC.kusto.windows.net --adxdatabase=GeorgiTest --adxtable=EvtxOutput --adxquickingest --adxreset" + Environment.NewLine
                 + Environment.NewLine + "Real-time session using Log"
-                + Environment.NewLine + "\tRealtimeKql winlog --clusteraddress=CDOC.kusto.windows.net --database=GeorgiTest --table=AzInfoProtectOutput --logname=\"Azure Information Protection\" --readexisting --quickingest --resettable --kqlquery=QueryFile.csl" + Environment.NewLine
+                + Environment.NewLine + "\tRealtimeKql winlog --log=\"Azure Information Protection\" --readexisting --query=QueryFile.csl --adxcluster=CDOC.kusto.windows.net --adxdatabase=GeorgiTest --adxtable=AzInfoProtectOutput --adxquickingest --adxreset" + Environment.NewLine
                 + Environment.NewLine + "Note: To use real-time mode, the tool must be run with winlog reader permissions" + Environment.NewLine
                 + Environment.NewLine + "Previously recorded Evtx Trace Log (.evtx files)"
-                + Environment.NewLine + "\tRealtimeKql winlog --clusteraddress=CDOC.kusto.windows.net --database=GeorgiTest --table=SecurityEvtx --filter=*.evtx --kqlquery=ProcessCreation.csl" + Environment.NewLine
+                + Environment.NewLine + "\tRealtimeKql winlog --file=*.evtx --query=ProcessCreation.csl --adxcluster=CDOC.kusto.windows.net --adxdatabase=GeorgiTest --adxtable=SecurityEvtx" + Environment.NewLine
                 + Environment.NewLine + "When Kusto is not accessible, we can log the data to a text file."
-                + Environment.NewLine + "\tRealtimeKql winlog --outputfile=AzInfoProtectionLog.json --logname=\"Azure Information Protection\" --readexisting --quickingest --resettable --kqlquery=QueryFile.csl";
+                + Environment.NewLine + "\tRealtimeKql winlog --log=\"Azure Information Protection\" --readexisting --query=QueryFile.csl --outputjson=AzInfoProtectionLog.json";
 
             command.HelpOption("-?|-h|--help");
 
-            var outputFileOption = command.Option("-o|--outputfile <value>",
-                "Write output to file. eg, --outputfile=FilterOutput.json",
+            // input
+            var lognameOption = command.Option("-l|--log <value>",
+                "log can be one of the windows logs Application, Security, Setup, System, Forwarded Events or any of the Applications and Services Logs. eg, --logname=Security",
                 CommandOptionType.SingleValue);
-
-            var clusterAddressOption = command.Option("-c|--clusteraddress <value>",
-                "Azure Data Explorer (Kusto) cluster address. eg, --clusteraddress=CDOC.kusto.windows.net",
-                CommandOptionType.SingleValue);
-
-            var databaseOption = command.Option("-d|--database <value>",
-                "Azure Data Explorer (Kusto) database name. eg, --database=TestDb",
-                CommandOptionType.SingleValue);
-
-            var tableOption = command.Option("-t|--table <value>",
-                "Azure Data Explorer (Kusto) table name. eg, --table=OutputTable",
-                CommandOptionType.SingleValue);
-
-            var filterPatternOption = command.Option("-f|--filter <value>",
-                "File extension pattern to filter files by. eg, --filter=*.evtx",
-                CommandOptionType.SingleValue);
-
-            var lognameOption = command.Option("-l|--logname <value>",
-                "logName can be one of the windows logs Application, Security, Setup, System, Forwarded Events or any of the Applications and Services Logs. eg, --logname=Security",
-                CommandOptionType.SingleValue);
-
-            var wecFileOption = command.Option("-w|--wecfile <value>",
-                "Optional: Query file that contains the windows event log filtering using structured xml query format. Refer, https://docs.microsoft.com/en-us/windows/win32/wes/consuming-events",
-                CommandOptionType.SingleValue);
-
-            var kqlQueryOption = command.Option("-q|--kqlquery <value>",
-                "Optional: KQL filter query file that describes what processing to apply to the events on the stream. It uses a subset of Kusto Query Language, https://docs.microsoft.com/en-us/azure/data-explorer/kusto/query/",
-                CommandOptionType.SingleValue);
-
-            var quickIngestOption = command.Option("-qi|--quickingest",
-                "Default upload to Kusto is using queued ingest. Use this option to do a direct ingest to Kusto.",
-                CommandOptionType.NoValue);
-
-            var resetTableOption = command.Option("-r|--resettable",
-                "The existing data in the destination table is dropped before new data is logged.",
-                CommandOptionType.NoValue);
 
             var readExistingOption = command.Option("-e|--readexisting",
                 "By default, only the future log entries are read. Use this option to start reading the events from the beginning of the log.",
                 CommandOptionType.NoValue);
 
-            var consoleLogOption = command.Option("-lc|--logtoconsole",
+            var wecFileOption = command.Option("-w|--wecfile <value>",
+                "Optional: Query file that contains the windows event log filtering using structured xml query format. Refer, https://docs.microsoft.com/en-us/windows/win32/wes/consuming-events",
+                CommandOptionType.SingleValue);
+
+            var filterPatternOption = command.Option("-f|--file <value>",
+                "File pattern to filter files by. eg, --file=*.evtx",
+                CommandOptionType.SingleValue);
+
+            // query for real-time view or pre-processing
+            var kqlQueryOption = command.Option("-q|--query <value>",
+                "Optional: KQL filter query file that describes what processing to apply to the events on the stream. It uses a subset of Kusto Query Language, https://docs.microsoft.com/en-us/azure/data-explorer/kusto/query/",
+                CommandOptionType.SingleValue);
+
+            // output
+            var consoleLogOption = command.Option("-oc|--outputconsole",
                 "Log the output to console.",
+                CommandOptionType.NoValue);
+
+            var outputFileOption = command.Option("-oj|--outputjson <value>",
+                "Write output to JSON file. eg, --outputjson=FilterOutput.json",
+                CommandOptionType.SingleValue);
+
+            var adAuthority = command.Option("-ad|--adxauthority <value>",
+                "Azure Data Explorer (ADX) authority. Optional when not specified microsoft.com is used. eg, --adxauthority=microsoft.com",
+                CommandOptionType.SingleValue);
+
+            var adClientAppId = command.Option("-aclid|--adxclientid <value>",
+                "Azure Data Explorer (ADX) ClientId. Optional ClientId that has permissions to access Azure Data Explorer.",
+                CommandOptionType.SingleValue);
+
+            var adKey = command.Option("-akey|--adxkey <value>",
+                "Azure Data Explorer (ADX) Access Key. Used along with ClientApp Id",
+                CommandOptionType.SingleValue);
+
+            var clusterAddressOption = command.Option("-ac|--adxcluster <value>",
+                "Azure Data Explorer (ADX) cluster address. eg, --adxcluster=CDOC.kusto.windows.net",
+                CommandOptionType.SingleValue);
+
+            var databaseOption = command.Option("-ad|--adxdatabase <value>",
+                "Azure Data Explorer (ADX) database name. eg, --adxdatabase=TestDb",
+                CommandOptionType.SingleValue);
+
+            var tableOption = command.Option("-at|--adxtable <value>",
+                "Azure Data Explorer (ADX) table name. eg, --adxtable=OutputTable",
+                CommandOptionType.SingleValue);
+
+            var resetTableOption = command.Option("-ar|--adxreset",
+                "The existing data in the destination table is dropped before new data is logged.",
+                CommandOptionType.NoValue);
+
+            var quickIngestOption = command.Option("-ad|--adxdirect",
+                "Default upload to ADX is using queued ingest. Use this option to do a direct ingest to ADX.",
                 CommandOptionType.NoValue);
 
             command.OnExecute(() =>
@@ -184,17 +513,23 @@ namespace RealTimeKql
                         return -1;
                     }
 
+                    string authority = "microsoft.com";
+                    if (adAuthority.HasValue())
+                    {
+                        authority = adAuthority.Value();
+                    }
+
                     if (clusterAddressOption.HasValue() && databaseOption.HasValue())
                     {
-                        kscbIngest = new KustoConnectionStringBuilder($"https://ingest-{clusterAddressOption.Value()}", databaseOption.Value())
-                        {
-                            FederatedSecurity = true,
-                        };
+                        var connectionStrings = GetKustoConnectionStrings(
+                            authority,
+                            clusterAddressOption.Value(),
+                            databaseOption.Value(),
+                            adClientAppId.Value(),
+                            adKey.Value());
 
-                        kscbAdmin = new KustoConnectionStringBuilder($"https://{clusterAddressOption.Value()}", databaseOption.Value())
-                        {
-                            FederatedSecurity = true,
-                        };
+                        kscbIngest = connectionStrings.Item1;
+                        kscbAdmin = connectionStrings.Item2;
                     }
                 }
 
@@ -250,12 +585,12 @@ namespace RealTimeKql
 
             command.ExtendedHelpText = Environment.NewLine + "Use this option to filter ETW events that are logged to the trace session. This option can also be used with ETL log file(s) on disk. Example is file(s) copied from another machine or previous ETW sessions." + Environment.NewLine
                 + Environment.NewLine + "Real-time session"
-                + Environment.NewLine + "\tRealtimeKql etw --clusteraddress=CDOC.kusto.windows.net --database=GeorgiTest --table=EtwTcp --session=tcp --quickingest --resettable --kqlquery=QueryFile.csl" + Environment.NewLine
+                + Environment.NewLine + "\tRealtimeKql etw --session=tcp --query=QueryFile.csl --adxcluster=CDOC.kusto.windows.net --adxdatabase=GeorgiTest --adxtable=EtwTcp --adxquickingest --adxreset" + Environment.NewLine
                 + Environment.NewLine + "Note: To use real-time mode, the tool must be run with ETW reader permissions" + Environment.NewLine
                 + Environment.NewLine + "Previously recorded ETL Trace Log (.etl files)"
-                + Environment.NewLine + "\tRealtimeKql etw --clusteraddress=CDOC.kusto.windows.net --database=GeorgiTest --table=EtwTcp --filter=*.etl --kqlquery=QueryFile.csl" + Environment.NewLine
+                + Environment.NewLine + "\tRealtimeKql etw --filter=*.etl --query=QueryFile.csl --adxcluster=CDOC.kusto.windows.net --adxdatabase=GeorgiTest --adxtable=EtwTcp" + Environment.NewLine
                 + Environment.NewLine + "When Kusto is not accessible, we can log the data to a text file."
-                + Environment.NewLine + "\tRealtimeKql etw --outputfile=Tcp.json --session=tcp --kqlquery=QueryFile.csl" + Environment.NewLine
+                + Environment.NewLine + "\tRealtimeKql etw --session=tcp --query=QueryFile.csl --outputjson=Tcp.json" + Environment.NewLine
                 + Environment.NewLine + "Note: Logman can be used to start a ETW trace. In this example we are creating a trace session named tcp with Tcp Provider guid." + Environment.NewLine
                 + Environment.NewLine + "\tlogman.exe create trace tcp -rt -nb 2 2 -bs 1024 -p {7dd42a49-5329-4832-8dfd-43d979153a88} 0xffffffffffffffff -ets" + Environment.NewLine
                 + Environment.NewLine + "When done, stopping the trace session is using command,"
@@ -265,44 +600,59 @@ namespace RealTimeKql
 
             command.HelpOption("-?|-h|--help");
 
-            var outputFileOption = command.Option("-o|--outputfile <value>",
-                "Write output to file. eg, --outputfile=FilterOutput.json",
-                CommandOptionType.SingleValue);
-
-            var clusterAddressOption = command.Option("-c|--clusteraddress <value>",
-                "Azure Data Explorer (Kusto) cluster address. eg, --clusteraddress=CDOC.kusto.windows.net",
-                CommandOptionType.SingleValue);
-
-            var databaseOption = command.Option("-d|--database <value>",
-                "Azure Data Explorer (Kusto) database name. eg, --database=TestDb",
-                CommandOptionType.SingleValue);
-
-            var tableOption = command.Option("-t|--table <value>",
-                "Azure Data Explorer (Kusto) table name. eg, --table=OutputTable",
-                CommandOptionType.SingleValue);
-
+            // input
             var sessionOption = command.Option("-s|--session <value>",
                 "Name of the ETW Session to attach to. eg, --session=tcp. tcp is the name of the session started using logman or such tools.",
                 CommandOptionType.SingleValue);
 
-            var filterPatternOption = command.Option("-f|--filter <value>",
-                "File extension pattern to filter files by. eg, --filter=*.etl",
+            var filterPatternOption = command.Option("-f|--file <value>",
+                "File pattern to filter files by. eg, --filter=*.etl",
                 CommandOptionType.SingleValue);
 
-            var kqlQueryOption = command.Option("-q|--kqlquery <value>",
+            // query for real-time view or pre-processing
+            var kqlQueryOption = command.Option("-q|--query <value>",
                 "Optional: KQL filter query file that describes what processing to apply to the events on the stream. It uses a subset of Kusto Query Language, https://docs.microsoft.com/en-us/azure/data-explorer/kusto/query/",
                 CommandOptionType.SingleValue);
 
-            var quickIngestOption = command.Option("-qi|--quickingest",
-                "Default upload to Kusto is using queued ingest. Use this option to do a direct ingest to Kusto.",
+            // output
+            var consoleLogOption = command.Option("-oc|--outputconsole",
+                "Log the output to console.",
                 CommandOptionType.NoValue);
 
-            var resetTableOption = command.Option("-r|--resettable",
+            var outputFileOption = command.Option("-oj|--outputjson <value>",
+                "Write output to JSON file. eg, --outputjson=FilterOutput.json",
+                CommandOptionType.SingleValue);
+
+            var adAuthority = command.Option("-ad|--adxauthority <value>",
+                "Azure Data Explorer (ADX) authority. Optional when not specified microsoft.com is used. eg, --adxauthority=microsoft.com",
+                CommandOptionType.SingleValue);
+
+            var adClientAppId = command.Option("-aclid|--adxclientid <value>",
+                "Azure Data Explorer (ADX) ClientId. Optional ClientId that has permissions to access Azure Data Explorer.",
+                CommandOptionType.SingleValue);
+
+            var adKey = command.Option("-akey|--adxkey <value>",
+                "Azure Data Explorer (ADX) Access Key. Used along with ClientApp Id",
+                CommandOptionType.SingleValue);
+
+            var clusterAddressOption = command.Option("-ac|--adxcluster <value>",
+                "Azure Data Explorer (ADX) cluster address. eg, --adxcluster=CDOC.kusto.windows.net",
+                CommandOptionType.SingleValue);
+
+            var databaseOption = command.Option("-ad|--adxdatabase <value>",
+                "Azure Data Explorer (ADX) database name. eg, --adxdatabase=TestDb",
+                CommandOptionType.SingleValue);
+
+            var tableOption = command.Option("-at|--adxtable <value>",
+                "Azure Data Explorer (ADX) table name. eg, --adxtable=OutputTable",
+                CommandOptionType.SingleValue);
+
+            var resetTableOption = command.Option("-ar|--adxreset",
                 "The existing data in the destination table is dropped before new data is logged.",
                 CommandOptionType.NoValue);
 
-            var consoleLogOption = command.Option("-lc|--logtoconsole",
-                "Log the output to console.",
+            var quickIngestOption = command.Option("-ad|--adxdirect",
+                "Default upload to ADX is using queued ingest. Use this option to do a direct ingest to ADX.",
                 CommandOptionType.NoValue);
 
             command.OnExecute(() =>
@@ -336,17 +686,23 @@ namespace RealTimeKql
                         return -1;
                     }
 
+                    string authority = "microsoft.com";
+                    if (adAuthority.HasValue())
+                    {
+                        authority = adAuthority.Value();
+                    }
+
                     if (clusterAddressOption.HasValue() && databaseOption.HasValue())
                     {
-                        kscbIngest = new KustoConnectionStringBuilder($"https://ingest-{clusterAddressOption.Value()}", databaseOption.Value())
-                        {
-                            FederatedSecurity = true,
-                        };
+                        var connectionStrings = GetKustoConnectionStrings(
+                            authority,
+                            clusterAddressOption.Value(),
+                            databaseOption.Value(),
+                            adClientAppId.Value(),
+                            adKey.Value());
 
-                        kscbAdmin = new KustoConnectionStringBuilder($"https://{clusterAddressOption.Value()}", databaseOption.Value())
-                        {
-                            FederatedSecurity = true,
-                        };
+                        kscbIngest = connectionStrings.Item1;
+                        kscbAdmin = connectionStrings.Item2;
                     }
                 }
 
@@ -613,7 +969,6 @@ namespace RealTimeKql
             Console.WriteLine(detectionInfo);
         }
     }
-
     public class ConsoleEventListener : EventListener
     {
         protected override void OnEventWritten(EventWrittenEventArgs eventData)

@@ -11,6 +11,8 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Rx.Kql.UnitTests", "Rx.Kql.
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "RealTimeKql", "RealTimeKql\RealTimeKql.csproj", "{CBCAF25C-4274-4606-AEB4-33464BA03329}"
 EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Microsoft.Syslog", "Microsoft.Syslog\Microsoft.Syslog.csproj", "{E6AC40D2-EB4D-4AA5-B071-E01674E3A491}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -51,6 +53,14 @@ Global
 		{CBCAF25C-4274-4606-AEB4-33464BA03329}.Release|Any CPU.Build.0 = Release|Any CPU
 		{CBCAF25C-4274-4606-AEB4-33464BA03329}.Release|x64.ActiveCfg = Release|x64
 		{CBCAF25C-4274-4606-AEB4-33464BA03329}.Release|x64.Build.0 = Release|x64
+		{E6AC40D2-EB4D-4AA5-B071-E01674E3A491}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{E6AC40D2-EB4D-4AA5-B071-E01674E3A491}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{E6AC40D2-EB4D-4AA5-B071-E01674E3A491}.Debug|x64.ActiveCfg = Debug|Any CPU
+		{E6AC40D2-EB4D-4AA5-B071-E01674E3A491}.Debug|x64.Build.0 = Debug|Any CPU
+		{E6AC40D2-EB4D-4AA5-B071-E01674E3A491}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{E6AC40D2-EB4D-4AA5-B071-E01674E3A491}.Release|Any CPU.Build.0 = Release|Any CPU
+		{E6AC40D2-EB4D-4AA5-B071-E01674E3A491}.Release|x64.ActiveCfg = Release|Any CPU
+		{E6AC40D2-EB4D-4AA5-B071-E01674E3A491}.Release|x64.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

@@ -20,7 +20,7 @@ Here is how to use the tool to see processes started on a Windows machine:
 
 The same on Linux:
 
-	Syslog Example ???
+	RealTimeKql syslog --kqlquery=SylogQuery.kql --logtoconsole
 
 Optionally, the tool can be used for prepossessing the steam and then uploading to a database, such as Azure Data Explorer (ADX = Kuso)
 
@@ -68,6 +68,8 @@ Here are the options:
 	- **htmlOutput**: Each event formatted as human-readable DIV element
 - Upload 
 	- **adxOutput**: Upload to Kusto (Azure Data Explorer)
+
+Detailed help for RealTimeKql can be found at, [RealTimeKqlHelp](Source/RealTimeKql/RealTimeKql.Readme.md)
 
 ## Contributing
 
