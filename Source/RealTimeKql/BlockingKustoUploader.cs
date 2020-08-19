@@ -37,7 +37,7 @@ namespace RealTimeKql
 
         private readonly KustoIngestionProperties _ingestionProperties;
 
-        private IKustoIngestClient _ingestClient;
+        private readonly IKustoIngestClient _ingestClient;
 
         private StreamWriter outputFile;
 
@@ -47,12 +47,14 @@ namespace RealTimeKql
         private List<IDictionary<string, object>> _nextBatch;
         private List<IDictionary<string, object>> _currentBatch;
         private DateTime _lastUploadTime;
-        private TimeSpan _flushDuration;
+        private readonly TimeSpan _flushDuration;
         private readonly bool _resetTable;
         private bool _initializeTable;
+        private readonly HttpServer _httpServer;
 
         public BlockingKustoUploader(
             string outputFileName,
+            HttpServer httpServer,
             KustoConnectionStringBuilder adminCsb,
             KustoConnectionStringBuilder kscb,
             bool demoMode,
@@ -70,6 +72,7 @@ namespace RealTimeKql
             _lastUploadTime = DateTime.UtcNow;
             _resetTable = resetTable;
             _initializeTable = false;
+            _httpServer = httpServer;
 
             Completed = new AutoResetEvent(false);
 
@@ -174,6 +177,11 @@ namespace RealTimeKql
                 _initializeTable = true;
             }
 
+            if (_httpServer != null && HttpServer.HasActiveSessions())
+            {
+                _httpServer.PostEvent(JsonConvert.SerializeObject(value));
+            }
+
             DateTime now = DateTime.UtcNow;
             if (_nextBatch.Count >= BatchSize
                 || (_flushDuration != TimeSpan.MaxValue && now > _lastUploadTime + _flushDuration))
@@ -210,16 +218,15 @@ namespace RealTimeKql
 
         private void CreateOrResetTable(IDictionary<string, object> value)
         {
-            using (var admin = KustoClientFactory.CreateCslAdminProvider(AdminCsb))
-            {
-                if (_resetTable)
-                {
-                    string dropTable = CslCommandGenerator.GenerateTableDropCommand(TableName, true);
-                    admin.ExecuteControlCommand(dropTable);
-                }
+            using var admin = KustoClientFactory.CreateCslAdminProvider(AdminCsb);
 
-                CreateMergeKustoTable(admin, value);
+            if (_resetTable)
+            {
+                string dropTable = CslCommandGenerator.GenerateTableDropCommand(TableName, true);
+                admin.ExecuteControlCommand(dropTable);
             }
+
+            CreateMergeKustoTable(admin, value);
         }
 
         private void CreateMergeKustoTable(ICslAdminProvider admin, IDictionary<string, object> value)

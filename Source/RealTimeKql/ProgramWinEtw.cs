@@ -15,6 +15,7 @@ namespace RealTimeKql
     using System;
     using System.IO;
     using System.Reflection;
+    using System.Threading;
     using System.Threading.Tasks;
 
     partial class Program
@@ -56,6 +57,10 @@ namespace RealTimeKql
                 CommandOptionType.SingleValue);
 
             // output
+            var browserLogOption = command.Option("-ob|--outputbrowser",
+                "Log the output to browser.",
+                CommandOptionType.NoValue);
+
             var consoleLogOption = command.Option("-oc|--outputconsole",
                 "Log the output to console.",
                 CommandOptionType.NoValue);
@@ -107,7 +112,9 @@ namespace RealTimeKql
                     return -1;
                 }
 
-                if (!outputFileOption.HasValue() && !consoleLogOption.HasValue())
+                if (!outputFileOption.HasValue() &&
+                !consoleLogOption.HasValue() &&
+                !browserLogOption.HasValue())
                 {
                     if (!clusterAddressOption.HasValue())
                     {
@@ -149,12 +156,28 @@ namespace RealTimeKql
 
                 try
                 {
+                    string Url = "http://localhost:9000/";
+                    HttpServer httpServer = null;
+
+                    if (browserLogOption.HasValue())
+                    {
+                        httpServer = new HttpServer(Url);
+
+                        Console.WriteLine();
+                        while (!HttpServer.HasActiveSessions())
+                        {
+                            Console.Write(".");
+                            Thread.Sleep(100);
+                        }
+                    }
+
                     if (filterPatternOption.HasValue())
                     {
                         UploadEtlFiles(
                             filterPatternOption.Value(), 
                             kqlQueryOption.Value(), 
-                            outputFileOption.Value(), 
+                            outputFileOption.Value(),
+                            httpServer,
                             kscbAdmin,
                             kscbIngest, 
                             directIngestOption.HasValue(),
@@ -167,6 +190,7 @@ namespace RealTimeKql
                             sessionOption.Value(),
                             kqlQueryOption.Value(),
                             outputFileOption.Value(),
+                            httpServer,
                             kscbAdmin,
                             kscbIngest,
                             directIngestOption.HasValue(),
@@ -194,6 +218,7 @@ namespace RealTimeKql
             string _filePattern,
             string _queryFile,
             string _outputFileName,
+            HttpServer httpServer,
             KustoConnectionStringBuilder kscbAdmin,
             KustoConnectionStringBuilder kscbIngest,
             bool _demoMode,
@@ -232,7 +257,7 @@ namespace RealTimeKql
             if (files != null && files.Length > 0)
             {
                 var etw = Tx.Windows.EtwTdhObservable.FromFiles(files);
-                var ku = CreateUploader(UploadTimespan, _outputFileName, kscbAdmin, kscbIngest, _demoMode, _tableName, _resetTable);
+                var ku = CreateUploader(UploadTimespan, httpServer, _outputFileName, kscbAdmin, kscbIngest, _demoMode, _tableName, _resetTable);
                 RunUploader(ku, etw, _queryFile);
             }
         }
@@ -241,6 +266,7 @@ namespace RealTimeKql
             string _sessionName,
             string _queryFile,
             string _outputFileName,
+            HttpServer httpServer,
             KustoConnectionStringBuilder kscbAdmin,
             KustoConnectionStringBuilder kscbIngest,
             bool _demoMode,
@@ -251,7 +277,7 @@ namespace RealTimeKql
             Console.WriteLine();
             Console.WriteLine("Listening to real-time session '{0}'. Press Enter to terminate", _sessionName);
 
-            var ku = CreateUploader(UploadTimespan, _outputFileName, kscbAdmin, kscbIngest, _demoMode, _tableName, _resetTable);
+            var ku = CreateUploader(UploadTimespan, httpServer, _outputFileName, kscbAdmin, kscbIngest, _demoMode, _tableName, _resetTable);
             Task task = Task.Factory.StartNew(() =>
             {
                 RunUploader(ku, etw, _queryFile);

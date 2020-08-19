@@ -18,6 +18,7 @@ namespace RealTimeKql
     using System.Reactive.Kql.EventTypes;
     using System.Reactive.Linq;
     using System.Reflection;
+    using System.Threading;
     using System.Threading.Tasks;
     using Kusto.Data;
     using Microsoft.Extensions.CommandLineUtils;
@@ -144,6 +145,10 @@ namespace RealTimeKql
                 CommandOptionType.SingleValue);
 
             // output
+            var browserLogOption = command.Option("-ob|--outputbrowser",
+                "Log the output to browser.",
+                CommandOptionType.NoValue);
+
             var consoleLogOption = command.Option("-oc|--outputconsole",
                 "Log the output to console.",
                 CommandOptionType.NoValue);
@@ -195,7 +200,9 @@ namespace RealTimeKql
                     return -1;
                 }
 
-                if (!outputFileOption.HasValue() && !consoleLogOption.HasValue())
+                if (!outputFileOption.HasValue() &&
+                !consoleLogOption.HasValue() &&
+                !browserLogOption.HasValue())
                 {
                     if (!clusterAddressOption.HasValue())
                     {
@@ -247,6 +254,21 @@ namespace RealTimeKql
                     adapterName = adapterNameOption.Value();
                 }
 
+                string Url = "http://localhost:9000/";
+                HttpServer httpServer = null;
+
+                if (browserLogOption.HasValue())
+                {
+                    httpServer = new HttpServer(Url);
+
+                    Console.WriteLine();
+                    while (!HttpServer.HasActiveSessions())
+                    {
+                        Console.Write(".");
+                        Thread.Sleep(100);
+                    }
+                }
+
                 try
                 {
                     UploadSyslogRealTime(
@@ -254,6 +276,7 @@ namespace RealTimeKql
                         udpPort,
                         kqlQueryOption.Value(),
                         outputFileOption.Value(),
+                        httpServer,
                         kscbAdmin,
                         kscbIngest,
                         quickIngestOption.HasValue(),
@@ -276,10 +299,11 @@ namespace RealTimeKql
             int listenerUdpPort,
             string queryFile,
             string outputFileName,
-            KustoConnectionStringBuilder kscbAdmin,
-            KustoConnectionStringBuilder kscbIngest,
-            bool quickIngest,
-            string tableName,
+            HttpServer httpServer,
+            KustoConnectionStringBuilder kscbAdmin, 
+            KustoConnectionStringBuilder kscbIngest, 
+            bool quickIngest, 
+            string tableName, 
             bool resetTable)
         {
             var parser = CreateSIEMfxSyslogParser();
@@ -315,7 +339,7 @@ namespace RealTimeKql
             Console.WriteLine();
             Console.WriteLine("Listening to Syslog events. Press any key to terminate");
 
-            var ku = CreateUploader(UploadTimespan, outputFileName, kscbAdmin, kscbIngest, quickIngest, tableName, resetTable);
+            var ku = CreateUploader(UploadTimespan, httpServer, outputFileName, kscbAdmin, kscbIngest, quickIngest, tableName, resetTable);
             Task task = Task.Factory.StartNew(() =>
             {
                 RunUploader(ku, _converter, queryFile);
@@ -398,15 +422,16 @@ namespace RealTimeKql
 
         private static BlockingKustoUploader CreateUploader(
             TimeSpan flushDuration,
-            string _outputFileName,
-            KustoConnectionStringBuilder kscbAdmin,
-            KustoConnectionStringBuilder kscbIngest,
-            bool _demoMode,
-            string _tableName,
+            HttpServer httpServer,
+            string _outputFileName, 
+            KustoConnectionStringBuilder kscbAdmin, 
+            KustoConnectionStringBuilder kscbIngest, 
+            bool _demoMode, 
+            string _tableName, 
             bool _resetTable)
         {
             var ku = new BlockingKustoUploader(
-                 _outputFileName, kscbAdmin, kscbIngest, _demoMode, _tableName, 10000, flushDuration, _resetTable);
+                 _outputFileName, httpServer, kscbAdmin, kscbIngest, _demoMode, _tableName, 10000, flushDuration, _resetTable);
 
             return ku;
         }
