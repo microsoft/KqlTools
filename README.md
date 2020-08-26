@@ -16,13 +16,13 @@ The tool can be used in offline mode, on the source machine. In this mode, it is
 
 Here is how to use the tool to see processes started on a Windows machine:
 
-	RealTimeKql winlog --logname=Security --kqlquery=ProcessCreation.kql --logtoconsole
+	RealTimeKql winlog --log=Security --query=ProcessCreation.kql --outputconsole
 
 The same on Linux:
 
-	RealTimeKql syslog --kqlquery=SylogQuery.kql --logtoconsole
+	RealTimeKql syslog --query=SylogQuery.kql --outputconsole
 
-Optionally, the tool can be used for prepossessing the steam and then uploading to a database, such as Azure Data Explorer (ADX = Kuso)
+Optionally, the tool can be used for prepossessing the stream and then uploading to a database, such as Azure Data Explorer (ADX = Kuso)
 
 ## Input choices
 
