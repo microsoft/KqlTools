@@ -16,11 +16,11 @@ The tool can be used in offline mode, on the source machine. In this mode, it is
 
 Here is how to use the tool to see processes started on a Windows machine:
 
-	RealTimeKql winlog --log=Security --query=ProcessCreation.kql --outputconsole
+	RealTimeKql winlog --log=Security --query=ProcessCreation.csl --outputconsole
 
 The same on Linux:
 
-	RealTimeKql syslog --query=SylogQuery.kql --outputconsole
+	RealTimeKql syslog --query=SylogQuery.csl --outputconsole
 
 Optionally, the tool can be used for prepossessing the stream and then uploading to a database, such as Azure Data Explorer (ADX = Kuso)
 
@@ -51,7 +51,7 @@ The best practice to create query files is:
 
 Here are the query files for the two example command-lines above:
 
-- Processes started on Windows
+- [Processes started on Windows](Source/RealTimeKql/ProcessCreation.csl)
 - Processes started on Linux
 
 ## Output choices
