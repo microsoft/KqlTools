@@ -4,6 +4,8 @@
 // *                                                       *
 // ********************************************************/
 
+#if BUILT_FOR_WINDOWS
+
 namespace RealTimeKql
 {
     using System;
@@ -68,3 +70,5 @@ namespace RealTimeKql
         }
     }
 }
+
+#endif
