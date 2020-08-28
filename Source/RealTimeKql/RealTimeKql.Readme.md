@@ -53,10 +53,10 @@ In real-time mode the tool listens to local or remote OS Log and continuously up
 	Use this option to filter OS or application log you see in EventVwr. This option can also be used with log file(s) on disk. Example is file(s) copied from another machine.
 
 	Real-time session using WecFilter xml
-        RealtimeKql winlog --wecfile=WecFilter.xml --readexisting --query=QueryFile.csl --adxcluster=CDOC.kusto.windows.net --adxdatabase=GeorgiTest --adxtable=EvtxOutput --adxquickingest --adxreset
+        RealtimeKql winlog --wecfile=WecFilter.xml --readexisting --query=QueryFile.csl --adxcluster=CDOC.kusto.windows.net --adxdatabase=GeorgiTest --adxtable=EvtxOutput --adxdirect --adxreset
 
 	Real-time session using Log
-        RealtimeKql winlog --log="Azure Information Protection" --readexisting --query=QueryFile.csl --adxcluster=CDOC.kusto.windows.net --adxdatabase=GeorgiTest --adxtable=AzInfoProtectOutput --adxquickingest --adxreset
+        RealtimeKql winlog --log="Azure Information Protection" --readexisting --query=QueryFile.csl --adxcluster=CDOC.kusto.windows.net --adxdatabase=GeorgiTest --adxtable=AzInfoProtectOutput --adxdirect --adxreset
 
 	Note: To use real-time mode, the tool must be run with winlog reader permissions
 
@@ -81,7 +81,7 @@ The tool can also upload selected set of logs, filtered by provider ID,  event I
 
 This file can be passed from the command line as follows:
 
-	RealtimeKql winlog --clusteraddress=CDOC.kusto.windows.net --database=GeorgiTest --table=EvtxOutput --wecFile=WecFilter.xml --readexisting --quickingest --resettable --kqlquery=QueryFile.csl
+	RealtimeKql winlog --adxcluster=CDOC.kusto.windows.net --adxdatabase=GeorgiTest --adxtable=EvtxOutput --wecfile=WecFilter.xml --readexisting --adxdirect --adxreset --query=QueryFile.csl
 
 ## Pre-processing WinLog with Rx.KQL
 
@@ -123,7 +123,7 @@ The user can start an Etw session and then get RealtimeKql tool attach to that E
 	Use this option to filter ETW events that are logged to the trace session. This option can also be used with ETL log file(s) on disk. Example is file(s) copied from another machine or previous ETW sessions.
 
 	Real-time session
-        RealtimeKql etw --session=tcp --query=QueryFile.csl --adxcluster=CDOC.kusto.windows.net --adxdatabase=GeorgiTest --adxtable=EtwTcp --adxquickingest --adxreset
+        RealtimeKql etw --session=tcp --query=QueryFile.csl --adxcluster=CDOC.kusto.windows.net --adxdatabase=GeorgiTest --adxtable=EtwTcp --adxdirect --adxreset
 
 	Note: To use real-time mode, the tool must be run with ETW reader permissions
 
@@ -181,4 +181,4 @@ Here, RealtimeKql collects two noisy TCP events 10 and 11 which are DataSent and
 	Use this option to listen to Syslog Events.
 
 	Real-time SysLog Events
-        RealtimeKql syslog --query=QueryFile.csl --adxcluster=CDOC.kusto.windows.net --adxdatabase=GeorgiTest --adxtable=EvtxOutput --adxquickingest --adxreset
+        RealtimeKql syslog --query=QueryFile.csl --adxcluster=CDOC.kusto.windows.net --adxdatabase=GeorgiTest --adxtable=EvtxOutput --adxdirect --adxreset

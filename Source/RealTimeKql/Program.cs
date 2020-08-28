@@ -123,7 +123,7 @@ namespace RealTimeKql
             command.Description = "Realtime processing of Syslog Events";
             command.ExtendedHelpText = Environment.NewLine + "Use this option to listen to Syslog Events." + Environment.NewLine
                 + Environment.NewLine + "Real-time SysLog Events"
-                + Environment.NewLine + "\tRealtimeKql syslog --query=QueryFile.csl --adxcluster=CDOC.kusto.windows.net --adxdatabase=GeorgiTest --adxtable=EvtxOutput --adxquickingest --adxreset" + Environment.NewLine;
+                + Environment.NewLine + "\tRealtimeKql syslog --query=QueryFile.csl --adxcluster=CDOC.kusto.windows.net --adxdatabase=GeorgiTest --adxtable=EvtxOutput --adxdirect --adxreset" + Environment.NewLine;
 
             command.HelpOption("-?|-h|--help");
 
@@ -180,7 +180,7 @@ namespace RealTimeKql
                 "The existing data in the destination table is dropped before new data is logged.",
                 CommandOptionType.NoValue);
 
-            var quickIngestOption = command.Option("-ad|--adxdirect",
+            var directIngestOption = command.Option("-ad|--adxdirect",
                 "Default upload to ADX is using queued ingest. Use this option to do a direct ingest to ADX.",
                 CommandOptionType.NoValue);
 
@@ -256,7 +256,7 @@ namespace RealTimeKql
                         outputFileOption.Value(),
                         kscbAdmin,
                         kscbIngest,
-                        quickIngestOption.HasValue(),
+                        directIngestOption.HasValue(),
                         tableOption.Value(),
                         resetTableOption.HasValue());
                 }
@@ -278,7 +278,7 @@ namespace RealTimeKql
             string outputFileName, 
             KustoConnectionStringBuilder kscbAdmin, 
             KustoConnectionStringBuilder kscbIngest, 
-            bool quickIngest, 
+            bool directIngest, 
             string tableName, 
             bool resetTable)
         {
@@ -315,7 +315,7 @@ namespace RealTimeKql
             Console.WriteLine();
             Console.WriteLine("Listening to Syslog events. Press any key to terminate");
 
-            var ku = CreateUploader(UploadTimespan, outputFileName, kscbAdmin, kscbIngest, quickIngest, tableName, resetTable);
+            var ku = CreateUploader(UploadTimespan, outputFileName, kscbAdmin, kscbIngest, directIngest, tableName, resetTable);
             Task task = Task.Factory.StartNew(() =>
             {
                 RunUploader(ku, _converter, queryFile);
@@ -402,9 +402,9 @@ namespace RealTimeKql
 
             command.ExtendedHelpText = Environment.NewLine + "Use this option to filter OS or application log you see in EventVwr. This option can also be used with log file(s) on disk. Example is file(s) copied from another machine." + Environment.NewLine
                 + Environment.NewLine + "Real-time session using WecFilter xml"
-                + Environment.NewLine + "\tRealtimeKql winlog --wecfile=WecFilter.xml --readexisting --query=QueryFile.csl --adxcluster=CDOC.kusto.windows.net --adxdatabase=GeorgiTest --adxtable=EvtxOutput --adxquickingest --adxreset" + Environment.NewLine
+                + Environment.NewLine + "\tRealtimeKql winlog --wecfile=WecFilter.xml --readexisting --query=QueryFile.csl --adxcluster=CDOC.kusto.windows.net --adxdatabase=GeorgiTest --adxtable=EvtxOutput --adxdirect --adxreset" + Environment.NewLine
                 + Environment.NewLine + "Real-time session using Log"
-                + Environment.NewLine + "\tRealtimeKql winlog --log=\"Azure Information Protection\" --readexisting --query=QueryFile.csl --adxcluster=CDOC.kusto.windows.net --adxdatabase=GeorgiTest --adxtable=AzInfoProtectOutput --adxquickingest --adxreset" + Environment.NewLine
+                + Environment.NewLine + "\tRealtimeKql winlog --log=\"Azure Information Protection\" --readexisting --query=QueryFile.csl --adxcluster=CDOC.kusto.windows.net --adxdatabase=GeorgiTest --adxtable=AzInfoProtectOutput --adxdirect --adxreset" + Environment.NewLine
                 + Environment.NewLine + "Note: To use real-time mode, the tool must be run with winlog reader permissions" + Environment.NewLine
                 + Environment.NewLine + "Previously recorded Evtx Trace Log (.evtx files)"
                 + Environment.NewLine + "\tRealtimeKql winlog --file=*.evtx --query=ProcessCreation.csl --adxcluster=CDOC.kusto.windows.net --adxdatabase=GeorgiTest --adxtable=SecurityEvtx" + Environment.NewLine
@@ -472,7 +472,7 @@ namespace RealTimeKql
                 "The existing data in the destination table is dropped before new data is logged.",
                 CommandOptionType.NoValue);
 
-            var quickIngestOption = command.Option("-ad|--adxdirect",
+            var directIngestOption = command.Option("-ad|--adxdirect",
                 "Default upload to ADX is using queued ingest. Use this option to do a direct ingest to ADX.",
                 CommandOptionType.NoValue);
 
@@ -543,7 +543,7 @@ namespace RealTimeKql
                             outputFileOption.Value(), 
                             kscbAdmin, 
                             kscbIngest, 
-                            quickIngestOption.HasValue(), 
+                            directIngestOption.HasValue(), 
                             tableOption.Value(), 
                             resetTableOption.HasValue());
                     }
@@ -557,7 +557,7 @@ namespace RealTimeKql
                             outputFileOption.Value(), 
                             kscbAdmin, 
                             kscbIngest,
-                            quickIngestOption.HasValue(),
+                            directIngestOption.HasValue(),
                             tableOption.Value(),
                             resetTableOption.HasValue());
                     }
@@ -585,7 +585,7 @@ namespace RealTimeKql
 
             command.ExtendedHelpText = Environment.NewLine + "Use this option to filter ETW events that are logged to the trace session. This option can also be used with ETL log file(s) on disk. Example is file(s) copied from another machine or previous ETW sessions." + Environment.NewLine
                 + Environment.NewLine + "Real-time session"
-                + Environment.NewLine + "\tRealtimeKql etw --session=tcp --query=QueryFile.csl --adxcluster=CDOC.kusto.windows.net --adxdatabase=GeorgiTest --adxtable=EtwTcp --adxquickingest --adxreset" + Environment.NewLine
+                + Environment.NewLine + "\tRealtimeKql etw --session=tcp --query=QueryFile.csl --adxcluster=CDOC.kusto.windows.net --adxdatabase=GeorgiTest --adxtable=EtwTcp --adxdirect --adxreset" + Environment.NewLine
                 + Environment.NewLine + "Note: To use real-time mode, the tool must be run with ETW reader permissions" + Environment.NewLine
                 + Environment.NewLine + "Previously recorded ETL Trace Log (.etl files)"
                 + Environment.NewLine + "\tRealtimeKql etw --filter=*.etl --query=QueryFile.csl --adxcluster=CDOC.kusto.windows.net --adxdatabase=GeorgiTest --adxtable=EtwTcp" + Environment.NewLine
@@ -651,7 +651,7 @@ namespace RealTimeKql
                 "The existing data in the destination table is dropped before new data is logged.",
                 CommandOptionType.NoValue);
 
-            var quickIngestOption = command.Option("-ad|--adxdirect",
+            var directIngestOption = command.Option("-ad|--adxdirect",
                 "Default upload to ADX is using queued ingest. Use this option to do a direct ingest to ADX.",
                 CommandOptionType.NoValue);
 
@@ -716,7 +716,7 @@ namespace RealTimeKql
                             outputFileOption.Value(), 
                             kscbAdmin,
                             kscbIngest, 
-                            quickIngestOption.HasValue(),
+                            directIngestOption.HasValue(),
                             tableOption.Value(),
                             resetTableOption.HasValue());
                     }
@@ -728,7 +728,7 @@ namespace RealTimeKql
                             outputFileOption.Value(),
                             kscbAdmin,
                             kscbIngest,
-                            quickIngestOption.HasValue(),
+                            directIngestOption.HasValue(),
                             tableOption.Value(),
                             resetTableOption.HasValue());
                     }
