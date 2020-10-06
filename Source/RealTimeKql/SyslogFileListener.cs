@@ -150,7 +150,7 @@ namespace RealTimeKql
         private string TransformToRFC(string entry)
         {
             // hard-coded priority and version for now
-            string pri = "<99>";
+            string pri = "<134>";
             string res = $"{pri} {entry}";
             return res;
         }
