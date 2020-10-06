@@ -22,6 +22,7 @@ namespace RealTimeKql
     using Kusto.Data;
     using Microsoft.Extensions.CommandLineUtils;
     using Microsoft.Syslog;
+    using Microsoft.Syslog.Model;
     using Microsoft.Syslog.Parsing;
     using Newtonsoft.Json;
     using EventLevel = System.Diagnostics.Tracing.EventLevel;
@@ -130,12 +131,17 @@ namespace RealTimeKql
             // input
             var adapterNameOption = command.Option(
                 "-n|--networkAdapter <value>",
-                "Optional: Network Adapter Name. When not specified, listner listens on all adapters.",
+                "Network Adapter Name. Optional, when not specified, listner listens on all adapters. Used along with UDP Port.",
                 CommandOptionType.SingleValue);
 
             var listnerUdpPortOption = command.Option(
                 "-p|--udpport <value>",
-                "Optional: UDP Port to listen on. When not specified listner is listening on port 514.",
+                "Listen to a UDP port for syslog messages. eg, --udpport=514.",
+                CommandOptionType.SingleValue);
+
+            var logFileOption = command.Option(
+                "-l|--logfile <value>",
+                "Retrieve syslog messages from local log specified. eg, --logfile=/var/log/syslog.",
                 CommandOptionType.SingleValue);
 
             // query for real-time view or pre-processing
@@ -180,7 +186,7 @@ namespace RealTimeKql
                 "The existing data in the destination table is dropped before new data is logged.",
                 CommandOptionType.NoValue);
 
-            var quickIngestOption = command.Option("-ad|--adxdirect",
+            var directIngestOption = command.Option("-ad|--adxdirect",
                 "Default upload to ADX is using queued ingest. Use this option to do a direct ingest to ADX.",
                 CommandOptionType.NoValue);
 
@@ -188,6 +194,12 @@ namespace RealTimeKql
             {
                 KustoConnectionStringBuilder kscbIngest = null;
                 KustoConnectionStringBuilder kscbAdmin = null;
+
+                if(logFileOption.HasValue() && !File.Exists(logFileOption.Value()))
+                {
+                    Console.WriteLine("Log file specified doesn't exist: {0}", logFileOption.Value());
+                    return -1;
+                }
 
                 if (kqlQueryOption.HasValue() && !File.Exists(kqlQueryOption.Value()))
                 {
@@ -235,36 +247,60 @@ namespace RealTimeKql
                     }
                 }
 
-                int udpPort = 514;
-                if (listnerUdpPortOption.HasValue())
+                if (!logFileOption.HasValue())
                 {
-                    int.TryParse(listnerUdpPortOption.Value(), out udpPort);
-                }
+                    int udpPort = 514;
+                    if (listnerUdpPortOption.HasValue())
+                    {
+                        int.TryParse(listnerUdpPortOption.Value(), out udpPort);
+                    }
 
-                string adapterName;
-                if (adapterNameOption.HasValue())
-                {
-                    adapterName = adapterNameOption.Value();
-                }
+                    string adapterName;
+                    if (adapterNameOption.HasValue())
+                    {
+                        adapterName = adapterNameOption.Value();
+                    }
 
-                try
-                {
-                    UploadSyslogRealTime(
-                        adapterNameOption.Value(),
-                        udpPort,
-                        kqlQueryOption.Value(),
-                        outputFileOption.Value(),
-                        kscbAdmin,
-                        kscbIngest,
-                        quickIngestOption.HasValue(),
-                        tableOption.Value(),
-                        resetTableOption.HasValue());
+                    try
+                    {
+                        UploadSyslogRealTime(
+                            adapterNameOption.Value(),
+                            udpPort,
+                            kqlQueryOption.Value(),
+                            outputFileOption.Value(),
+                            kscbAdmin,
+                            kscbIngest,
+                            directIngestOption.HasValue(),
+                            tableOption.Value(),
+                            resetTableOption.HasValue());
+                    }
+                    catch (Exception ex)
+                    {
+                        Console.WriteLine("Exception:");
+                        Console.WriteLine(ex.Message);
+                        Console.WriteLine(ex.StackTrace);
+                    }
                 }
-                catch (Exception ex)
+                else
                 {
-                    Console.WriteLine("Exception:");
-                    Console.WriteLine(ex.Message);
-                    Console.WriteLine(ex.StackTrace);
+                    try
+                    {
+                        UploadSyslogRealTime(
+                            logFileOption.Value(),
+                            kqlQueryOption.Value(),
+                            outputFileOption.Value(),
+                            kscbAdmin,
+                            kscbIngest,
+                            directIngestOption.HasValue(),
+                            tableOption.Value(),
+                            resetTableOption.HasValue());
+                    }
+                    catch (Exception ex)
+                    {
+                        Console.WriteLine("Exception:");
+                        Console.WriteLine(ex.Message);
+                        Console.WriteLine(ex.StackTrace);
+                    }
                 }
 
                 return 0;
@@ -327,9 +363,52 @@ namespace RealTimeKql
             ku.OnCompleted();
         }
 
-        /// <summary>Creates syslog parser for SIEMfx. Adds specific keyword and pattern-based extractors to default parser. </summary>
-        /// <returns></returns>
-        public static SyslogParser CreateSIEMfxSyslogParser()
+        static void UploadSyslogRealTime(
+            string logFile,
+            string queryFile,
+            string outputFileName,
+            KustoConnectionStringBuilder kscbAdmin,
+            KustoConnectionStringBuilder kscbIngest,
+            bool quickIngest,
+            string tableName,
+            bool resetTable)
+        {
+            var parser = CreateSIEMfxSyslogParser();
+
+            var fileStream = new FileStream(logFile, FileMode.Open, FileAccess.Read, FileShare.ReadWrite);
+            using var listener = new SyslogFileListener(parser, fileStream);
+
+            var filter = new SyslogFilter();
+            if (filter != null)
+            {
+                listener.Filter = filter.Allow;
+            }
+
+            listener.Error += FileListener_Error;
+            listener.EntryReceived += FileListener_EntryReceived;
+
+            var _converter = new SyslogEntryToRecordConverter();
+            listener.Subscribe(_converter);
+            listener.Start();
+
+            Console.WriteLine();
+            Console.WriteLine("Listening to Syslog events. Press any key to terminate");
+
+            var ku = CreateUploader(UploadTimespan, outputFileName, kscbAdmin, kscbIngest, quickIngest, tableName, resetTable);
+            Task task = Task.Factory.StartNew(() =>
+            {
+                RunUploader(ku, _converter, queryFile);
+            });
+
+            string readline = Console.ReadLine();
+            listener.Stop();
+
+            ku.OnCompleted();
+        }
+
+            /// <summary>Creates syslog parser for SIEMfx. Adds specific keyword and pattern-based extractors to default parser. </summary>
+            /// <returns></returns>
+            public static SyslogParser CreateSIEMfxSyslogParser()
         {
             var parser = SyslogParser.CreateDefault();
             parser.AddValueExtractors(new KeywordValuesExtractor(), new PatternBasedValuesExtractor());
@@ -374,12 +453,27 @@ namespace RealTimeKql
             Console.WriteLine(e.Error.ToString());
         }
 
+        private static void FileListener_Error(object sender, Exception e)
+        {
+            Console.WriteLine(e.Message.ToString());
+        }
+
         private static void Listener_EntryReceived(object sender, SyslogEntryEventArgs e)
         {
             var parseErrors = e.ServerEntry.ParseErrorMessages;
             if (parseErrors != null && parseErrors.Count > 0)
             {
-                var strErrors = "Parser errors encounered: " + string.Join(Environment.NewLine, parseErrors);
+                var strErrors = "Parser errors encountered: " + string.Join(Environment.NewLine, parseErrors);
+                Console.WriteLine(strErrors);
+            }
+        }
+
+        private static void FileListener_EntryReceived(object sender, ServerSyslogEntry e)
+        {
+            var parseErrors = e.ParseErrorMessages;
+            if(parseErrors != null && parseErrors.Count > 0)
+            {
+                var strErrors = "Parser errors encountered " + string.Join(Environment.NewLine, parseErrors);
                 Console.WriteLine(strErrors);
             }
         }
