@@ -1,3 +1,14 @@
+### Build Commands
+The tools can be built by running the following commands in the source folder,
+
+To build for Windows platform,
+
+	dotnet build KqlTools.sln -r win-x64
+
+To build for Linux platform,
+
+	dotnet build KqlTools.sln -r linux-x64
+
 # Real-Time KQL 
 ![.NET Core Desktop](https://github.com/microsoft/KqlTools/workflows/.NET%20Core%20Desktop/badge.svg?branch=master&event=push)
 
