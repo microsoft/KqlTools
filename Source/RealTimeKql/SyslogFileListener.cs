@@ -32,13 +32,15 @@ namespace RealTimeKql
         private long _syslogMessageCount;
         private long _skippedMessageCount;
         private int _activeParserLoopCount;
+        private int _priority;
         private object _eventLock = new object();
 
         // constructor for reading syslog from local file
-        public SyslogFileListener(SyslogParser parser, FileStream fileStream, int parseProcessCount = 4)
+        public SyslogFileListener(SyslogParser parser, FileStream fileStream, int priority, int parseProcessCount = 4)
         {
             _parser = parser;
             _parseProcessCount = parseProcessCount;
+            _priority = priority;
             _logFileListener = new LogFileListener(fileStream);
             _logFileListener.Error += LogfileListener_Error;
             _logFileBuffer = new BatchingQueue<string>();
@@ -149,9 +151,7 @@ namespace RealTimeKql
 
         private string TransformToRFC(string entry)
         {
-            // hard-coded priority and version for now
-            string pri = "<134>";
-            string res = $"{pri} {entry}";
+            string res = $"<{_priority}> {entry}";
             return res;
         }
 
