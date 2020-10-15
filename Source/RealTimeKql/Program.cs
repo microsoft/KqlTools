@@ -144,10 +144,11 @@ namespace RealTimeKql
                 "Retrieve syslog messages from local log specified. eg, --logfile=/var/log/syslog.",
                 CommandOptionType.SingleValue);
 
-            var priorityOption = command.Option(
-                "-pr|--priority <value>",
-                "Priority value to use for local logs. Optional, when not specified, Facility=Local and Severity=Informational is used. eg, --priority=134.",
-                CommandOptionType.SingleValue);
+            // do we need to give the option to specify this?
+            //var priorityOption = command.Option(
+            //    "-pr|--priority <value>",
+            //    "Priority value to use for local logs. Optional, when not specified, Facility=Local and Severity=Informational is used. eg, --priority=134.",
+            //    CommandOptionType.SingleValue);
 
             // query for real-time view or pre-processing
             var kqlQueryOption = command.Option("-q|--query <value>",
@@ -288,16 +289,15 @@ namespace RealTimeKql
                 }
                 else
                 {
-                    int priority = 134;
-                    if (priorityOption.HasValue())
-                    {
-                        int.TryParse(priorityOption.Value(), out priority);
-                    }
+                    //int priority = 134;
+                    //if (priorityOption.HasValue())
+                    //{
+                    //    int.TryParse(priorityOption.Value(), out priority);
+                    //}
 
                     try
                     {
                         UploadSyslogRealTime(
-                            priority,
                             logFileOption.Value(),
                             kqlQueryOption.Value(),
                             outputFileOption.Value(),
@@ -376,7 +376,6 @@ namespace RealTimeKql
         }
 
         static void UploadSyslogRealTime(
-            int priority,
             string logFile,
             string queryFile,
             string outputFileName,
@@ -389,7 +388,7 @@ namespace RealTimeKql
             var parser = CreateSIEMfxSyslogParser();
 
             var fileStream = new FileStream(logFile, FileMode.Open, FileAccess.Read, FileShare.ReadWrite);
-            using var listener = new SyslogFileListener(parser, fileStream, priority);
+            using var listener = new SyslogFileListener(parser, fileStream);
 
             var filter = new SyslogFilter();
             if (filter != null)
