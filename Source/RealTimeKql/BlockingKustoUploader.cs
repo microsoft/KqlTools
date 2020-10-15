@@ -6,18 +6,24 @@
 
 namespace RealTimeKql
 {
+    using Azure.Storage.Blobs;
+    using Azure.Storage.Blobs.Models;
+    using Azure.Storage.Blobs.Specialized;
     using Kusto.Data;
     using Kusto.Data.Common;
     using Kusto.Data.Net.Client;
     using Kusto.Ingest;
+    using Microsoft.WindowsAzure.Storage.Blob;
     using Newtonsoft.Json;
     using Newtonsoft.Json.Linq;
     using System;
     using System.Collections.Generic;
     using System.IO;
     using System.Linq;
+    using System.Net.Mime;
     using System.Reactive.Kql;
     using System.Threading;
+    using System.Threading.Tasks;
 
     class BlockingKustoUploader : IObserver<IDictionary<string, object>>
     {
@@ -33,11 +39,15 @@ namespace RealTimeKql
 
         private KustoConnectionStringBuilder AdminCsb { get; set; }
 
+        private BlobServiceClient blobServiceClient;
+
+        private BlobContainerClient blobContainerClient;
+
         private readonly object uploadLock = new object();
 
         private readonly KustoIngestionProperties _ingestionProperties;
 
-        private IKustoIngestClient _ingestClient;
+        private readonly IKustoIngestClient _ingestClient;
 
         private StreamWriter outputFile;
 
@@ -53,6 +63,8 @@ namespace RealTimeKql
 
         public BlockingKustoUploader(
             string outputFileName,
+            string blobConnectionString,
+            string blobContainerName,
             KustoConnectionStringBuilder adminCsb,
             KustoConnectionStringBuilder kscb,
             bool demoMode,
@@ -85,6 +97,14 @@ namespace RealTimeKql
                 {
                     _ingestClient = KustoIngestFactory.CreateQueuedIngestClient(Csb);
                 }
+            }
+
+            if (!string.IsNullOrEmpty(blobConnectionString) && 
+                !string.IsNullOrEmpty(blobContainerName))
+            {
+                blobServiceClient = new BlobServiceClient(blobConnectionString);
+                blobContainerClient = blobServiceClient.GetBlobContainerClient(blobContainerName);
+                blobContainerClient.CreateIfNotExists();
             }
 
             if (!string.IsNullOrEmpty(OutputFileName))
@@ -136,6 +156,13 @@ namespace RealTimeKql
 
                             Console.Write("{0} ", _currentBatch.Count);
                         }
+                        else if (blobContainerClient != null)
+                        {
+                            //Create a blob with unique names and upload
+                            string blobName = $"{Guid.NewGuid()}_1_{Guid.NewGuid():N}.json";
+                            var blobClient = blobContainerClient.GetBlobClient(blobName);
+                            UploadToContainerAsync(blobClient, _currentBatch).Wait();
+                        }
                         else
                         {
                             foreach (var item in _currentBatch)
@@ -161,7 +188,9 @@ namespace RealTimeKql
             {
                 _fields = value.Keys.ToArray();
 
-                if (_ingestClient == null && outputFile == null)
+                if (_ingestClient == null && 
+                    outputFile == null && 
+                    blobContainerClient == null)
                 {
                     Console.WriteLine(string.Join("\t", _fields));
                 }
@@ -256,5 +285,35 @@ namespace RealTimeKql
             { typeof(JObject), typeof(JToken).ToString() },
             { typeof(object), typeof(JToken).ToString() }
         };
+
+        private async Task UploadToContainerAsync(BlobClient blobClient, object obj)
+        {
+            using var ms = new MemoryStream();
+            var json = JsonConvert.SerializeObject(obj);
+            using StreamWriter writer = new StreamWriter(ms);
+            writer.Write(json);
+            writer.Flush();
+            ms.Position = 0;
+
+            await blobClient.UploadAsync(ms);
+
+            var properties = await blobClient.GetPropertiesAsync();
+            BlobHttpHeaders headers = new BlobHttpHeaders
+            {
+                // Set the MIME ContentType every time the properties 
+                // are updated or the field will be cleared
+                ContentType = "application/json",
+
+                // Populate remaining headers with 
+                // the pre-existing properties
+                CacheControl = properties.Value.CacheControl,
+                ContentDisposition = properties.Value.ContentDisposition,
+                ContentEncoding = properties.Value.ContentEncoding,
+                ContentHash = properties.Value.ContentHash
+            };
+
+            // Set the blob's properties.
+            await blobClient.SetHttpHeadersAsync(headers);
+        }
     }
 }
