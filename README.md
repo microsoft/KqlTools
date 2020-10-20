@@ -78,6 +78,7 @@ Here are the options:
 	- **jsonOutput**: Each event is a JSON dictionary
 	- **htmlOutput**: Each event formatted as human-readable DIV element
 - Upload 
+	- **blobStorage**: Upload as JSON objects to BlobStorage
 	- **adxOutput**: Upload to Kusto (Azure Data Explorer)
 
 Detailed help for RealTimeKql can be found at, [RealTimeKqlHelp](Source/RealTimeKql/RealTimeKql.Readme.md)

@@ -152,6 +152,14 @@ namespace RealTimeKql
                 "Write output to JSON file. eg, --outputjson=FilterOutput.json",
                 CommandOptionType.SingleValue);
 
+            var blobStorageConnectionStringOption = command.Option("-bscs|--blobstorageconnectionstring <value>", 
+                "Azure Blob Storage Connection string. Optional when want to upload as JSON to blob storage.", 
+                CommandOptionType.SingleValue);
+
+            var blobStorageContainerOption = command.Option("-bsc|--blobstoragecontainer <value>",
+                "Azure Blob Storage container name. Optional when want to upload as JSON to blob storage.",
+                CommandOptionType.SingleValue);
+
             var adAuthority = command.Option("-ad|--adxauthority <value>",
                 "Azure Data Explorer (ADX) authority. Optional when not specified microsoft.com is used. eg, --adxauthority=microsoft.com",
                 CommandOptionType.SingleValue);
@@ -197,41 +205,52 @@ namespace RealTimeKql
 
                 if (!outputFileOption.HasValue() && !consoleLogOption.HasValue())
                 {
-                    if (!clusterAddressOption.HasValue())
+                    if (blobStorageConnectionStringOption.HasValue()) //Blob Storage Upload
                     {
-                        Console.WriteLine("Missing Cluster Address");
-                        return -1;
+                        if (!blobStorageContainerOption.HasValue())
+                        {
+                            Console.WriteLine("Missing Blob Storage Container Name");
+                            return -1;
+                        }
                     }
-
-                    if (!databaseOption.HasValue())
+                    else //Kusto Upload
                     {
-                        Console.WriteLine("Missing Database Name");
-                        return -1;
-                    }
+                        if (!clusterAddressOption.HasValue())
+                        {
+                            Console.WriteLine("Missing Cluster Address");
+                            return -1;
+                        }
 
-                    if (!tableOption.HasValue())
-                    {
-                        Console.WriteLine("Missing Table Name");
-                        return -1;
-                    }
+                        if (!databaseOption.HasValue())
+                        {
+                            Console.WriteLine("Missing Database Name");
+                            return -1;
+                        }
 
-                    string authority = "microsoft.com";
-                    if (adAuthority.HasValue())
-                    {
-                        authority = adAuthority.Value();
-                    }
+                        if (!tableOption.HasValue())
+                        {
+                            Console.WriteLine("Missing Table Name");
+                            return -1;
+                        }
 
-                    if (clusterAddressOption.HasValue() && databaseOption.HasValue())
-                    {
-                        var connectionStrings = GetKustoConnectionStrings(
-                            authority,
-                            clusterAddressOption.Value(),
-                            databaseOption.Value(),
-                            adClientAppId.Value(),
-                            adKey.Value());
+                        string authority = "microsoft.com";
+                        if (adAuthority.HasValue())
+                        {
+                            authority = adAuthority.Value();
+                        }
 
-                        kscbIngest = connectionStrings.Item1;
-                        kscbAdmin = connectionStrings.Item2;
+                        if (clusterAddressOption.HasValue() && databaseOption.HasValue())
+                        {
+                            var connectionStrings = GetKustoConnectionStrings(
+                                authority,
+                                clusterAddressOption.Value(),
+                                databaseOption.Value(),
+                                adClientAppId.Value(),
+                                adKey.Value());
+
+                            kscbIngest = connectionStrings.Item1;
+                            kscbAdmin = connectionStrings.Item2;
+                        }
                     }
                 }
 
@@ -254,6 +273,8 @@ namespace RealTimeKql
                         udpPort,
                         kqlQueryOption.Value(),
                         outputFileOption.Value(),
+                        blobStorageConnectionStringOption.Value(),
+                        blobStorageContainerOption.Value(),
                         kscbAdmin,
                         kscbIngest,
                         quickIngestOption.HasValue(),
@@ -276,6 +297,8 @@ namespace RealTimeKql
             int listenerUdpPort,
             string queryFile,
             string outputFileName,
+            string blobConnectionString,
+            string blobContainerName,
             KustoConnectionStringBuilder kscbAdmin,
             KustoConnectionStringBuilder kscbIngest,
             bool quickIngest,
@@ -315,7 +338,7 @@ namespace RealTimeKql
             Console.WriteLine();
             Console.WriteLine("Listening to Syslog events. Press any key to terminate");
 
-            var ku = CreateUploader(UploadTimespan, outputFileName, kscbAdmin, kscbIngest, quickIngest, tableName, resetTable);
+            var ku = CreateUploader(UploadTimespan, outputFileName, blobConnectionString, blobContainerName, kscbAdmin, kscbIngest, quickIngest, tableName, resetTable);
             Task task = Task.Factory.StartNew(() =>
             {
                 RunUploader(ku, _converter, queryFile);
@@ -399,6 +422,8 @@ namespace RealTimeKql
         private static BlockingKustoUploader CreateUploader(
             TimeSpan flushDuration,
             string _outputFileName,
+            string blobConnectionString,
+            string blobContainerName,
             KustoConnectionStringBuilder kscbAdmin,
             KustoConnectionStringBuilder kscbIngest,
             bool _demoMode,
@@ -406,7 +431,7 @@ namespace RealTimeKql
             bool _resetTable)
         {
             var ku = new BlockingKustoUploader(
-                 _outputFileName, kscbAdmin, kscbIngest, _demoMode, _tableName, 10000, flushDuration, _resetTable);
+                 _outputFileName, blobConnectionString, blobContainerName, kscbAdmin, kscbIngest, _demoMode, _tableName, 10000, flushDuration, _resetTable);
 
             return ku;
         }

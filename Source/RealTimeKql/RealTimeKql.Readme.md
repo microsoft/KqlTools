@@ -41,6 +41,8 @@ In real-time mode the tool listens to local or remote OS Log and continuously up
 		-q|--query <value>         Optional: KQL filter query file that describes what processing to apply to the events on the stream. It uses a subset of Kusto Query Language, https://docs.microsoft.com/en-us/azure/data-explorer/kusto/query/
 		-oc|--outputconsole        Log the output to console.
 		-oj|--outputjson <value>   Write output to JSON file. eg, --outputjson=FilterOutput.json
+		-bscs|--blobstorageconnectionstring <value>  Azure Blob Storage Connection string. Optional when want to upload as JSON to blob storage.
+		-bsc|--blobstoragecontainer <value>          Azure Blob Storage container name. Optional when want to upload as JSON to blob storage.
 		-ad|--adxauthority <value>    Azure Data Explorer (ADX) authority. Optional when not specified microsoft.com is used. eg, --adxauthority=microsoft.com
 		-aclid|--adxclientid <value>  Azure Data Explorer (ADX) ClientId. Optional ClientId that has permissions to access Azure Data Explorer.
 		-akey|--adxkey <value>        Azure Data Explorer (ADX) Access Key. Used along with ClientApp Id
@@ -111,6 +113,8 @@ The user can start an Etw session and then get RealtimeKql tool attach to that E
 		-q|--query <value>         Optional: KQL filter query file that describes what processing to apply to the events on the stream. It uses a subset of Kusto Query Language, https://docs.microsoft.com/en-us/azure/data-explorer/kusto/query/
 		-oc|--outputconsole        Log the output to console.
 		-oj|--outputjson <value>   Write output to JSON file. eg, --outputjson=FilterOutput.json
+		-bscs|--blobstorageconnectionstring <value>  Azure Blob Storage Connection string. Optional when want to upload as JSON to blob storage.
+		-bsc|--blobstoragecontainer <value>          Azure Blob Storage container name. Optional when want to upload as JSON to blob storage.
 		-ad|--adxauthority <value>    Azure Data Explorer (ADX) authority. Optional when not specified microsoft.com is used. eg, --adxauthority=microsoft.com
 		-aclid|--adxclientid <value>  Azure Data Explorer (ADX) ClientId. Optional ClientId that has permissions to access Azure Data Explorer.
 		-akey|--adxkey <value>        Azure Data Explorer (ADX) Access Key. Used along with ClientApp Id
@@ -169,6 +173,8 @@ Here, RealtimeKql collects two noisy TCP events 10 and 11 which are DataSent and
 		-q|--query <value>           Optional: KQL filter query file that describes what processing to apply to the events on the stream. It uses a subset of Kusto Query Language, https://docs.microsoft.com/en-us/azure/data-explorer/kusto/query/
 		-oc|--outputconsole          Log the output to console.
 		-oj|--outputjson <value>     Write output to JSON file. eg, --outputjson=FilterOutput.json
+		-bscs|--blobstorageconnectionstring <value>  Azure Blob Storage Connection string. Optional when want to upload as JSON to blob storage.
+		-bsc|--blobstoragecontainer <value>          Azure Blob Storage container name. Optional when want to upload as JSON to blob storage.
 		-ad|--adxauthority <value>   Azure Data Explorer (ADX) authority. Optional when not specified microsoft.com is used. eg, --adxauthority=microsoft.com
 		-aclid|--adxclientid <value> Azure Data Explorer (ADX) ClientId. Optional ClientId that has permissions to access Azure Data Explorer.
 		-akey|--adxkey <value>       Azure Data Explorer (ADX) Access Key. Used along with ClientApp Id
