@@ -272,22 +272,24 @@ namespace RealTimeKql
                     }
                 }
 
+                // input source is either udp port or local file
                 if (!logFileOption.HasValue())
-                {
+                {   
                     int udpPort = 514;
                     if (listnerUdpPortOption.HasValue())
                     {
                         int.TryParse(listnerUdpPortOption.Value(), out udpPort);
                     }
 
-                    string adapterName;
+                    string adapterName = "";
                     if (adapterNameOption.HasValue())
                     {
                         adapterName = adapterNameOption.Value();
                     }
+
                     try
                     {
-                        UploadSyslogRealTime(
+                        ReadFromUDPPort(
                             adapterNameOption.Value(),
                             udpPort,
                             kqlQueryOption.Value(),
@@ -317,10 +319,12 @@ namespace RealTimeKql
 
                     try
                     {
-                        UploadSyslogRealTime(
+                        ReadFromLogFile(
                             logFileOption.Value(),
                             kqlQueryOption.Value(),
                             outputFileOption.Value(),
+                            blobStorageConnectionStringOption.Value(),
+                            blobStorageContainerOption.Value(),
                             kscbAdmin,
                             kscbIngest,
                             directIngestOption.HasValue(),
@@ -339,8 +343,8 @@ namespace RealTimeKql
             });
         }
 
-        static void UploadSyslogRealTime(
-            string listenerAdapterName,
+        static void ReadFromUDPPort(
+            string listenerAdapterName, 
             int listenerUdpPort,
             string queryFile,
             string outputFileName,
@@ -348,12 +352,12 @@ namespace RealTimeKql
             string blobContainerName,
             KustoConnectionStringBuilder kscbAdmin,
             KustoConnectionStringBuilder kscbIngest,
-            bool quickIngest,
+            bool directIngest,
             string tableName,
             bool resetTable)
         {
             var parser = CreateSIEMfxSyslogParser();
-
+           
             IPAddress localIp = null;
             if (!string.IsNullOrEmpty(listenerAdapterName))
             {
@@ -382,28 +386,68 @@ namespace RealTimeKql
             listener.Subscribe(_converter);
             listener.Start();
 
-            Console.WriteLine();
-            Console.WriteLine("Listening to Syslog events. Press any key to terminate");
-
-            var ku = CreateUploader(UploadTimespan, outputFileName, blobConnectionString, blobContainerName, kscbAdmin, kscbIngest, quickIngest, tableName, resetTable);
-            Task task = Task.Factory.StartNew(() =>
+            if(kscbAdmin != null)
             {
-                RunUploader(ku, _converter, queryFile);
-            });
+                // output to kusto
 
-            string readline = Console.ReadLine();
-            listener.Stop();
+                // DEBUG
+                Console.WriteLine("DEBUG: Uploading to Kusto from Udp Port.");
 
-            ku.OnCompleted();
+                var ku = CreateUploader(UploadTimespan, outputFileName, blobConnectionString, blobContainerName, kscbAdmin, kscbIngest, directIngest, tableName, resetTable);
+                Task task = Task.Factory.StartNew(() =>
+                {
+                    RunUploader(ku, _converter, queryFile);
+                });
+
+                Console.WriteLine();
+                Console.WriteLine("Listening to Syslog events. Press any key to terminate");
+
+                string readline = Console.ReadLine();
+                listener.Stop();
+
+                ku.OnCompleted();
+            }
+            else if(outputFileName != null)
+            {
+                // output to local file
+
+                // DEBUG
+                Console.WriteLine("DEBUG: Output to local file from Udp Port.");
+
+                // TODO: implement file output here               
+            }
+            else
+            {
+                // output to console
+
+                // DEBUG
+                Console.WriteLine("DEBUG: Output to console from Udp Port.");
+
+                var co = new ConsoleOutput();
+                Task task = Task.Factory.StartNew(() =>
+                {
+                    RunConsoleOutput(co, _converter, queryFile);
+                });
+
+                Console.WriteLine();
+                Console.WriteLine("Listening to Syslog events. Press any key to terminate");
+
+                string readline = Console.ReadLine();
+                listener.Stop();
+
+                co.OnCompleted();
+            }
         }
 
-        static void UploadSyslogRealTime(
+        static void ReadFromLogFile(
             string logFile,
             string queryFile,
             string outputFileName,
+            string blobConnectionString,
+            string blobContainerName,
             KustoConnectionStringBuilder kscbAdmin,
             KustoConnectionStringBuilder kscbIngest,
-            bool quickIngest,
+            bool directIngest,
             string tableName,
             bool resetTable)
         {
@@ -425,19 +469,69 @@ namespace RealTimeKql
             listener.Subscribe(_converter);
             listener.Start();
 
-            Console.WriteLine();
-            Console.WriteLine("Listening to Syslog events. Press any key to terminate");
-
-            var ku = CreateUploader(UploadTimespan, outputFileName, "", "", kscbAdmin, kscbIngest, quickIngest, tableName, resetTable);
-            Task task = Task.Factory.StartNew(() =>
+            if (kscbAdmin != null)
             {
-                RunUploader(ku, _converter, queryFile);
-            });
+                // output to kusto
 
-            string readline = Console.ReadLine();
-            listener.Stop();
+                // DEBUG
+                Console.WriteLine("DEBUG: Uploading to Kusto from log file.");
 
-            ku.OnCompleted();
+                var ku = CreateUploader(UploadTimespan, outputFileName, blobConnectionString, blobContainerName, kscbAdmin, kscbIngest, directIngest, tableName, resetTable);
+                Task task = Task.Factory.StartNew(() =>
+                {
+                    RunUploader(ku, _converter, queryFile);
+                });
+
+                Console.WriteLine();
+                Console.WriteLine("Listening to Syslog events. Press any key to terminate");
+
+                string readline = Console.ReadLine();
+                listener.Stop();
+
+                ku.OnCompleted();
+            }
+            else if (outputFileName != null)
+            {
+                // output to local file
+
+                // DEBUG
+                Console.WriteLine("DEBUG: Output to local file from log file.");
+
+                var fileOutput = new FileOutput(outputFileName);
+                Task task = Task.Factory.StartNew(() =>
+                {
+                    RunFileOutput(fileOutput, _converter, queryFile);
+                });
+
+                Console.WriteLine();
+                Console.WriteLine("Listening to Syslog events. Press any key to terminate");
+
+                string readline = Console.ReadLine();
+                listener.Stop();
+
+                fileOutput.OnCompleted();
+            }
+            else
+            {
+                // output to console
+
+                // DEBUG
+                Console.WriteLine("DEBUG: Output to console from log file.");
+
+                var consoleOutput = new ConsoleOutput();
+                Task task = Task.Factory.StartNew(() =>
+                {
+                    RunConsoleOutput(consoleOutput, _converter, queryFile);
+                });
+
+                Console.WriteLine();
+                Console.WriteLine("Listening to Syslog events. Press any key to terminate");
+
+                string readline = Console.ReadLine();
+                listener.Stop();
+
+                consoleOutput.OnCompleted();
+            }
         }
 
             /// <summary>Creates syslog parser for SIEMfx. Adds specific keyword and pattern-based extractors to default parser. </summary>
@@ -574,6 +668,92 @@ namespace RealTimeKql
                         using (etw.Subscribe(preProcessor))
                         {
                             ku.Completed.WaitOne();
+                        }
+                    }
+                }
+                else
+                {
+                    Console.WriteLine("No Queries are running. Press Enter to terminate");
+                }
+            }
+        }
+
+        private static void RunFileOutput(FileOutput fileOutput, IObservable<IDictionary<string, object>> records, string queryFile)
+        {
+            if (queryFile == null)
+            {
+                using (records.Subscribe(fileOutput))
+                {
+                    fileOutput.Completed.WaitOne();
+                }
+            }
+            else
+            {
+                KqlNode preProcessor = new KqlNode();
+                preProcessor.KqlKqlQueryFailed += PreProcessor_KqlKqlQueryFailed;
+                preProcessor.AddCslFile(queryFile);
+
+                if (preProcessor.FailedKqlQueryList.Count > 0)
+                {
+                    foreach (var failedDetection in preProcessor.FailedKqlQueryList)
+                    {
+                        Console.WriteLine($"Message: {failedDetection.Message}");
+                    }
+                }
+
+                // If we have atleast one valid detection there is a point in waiting otherwise exit
+                if (preProcessor.KqlQueryList.Count > 0)
+                {
+                    var processed = preProcessor.Output.Select(e => e.Output);
+
+                    using (processed.Subscribe(fileOutput))
+                    {
+                        using (records.Subscribe(preProcessor))
+                        {
+                            fileOutput.Completed.WaitOne();
+                        }
+                    }
+                }
+                else
+                {
+                    Console.WriteLine("No Queries are running. Press Enter to terminate");
+                }
+            }
+        }
+
+        private static void RunConsoleOutput(ConsoleOutput consoleOutput, IObservable<IDictionary<string, object>> records, string queryFile)
+        {
+            if(queryFile == null)
+            {
+                using (records.Subscribe(consoleOutput))
+                {
+                    consoleOutput.Completed.WaitOne();
+                }
+            }
+            else
+            {
+                KqlNode preProcessor = new KqlNode();
+                preProcessor.KqlKqlQueryFailed += PreProcessor_KqlKqlQueryFailed;
+                preProcessor.AddCslFile(queryFile);
+
+                if (preProcessor.FailedKqlQueryList.Count > 0)
+                {
+                    foreach (var failedDetection in preProcessor.FailedKqlQueryList)
+                    {
+                        Console.WriteLine($"Message: {failedDetection.Message}");
+                    }
+                }
+
+                // If we have atleast one valid detection there is a point in waiting otherwise exit
+                if (preProcessor.KqlQueryList.Count > 0)
+                {
+                    var processed = preProcessor.Output.Select(e => e.Output);
+
+                    using (processed.Subscribe(consoleOutput))
+                    {
+                        using (records.Subscribe(preProcessor))
+                        {
+                            consoleOutput.Completed.WaitOne();
                         }
                     }
                 }
