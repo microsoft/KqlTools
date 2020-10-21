@@ -272,79 +272,48 @@ namespace RealTimeKql
                     }
                 }
 
-                // input source is either udp port or local file
-                if (!logFileOption.HasValue())
-                {   
-                    int udpPort = 514;
-                    if (listnerUdpPortOption.HasValue())
-                    {
-                        int.TryParse(listnerUdpPortOption.Value(), out udpPort);
-                    }
-
-                    string adapterName = "";
-                    if (adapterNameOption.HasValue())
-                    {
-                        adapterName = adapterNameOption.Value();
-                    }
-
-                    try
-                    {
-                        ReadFromUDPPort(
-                            adapterNameOption.Value(),
-                            udpPort,
-                            kqlQueryOption.Value(),
-                            outputFileOption.Value(),
-                            blobStorageConnectionStringOption.Value(),
-                            blobStorageContainerOption.Value(),
-                            kscbAdmin,
-                            kscbIngest,
-                            directIngestOption.HasValue(),
-                            tableOption.Value(),
-                            resetTableOption.HasValue());
-                    }
-                    catch (Exception ex)
-                    {
-                        Console.WriteLine("Exception:");
-                        Console.WriteLine(ex.Message);
-                        Console.WriteLine(ex.StackTrace);
-                    }
-                }
-                else
+                int udpPort = 514;
+                if (listnerUdpPortOption.HasValue())
                 {
-                    //int priority = 134;
-                    //if (priorityOption.HasValue())
-                    //{
-                    //    int.TryParse(priorityOption.Value(), out priority);
-                    //}
+                    int.TryParse(listnerUdpPortOption.Value(), out udpPort);
+                }
 
-                    try
-                    {
-                        ReadFromLogFile(
-                            logFileOption.Value(),
-                            kqlQueryOption.Value(),
-                            outputFileOption.Value(),
-                            blobStorageConnectionStringOption.Value(),
-                            blobStorageContainerOption.Value(),
-                            kscbAdmin,
-                            kscbIngest,
-                            directIngestOption.HasValue(),
-                            tableOption.Value(),
-                            resetTableOption.HasValue());
-                    }
-                    catch (Exception ex)
-                    {
-                        Console.WriteLine("Exception:");
-                        Console.WriteLine(ex.Message);
-                        Console.WriteLine(ex.StackTrace);
-                    }
+                string adapterName;
+                if (adapterNameOption.HasValue())
+                {
+                    adapterName = adapterNameOption.Value();
+                }
+
+                try
+                {
+                    ProcessSyslogRealTime(
+                    logFileOption.Value(),
+                    adapterNameOption.Value(),
+                    udpPort,
+                    kqlQueryOption.Value(),
+                    outputFileOption.Value(),
+                    blobStorageConnectionStringOption.Value(),
+                    blobStorageContainerOption.Value(),
+                    kscbAdmin,
+                    kscbIngest,
+                    directIngestOption.HasValue(),
+                    tableOption.Value(),
+                    resetTableOption.HasValue());
+                }
+                catch (Exception ex)
+                {
+                    Console.WriteLine("Exception:");
+                    Console.WriteLine(ex.Message);
+                    Console.WriteLine(ex.StackTrace);
                 }
 
                 return 0;
             });
         }
 
-        static void ReadFromUDPPort(
-            string listenerAdapterName, 
+        static void ProcessSyslogRealTime(
+            string logFileName,
+            string listenerAdapterName,
             int listenerUdpPort,
             string queryFile,
             string outputFileName,
@@ -356,187 +325,132 @@ namespace RealTimeKql
             string tableName,
             bool resetTable)
         {
+            SyslogListener listener = null;
+            SyslogFileListener fileListener = null;
+            bool fileReadMode = false;
+
+            BlockingKustoUploader ku = null;
+            FileOutput fileOutput = null;
+            ConsoleOutput consoleOutput = null;
+
             var parser = CreateSIEMfxSyslogParser();
-           
-            IPAddress localIp = null;
-            if (!string.IsNullOrEmpty(listenerAdapterName))
-            {
-                localIp = GetLocalIp(listenerAdapterName);
-            }
-
-            localIp ??= IPAddress.IPv6Any;
-            var endPoint = new IPEndPoint(localIp, listenerUdpPort);
-            var PortListener = new UdpClient(AddressFamily.InterNetworkV6);
-            PortListener.Client.DualMode = true;
-            PortListener.Client.Bind(endPoint);
-            PortListener.Client.ReceiveBufferSize = 10 * 1024 * 1024;
-
-            using var listener = new SyslogListener(parser, PortListener);
-
-            var filter = new SyslogFilter();
-            if (filter != null)
-            {
-                listener.Filter = filter.Allow;
-            }
-
-            listener.Error += Listener_Error;
-            listener.EntryReceived += Listener_EntryReceived;
-
             var _converter = new SyslogEntryToRecordConverter();
-            listener.Subscribe(_converter);
-            listener.Start();
 
-            if(kscbAdmin != null)
+            // input
+            if (string.IsNullOrEmpty(logFileName))
             {
-                // output to kusto
-
-                // DEBUG
-                Console.WriteLine("DEBUG: Uploading to Kusto from Udp Port.");
-
-                var ku = CreateUploader(UploadTimespan, outputFileName, blobConnectionString, blobContainerName, kscbAdmin, kscbIngest, directIngest, tableName, resetTable);
-                Task task = Task.Factory.StartNew(() =>
+                // reading from local port
+                IPAddress localIp = null;
+                if (!string.IsNullOrEmpty(listenerAdapterName))
                 {
-                    RunUploader(ku, _converter, queryFile);
-                });
+                    localIp = GetLocalIp(listenerAdapterName);
+                }
 
-                Console.WriteLine();
-                Console.WriteLine("Listening to Syslog events. Press any key to terminate");
+                localIp ??= IPAddress.IPv6Any;
+                var endPoint = new IPEndPoint(localIp, listenerUdpPort);
+                var PortListener = new UdpClient(AddressFamily.InterNetworkV6);
+                PortListener.Client.DualMode = true;
+                PortListener.Client.Bind(endPoint);
+                PortListener.Client.ReceiveBufferSize = 10 * 1024 * 1024;
 
-                string readline = Console.ReadLine();
-                listener.Stop();
+                listener = new SyslogListener(parser, PortListener);
 
-                ku.OnCompleted();
-            }
-            else if(outputFileName != null)
-            {
-                // output to local file
+                var filter = new SyslogFilter();
+                if (filter != null)
+                {
+                    listener.Filter = filter.Allow;
+                }
 
-                // DEBUG
-                Console.WriteLine("DEBUG: Output to local file from Udp Port.");
-
-                // TODO: implement file output here               
+                listener.Error += Listener_Error;
+                listener.EntryReceived += Listener_EntryReceived;
+                listener.Subscribe(_converter);
+                listener.Start();
             }
             else
             {
-                // output to console
+                // reading from local file
+                var fileStream = new FileStream(logFileName, FileMode.Open, FileAccess.Read, FileShare.ReadWrite);
+                fileListener = new SyslogFileListener(parser, fileStream);
+                fileReadMode = true;
 
-                // DEBUG
-                Console.WriteLine("DEBUG: Output to console from Udp Port.");
-
-                var co = new ConsoleOutput();
-                Task task = Task.Factory.StartNew(() =>
+                var filter = new SyslogFilter();
+                if (filter != null)
                 {
-                    RunConsoleOutput(co, _converter, queryFile);
-                });
+                    fileListener.Filter = filter.Allow;
+                }
 
-                Console.WriteLine();
-                Console.WriteLine("Listening to Syslog events. Press any key to terminate");
-
-                string readline = Console.ReadLine();
-                listener.Stop();
-
-                co.OnCompleted();
-            }
-        }
-
-        static void ReadFromLogFile(
-            string logFile,
-            string queryFile,
-            string outputFileName,
-            string blobConnectionString,
-            string blobContainerName,
-            KustoConnectionStringBuilder kscbAdmin,
-            KustoConnectionStringBuilder kscbIngest,
-            bool directIngest,
-            string tableName,
-            bool resetTable)
-        {
-            var parser = CreateSIEMfxSyslogParser();
-
-            var fileStream = new FileStream(logFile, FileMode.Open, FileAccess.Read, FileShare.ReadWrite);
-            using var listener = new SyslogFileListener(parser, fileStream);
-
-            var filter = new SyslogFilter();
-            if (filter != null)
-            {
-                listener.Filter = filter.Allow;
+                fileListener.Error += FileListener_Error;
+                fileListener.EntryReceived += FileListener_EntryReceived;
+                fileListener.Subscribe(_converter);
+                fileListener.Start();
             }
 
-            listener.Error += FileListener_Error;
-            listener.EntryReceived += FileListener_EntryReceived;
+            Console.WriteLine();
+            Console.WriteLine("Listening to Syslog events. Press any key to terminate");
 
-            var _converter = new SyslogEntryToRecordConverter();
-            listener.Subscribe(_converter);
-            listener.Start();
-
+            // output
             if (kscbAdmin != null)
             {
                 // output to kusto
-
-                // DEBUG
-                Console.WriteLine("DEBUG: Uploading to Kusto from log file.");
-
-                var ku = CreateUploader(UploadTimespan, outputFileName, blobConnectionString, blobContainerName, kscbAdmin, kscbIngest, directIngest, tableName, resetTable);
+                ku = CreateUploader(UploadTimespan, outputFileName, blobConnectionString, blobContainerName, kscbAdmin, kscbIngest, directIngest, tableName, resetTable);
                 Task task = Task.Factory.StartNew(() =>
                 {
                     RunUploader(ku, _converter, queryFile);
                 });
-
-                Console.WriteLine();
-                Console.WriteLine("Listening to Syslog events. Press any key to terminate");
-
-                string readline = Console.ReadLine();
-                listener.Stop();
-
-                ku.OnCompleted();
             }
-            else if (outputFileName != null)
+            else if (!string.IsNullOrEmpty(outputFileName))
             {
-                // output to local file
-
-                // DEBUG
-                Console.WriteLine("DEBUG: Output to local file from log file.");
-
-                var fileOutput = new FileOutput(outputFileName);
+                // output to file
+                fileOutput = new FileOutput(outputFileName);
                 Task task = Task.Factory.StartNew(() =>
                 {
                     RunFileOutput(fileOutput, _converter, queryFile);
                 });
-
-                Console.WriteLine();
-                Console.WriteLine("Listening to Syslog events. Press any key to terminate");
-
-                string readline = Console.ReadLine();
-                listener.Stop();
-
-                fileOutput.OnCompleted();
             }
             else
             {
                 // output to console
-
-                // DEBUG
-                Console.WriteLine("DEBUG: Output to console from log file.");
-
-                var consoleOutput = new ConsoleOutput();
+                consoleOutput = new ConsoleOutput();
                 Task task = Task.Factory.StartNew(() =>
                 {
                     RunConsoleOutput(consoleOutput, _converter, queryFile);
                 });
+            }
 
-                Console.WriteLine();
-                Console.WriteLine("Listening to Syslog events. Press any key to terminate");
+            string readline = Console.ReadLine();
 
-                string readline = Console.ReadLine();
+            // clean up
+            if (!fileReadMode)
+            {
                 listener.Stop();
+                listener.Dispose();
+                listener = null;
+            }
+            else
+            {
+                fileListener.Stop();
+                fileListener.Dispose();
+                fileListener = null;
+            }
 
+            if (kscbAdmin != null)
+            {
+                ku.OnCompleted();
+            }
+            else if (!string.IsNullOrEmpty(outputFileName))
+            {
+                fileOutput.OnCompleted();
+            }
+            else
+            {
                 consoleOutput.OnCompleted();
             }
+
         }
 
-            /// <summary>Creates syslog parser for SIEMfx. Adds specific keyword and pattern-based extractors to default parser. </summary>
-            /// <returns></returns>
-            public static SyslogParser CreateSIEMfxSyslogParser()
+        /// <summary>Creates syslog parser for SIEMfx. Adds specific keyword and pattern-based extractors to default parser. </summary>
+        /// <returns></returns>
+        public static SyslogParser CreateSIEMfxSyslogParser()
         {
             var parser = SyslogParser.CreateDefault();
             parser.AddValueExtractors(new KeywordValuesExtractor(), new PatternBasedValuesExtractor());
@@ -630,7 +544,7 @@ namespace RealTimeKql
             bool _resetTable)
         {
             var ku = new BlockingKustoUploader(
-                 _outputFileName, blobConnectionString, blobContainerName, kscbAdmin, kscbIngest, _demoMode, _tableName, 10000, flushDuration, _resetTable);
+                 blobConnectionString, blobContainerName, kscbAdmin, kscbIngest, _demoMode, _tableName, 10000, flushDuration, _resetTable);
 
             return ku;
         }

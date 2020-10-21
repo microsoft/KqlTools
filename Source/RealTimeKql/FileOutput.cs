@@ -17,7 +17,6 @@ namespace RealTimeKql
         private StreamWriter outputFile;
         private bool firstEntry = true;
         private bool error = false;
-        private string[] _fields;
 
         public FileOutput(string outputFileName)
         {

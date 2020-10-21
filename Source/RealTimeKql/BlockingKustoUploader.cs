@@ -8,27 +8,22 @@ namespace RealTimeKql
 {
     using Azure.Storage.Blobs;
     using Azure.Storage.Blobs.Models;
-    using Azure.Storage.Blobs.Specialized;
     using Kusto.Data;
     using Kusto.Data.Common;
     using Kusto.Data.Net.Client;
     using Kusto.Ingest;
-    using Microsoft.WindowsAzure.Storage.Blob;
     using Newtonsoft.Json;
     using Newtonsoft.Json.Linq;
     using System;
     using System.Collections.Generic;
     using System.IO;
     using System.Linq;
-    using System.Net.Mime;
     using System.Reactive.Kql;
     using System.Threading;
     using System.Threading.Tasks;
 
     class BlockingKustoUploader : IObserver<IDictionary<string, object>>
     {
-        public string OutputFileName { get; private set; }
-
         public string TableName { get; private set; }
 
         public int BatchSize { get; private set; }
@@ -49,8 +44,6 @@ namespace RealTimeKql
 
         private readonly IKustoIngestClient _ingestClient;
 
-        private StreamWriter outputFile;
-
         private bool error = false;
 
         private string[] _fields;
@@ -62,7 +55,6 @@ namespace RealTimeKql
         private bool _initializeTable;
 
         public BlockingKustoUploader(
-            string outputFileName,
             string blobConnectionString,
             string blobContainerName,
             KustoConnectionStringBuilder adminCsb,
@@ -73,7 +65,6 @@ namespace RealTimeKql
             TimeSpan flushDuration,
             bool resetTable = false)
         {
-            OutputFileName = outputFileName;
             Csb = kscb;
             AdminCsb = adminCsb;
             TableName = tableName;
@@ -107,12 +98,6 @@ namespace RealTimeKql
                 blobContainerClient.CreateIfNotExists();
             }
 
-            if (!string.IsNullOrEmpty(OutputFileName))
-            {
-                outputFile = new StreamWriter(this.OutputFileName);
-                outputFile.Write($"[{Environment.NewLine}");
-            }
-
             _nextBatch = new List<IDictionary<string, object>>();
         }
 
@@ -139,36 +124,12 @@ namespace RealTimeKql
 
                             Console.Write("{0} ", _currentBatch.Count);
                         }
-                        else if (outputFile != null)
-                        {
-                            string content = lastBatch ?
-                                $"{JsonConvert.SerializeObject(_currentBatch, Formatting.Indented).Trim(new char[] { '[', ']' })}" :
-                                $"{JsonConvert.SerializeObject(_currentBatch, Formatting.Indented).Trim(new char[] { '[', ']' })},";
-
-                            try
-                            {
-                                outputFile.Write(content);
-                            }
-                            catch
-                            {
-
-                            }
-
-                            Console.Write("{0} ", _currentBatch.Count);
-                        }
                         else if (blobContainerClient != null)
                         {
                             //Create a blob with unique names and upload
                             string blobName = $"{Guid.NewGuid()}_1_{Guid.NewGuid():N}.json";
                             var blobClient = blobContainerClient.GetBlobClient(blobName);
                             UploadToContainerAsync(blobClient, _currentBatch).Wait();
-                        }
-                        else
-                        {
-                            foreach (var item in _currentBatch)
-                            {
-                                Console.WriteLine(string.Join("\t", item.Values));
-                            }
                         }
                     }
 
@@ -186,14 +147,8 @@ namespace RealTimeKql
         {
             if (_fields == null)
             {
+                // discover fields on first event
                 _fields = value.Keys.ToArray();
-
-                if (_ingestClient == null && 
-                    outputFile == null && 
-                    blobContainerClient == null)
-                {
-                    Console.WriteLine(string.Join("\t", _fields));
-                }
             }
 
             if (AdminCsb != null &&
@@ -224,13 +179,6 @@ namespace RealTimeKql
             if (error != true)
             {
                 UploadBatch(true);
-
-                if (outputFile != null)
-                {
-                    outputFile.Write($"]{Environment.NewLine}");
-                    outputFile.Dispose();
-                    outputFile = null;
-                }
 
                 Console.WriteLine("Completed!");
                 Completed.Set();
