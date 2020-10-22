@@ -2,17 +2,11 @@
 using System;
 using System.Collections.Generic;
 using System.IO;
-using System.Linq;
-using System.Reactive.Kql;
-using System.Text;
-using System.Threading;
-using System.Threading.Tasks;
 
 namespace RealTimeKql
 {
     class FileOutput: IObserver<IDictionary<string, object>>
     {
-        public AutoResetEvent Completed { get; private set; }
         public string OutputFileName { get; private set; }
         private StreamWriter outputFile;
         private bool firstEntry = true;
@@ -20,7 +14,6 @@ namespace RealTimeKql
 
         public FileOutput(string outputFileName)
         {
-            Completed = new AutoResetEvent(false);
             OutputFileName = outputFileName;
             outputFile = new StreamWriter(this.OutputFileName);
             outputFile.Write($"[{Environment.NewLine}");
@@ -28,8 +21,8 @@ namespace RealTimeKql
 
         public void OnNext(IDictionary<string, object> value)
         {
-            string content = "";
-            if(firstEntry)
+            string content;
+            if (firstEntry)
             {
                 firstEntry = false;
                 content = $"{JsonConvert.SerializeObject(value, Formatting.Indented)}";
@@ -42,6 +35,7 @@ namespace RealTimeKql
             try
             {
                 outputFile.Write(content);
+                outputFile.Flush();
             }
             catch (Exception ex)
             {
@@ -51,7 +45,6 @@ namespace RealTimeKql
 
         public void OnError(Exception error)
         {
-            RxKqlEventSource.Log.LogException(error.ToString());
             this.error = true;
         }
 
@@ -64,7 +57,6 @@ namespace RealTimeKql
                 outputFile = null;
 
                 Console.WriteLine("Completed!");
-                Completed.Set();
             }
         }
     }

@@ -402,19 +402,13 @@ namespace RealTimeKql
             {
                 // output to file
                 fileOutput = new FileOutput(outputFileName);
-                Task task = Task.Factory.StartNew(() =>
-                {
-                    RunFileOutput(fileOutput, _converter, queryFile);
-                });
+                RunFileOutput(fileOutput, _converter, queryFile);
             }
             else
             {
                 // output to console
                 consoleOutput = new ConsoleOutput();
-                Task task = Task.Factory.StartNew(() =>
-                {
-                    RunConsoleOutput(consoleOutput, _converter, queryFile);
-                });
+                RunConsoleOutput(consoleOutput, _converter, queryFile);
             }
 
             string readline = Console.ReadLine();
@@ -596,10 +590,7 @@ namespace RealTimeKql
         {
             if (queryFile == null)
             {
-                using (records.Subscribe(fileOutput))
-                {
-                    fileOutput.Completed.WaitOne();
-                }
+                records.Subscribe(fileOutput);
             }
             else
             {
@@ -619,14 +610,8 @@ namespace RealTimeKql
                 if (preProcessor.KqlQueryList.Count > 0)
                 {
                     var processed = preProcessor.Output.Select(e => e.Output);
-
-                    using (processed.Subscribe(fileOutput))
-                    {
-                        using (records.Subscribe(preProcessor))
-                        {
-                            fileOutput.Completed.WaitOne();
-                        }
-                    }
+                    processed.Subscribe(fileOutput);
+                    records.Subscribe(preProcessor);
                 }
                 else
                 {
@@ -639,10 +624,7 @@ namespace RealTimeKql
         {
             if(queryFile == null)
             {
-                using (records.Subscribe(consoleOutput))
-                {
-                    consoleOutput.Completed.WaitOne();
-                }
+                records.Subscribe(consoleOutput);
             }
             else
             {
@@ -662,14 +644,8 @@ namespace RealTimeKql
                 if (preProcessor.KqlQueryList.Count > 0)
                 {
                     var processed = preProcessor.Output.Select(e => e.Output);
-
-                    using (processed.Subscribe(consoleOutput))
-                    {
-                        using (records.Subscribe(preProcessor))
-                        {
-                            consoleOutput.Completed.WaitOne();
-                        }
-                    }
+                    processed.Subscribe(consoleOutput);
+                    records.Subscribe(preProcessor);
                 }
                 else
                 {
