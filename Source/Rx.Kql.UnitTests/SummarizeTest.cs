@@ -4,16 +4,18 @@
 // *                                                       *
 // ********************************************************/
 
-namespace Rx.Kql.UnitTest
+using System;
+
+namespace Rx.Kql.UnitTests
 {
     using System;
     using System.Collections.Generic;
     using System.Linq;
     using System.Reactive.Kql;
     using System.Reactive.Linq;
+    using System.Text;
     using System.Threading;
     using Microsoft.VisualStudio.TestTools.UnitTesting;
-    using System.Text;
 
     [TestClass]
     public class SummarizeTest : TestBase

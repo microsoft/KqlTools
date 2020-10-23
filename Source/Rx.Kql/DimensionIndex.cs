@@ -9,10 +9,10 @@ namespace System.Reactive.Kql
     using System.Collections.Generic;
 
     /// <summary>
-    ///     Class that manages memory for multi-dimensional aggregation
-    ///     Example is 2D matrics in which every cell has 2 coordinates
+    ///     Class that manages memory for multi-dimensional aggregation.
+    ///     For example, a 2D matrix in which every cell has 2 coordinates.
     /// </summary>
-    /// <typeparam name="T">Cell value type </typeparam>
+    /// <typeparam name="T">System.Type - Cell value type.</typeparam>
     public class DimensionIndex<T>
     {
         private readonly object thisLock = new object();

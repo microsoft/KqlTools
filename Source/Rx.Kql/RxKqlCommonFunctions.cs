@@ -652,5 +652,21 @@ namespace System.Reactive.Kql
 
             return originalValue;
         }
+
+        public static object ParseNumericExpressionItem(string str)
+        {
+            // Place checks higher in if-else statement to give higher priority to type.
+            if (bool.TryParse(str, out bool boolValue))
+                return boolValue;
+            else if (int.TryParse(str, out int intValue))
+                return intValue;
+            else if (long.TryParse(str, out long bigintValue))
+                return bigintValue;
+            else if (double.TryParse(str, out double doubleValue))
+                return doubleValue;
+            else if (DateTime.TryParse(str, out DateTime dateValue))
+                return dateValue;
+            else return str;
+        }
     }
 }

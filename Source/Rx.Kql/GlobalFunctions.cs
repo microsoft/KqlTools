@@ -37,7 +37,7 @@ namespace System.Reactive.Kql
         }
 
         /// <summary>
-        ///     Gets the currently seeked function from memory by name
+        ///     Gets the currently sought function from memory by name.
         /// </summary>
         /// <param name="name">the name of the function</param>
         /// <returns></returns>
@@ -56,10 +56,10 @@ namespace System.Reactive.Kql
         }
 
         /// <summary>
-        ///     Add Concurrent Dictionary function, and remove it prior to insertion
+        /// Adds Concurrent Dictionary function, and remove it prior to insertion.
         /// </summary>
-        /// <param name="kqlFunctionName"></param>
-        /// <param name="cslFunction"></param>
+        /// <param name="kqlFunctionName">string - the name of the Kusto Function to add.</param>
+        /// <param name="cslFunction">CslFunction - the CslFunction instance that defines the query and associated metadata.</param>
         public static bool Add(string kqlFunctionName, CslFunction cslFunction)
         {
             // Update the function if it exists

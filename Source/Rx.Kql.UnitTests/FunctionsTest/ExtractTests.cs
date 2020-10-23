@@ -4,10 +4,12 @@
 // *                                                       *
 // ********************************************************/
 
-namespace Rx.Kql.UnitTest.FunctionsTest
+using System;
+
+namespace Rx.Kql.UnitTests.FunctionsTest
 {
-    using Microsoft.VisualStudio.TestTools.UnitTesting;
     using System.Dynamic;
+    using Microsoft.VisualStudio.TestTools.UnitTesting;
 
     [TestClass]
     public class ExtractTests : TestBase

@@ -16,6 +16,9 @@ namespace System.Reactive.Kql
     using Kusto.Language.Syntax;
     using Newtonsoft.Json;
 
+    /// <summary>
+    /// Extension methods for the System.Reactive.Kql namespace.
+    /// </summary>
     public static class RxExtensions
     {
         public static IObservable<IDictionary<string, object>> KustoQuery(this IObservable<IDictionary<string, object>> source, string query)

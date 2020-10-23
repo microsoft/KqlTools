@@ -8,7 +8,6 @@ using System.Dynamic;
 using System.Linq;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Newtonsoft.Json;
-using Rx.Kql.UnitTest;
 
 namespace Rx.Kql.UnitTests.FunctionsTest
 {

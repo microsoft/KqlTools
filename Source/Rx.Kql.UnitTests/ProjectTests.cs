@@ -4,15 +4,17 @@
 // *                                                       *
 // ********************************************************/
 
-namespace Rx.Kql.UnitTest
+using System;
+
+namespace Rx.Kql.UnitTests
 {
-    using Microsoft.EvtxEventXmlScrubber;
-    using Microsoft.VisualStudio.TestTools.UnitTesting;
     using System;
     using System.Collections.Generic;
     using System.IO;
     using System.Reactive.Kql;
     using System.Reflection;
+    using Microsoft.EvtxEventXmlScrubber;
+    using Microsoft.VisualStudio.TestTools.UnitTesting;
 
     [TestClass]
     public class ProjectTests

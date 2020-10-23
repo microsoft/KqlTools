@@ -4,15 +4,14 @@
 // *                                                       *
 // ********************************************************/
 
-using System.Collections.Generic;
-using System.Reactive.Kql;
-using System.Reactive.Subjects;
+using System;
 
-namespace Rx.Kql.UnitTest.FunctionsTest
+namespace Rx.Kql.UnitTests.FunctionsTest
 {
-    using Microsoft.VisualStudio.TestTools.UnitTesting;
     using System;
+    using System.Collections.Generic;
     using System.Dynamic;
+    using Microsoft.VisualStudio.TestTools.UnitTesting;
 
     [TestClass]
     public class SplitStringTests : TestBase

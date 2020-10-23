@@ -4,7 +4,9 @@
 // *                                                       *
 // ********************************************************/
 
-namespace Rx.Kql.UnitTest.FunctionsTest
+using System;
+
+namespace Rx.Kql.UnitTests.FunctionsTest
 {
     using System;
     using System.Dynamic;

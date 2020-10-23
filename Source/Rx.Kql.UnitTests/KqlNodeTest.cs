@@ -4,19 +4,20 @@
 // *                                                       *
 // ********************************************************/
 
-using System.Diagnostics;
+using System;
 
-namespace Rx.Kql.UnitTest
+namespace Rx.Kql.UnitTests
 {
-    using Microsoft.EvtxEventXmlScrubber;
-    using Microsoft.VisualStudio.TestTools.UnitTesting;
     using System;
     using System.Collections.Generic;
+    using System.Diagnostics;
     using System.Dynamic;
     using System.IO;
     using System.Linq;
     using System.Reactive.Kql;
     using System.Reflection;
+    using Microsoft.EvtxEventXmlScrubber;
+    using Microsoft.VisualStudio.TestTools.UnitTesting;
 
     [TestClass]
     public class KqlNodeTest

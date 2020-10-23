@@ -4,11 +4,12 @@
 // *                                                       *
 // ********************************************************/
 
-namespace Rx.Kql.UnitTest
+using System;
+
+namespace Rx.Kql.UnitTests
 {
     using System;
     using System.Collections.Generic;
-    using System.Diagnostics;
     using System.Dynamic;
     using System.Reactive.Kql;
     using Microsoft.VisualStudio.TestTools.UnitTesting;
