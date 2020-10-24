@@ -17,7 +17,7 @@ namespace System.Reactive.Kql
     using Newtonsoft.Json;
 
     /// <summary>
-    /// Extension methods for the System.Reactive.Kql namespace.
+    ///     Extension methods for the System.Reactive.Kql namespace.
     /// </summary>
     public static class RxExtensions
     {
@@ -56,14 +56,7 @@ namespace System.Reactive.Kql
                         break;
 
                     case "project":
-                        if (stage.Contains("="))
-                        {
-                            result = result.ProjectExpressions(args);
-                        }
-                        else
-                        {
-                            result = result.ProjectValues(args);
-                        }
+                        result = result.ProjectExpressions(args);
                         break;
 
                     case "evaluate":
@@ -82,6 +75,7 @@ namespace System.Reactive.Kql
                         throw new NotImplementedException($"KustoQuery observable does not implement the operator: {op}");
                 }
             }
+
             return result;
         }
 
@@ -105,27 +99,6 @@ namespace System.Reactive.Kql
                         observer.OnError(ex);
                     }
                 }));
-        }
-
-        public static IObservable<IDictionary<string, object>> ProjectValues(this IObservable<IDictionary<string, object>> source, string fieldList)
-        {
-            var fields = new List<string>(fieldList.Split(',').Select(s => s.Trim()));
-
-            return source.Select(e =>
-            {
-                var result = new ExpandoObject();
-                var res = (IDictionary<string, object>)result;
-
-                foreach (string name in e.Keys)
-                {
-                    if (fields.Contains(name, StringComparer.Ordinal))
-                    {
-                        res.Add(name, e[name]);
-                    }
-                }
-
-                return result;
-            });
         }
 
         public static IObservable<IDictionary<string, object>> ProjectExpressions(this IObservable<IDictionary<string, object>> source, string expression)
@@ -213,24 +186,25 @@ namespace System.Reactive.Kql
 
                     if (int.TryParse(value.ToString(), out int returnInt))
                     {
-                        ((IDictionary<string, object>)exp).Add(p.Name, value);
+                        ((IDictionary<string, object>) exp).Add(p.Name, value);
                         continue;
                     }
 
                     if (long.TryParse(value.ToString(), out long returnLong))
                     {
-                        ((IDictionary<string, object>)exp).Add(p.Name, value);
+                        ((IDictionary<string, object>) exp).Add(p.Name, value);
                         continue;
                     }
 
                     if (DateTime.TryParse(value.ToString(), out DateTime returnDateTime))
                     {
-                        ((IDictionary<string, object>)exp).Add(p.Name, value);
+                        ((IDictionary<string, object>) exp).Add(p.Name, value);
                         continue;
                     }
 
-                    ((IDictionary<string, object>)exp).Add(p.Name, value.ToString());
+                    ((IDictionary<string, object>) exp).Add(p.Name, value.ToString());
                 }
+
                 return exp;
             });
         }
