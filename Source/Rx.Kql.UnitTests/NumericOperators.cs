@@ -6,8 +6,9 @@
 
 using System;
 
-namespace Rx.Kql.UnitTest
+namespace Rx.Kql.UnitTests
 {
+    using System;
     using System;
     using System.Dynamic;
     using Microsoft.VisualStudio.TestTools.UnitTesting;

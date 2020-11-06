@@ -8,6 +8,7 @@ namespace System.Reactive.Kql
 {
     using System;
     using System.Collections.Generic;
+    using System.Globalization;
 
     [Operator("==", "!=")]
     public class EqualsExpression : BinaryExpression
@@ -25,6 +26,8 @@ namespace System.Reactive.Kql
                 case null when Operator == "!=":
                     return rightVal != null;
 
+                case bool b:
+                    return CheckEquals(b, Convert.ToBoolean(rightVal));
                 case string s:
                     return CheckEquals(s, Convert.ToString(rightVal));
                 case ushort u:
@@ -35,6 +38,10 @@ namespace System.Reactive.Kql
                     return CheckEquals(l, Convert.ToInt64(rightVal));
                 case decimal d:
                     return CheckEquals(d, Convert.ToDecimal(rightVal));
+                case TimeSpan ts:
+                    return CheckEquals(ts, TimeSpan.Parse(rightVal.ToString()));
+                case double db:
+                    return CheckEquals(db, Convert.ToDouble(rightVal));
                 case DateTime dt:
                     return CheckEquals(dt, Convert.ToDateTime(rightVal));
                 case object e when leftVal.GetType().IsEnum:

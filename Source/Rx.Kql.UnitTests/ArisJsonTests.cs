@@ -4,15 +4,14 @@
 // *                                                       *
 // ********************************************************/
 
-namespace Rx.Kql.UnitTest
+using System;
+
+namespace Rx.Kql.UnitTests
 {
     using System;
     using System.Collections.Generic;
-    using System.Diagnostics;
     using System.Dynamic;
-    using System.Linq.Expressions;
     using System.Reactive.Kql;
-    using System.Text.RegularExpressions;
     using Microsoft.VisualStudio.TestTools.UnitTesting;
     using Newtonsoft.Json;
 

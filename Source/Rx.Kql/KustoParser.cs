@@ -8,8 +8,6 @@
 
 namespace System.Reactive.Kql
 {
-    using Kusto.Language;
-    using Kusto.Language.Syntax;
     using System.Collections.Generic;
     using System.ComponentModel;
     using System.Dynamic;
@@ -18,6 +16,8 @@ namespace System.Reactive.Kql
     using System.Reactive.Kql.ExceptionTypes;
     using System.Reflection;
     using System.Text;
+    using Kusto.Language;
+    using Kusto.Language.Syntax;
 
     public static class KustoParser
     {
@@ -25,12 +25,23 @@ namespace System.Reactive.Kql
 
         public enum Operators
         {
-            [Description(">")] GreaterThan,
-            [Description(">=")] GreaterThanOrEqualTo,
-            [Description("<")] LessThan,
-            [Description("<=")] LessThanOrEqualTo,
-            [Description("==")] EqualTo,
-            [Description("!=")] NotEqualTo
+            [Description(">")]
+            GreaterThan,
+
+            [Description(">=")]
+            GreaterThanOrEqualTo,
+
+            [Description("<")]
+            LessThan,
+
+            [Description("<=")]
+            LessThanOrEqualTo,
+
+            [Description("==")]
+            EqualTo,
+
+            [Description("!=")]
+            NotEqualTo
         }
 
         static KustoParser()
@@ -98,6 +109,7 @@ namespace System.Reactive.Kql
                 sb.Append("| ");
                 sb.AppendLine(op.ToString());
             }
+
             return sb.ToString();
         }
     }
@@ -150,13 +162,13 @@ namespace System.Reactive.Kql
             }
 
             var diagnostics = query.GetSyntaxDiagnostics()
-                    .Select(d => $"({d.Start}..{d.Start + d.Length}): {d.Message}");
+                .Select(d => $"({d.Start}..{d.Start + d.Length}): {d.Message}");
             if (diagnostics.Any())
             {
                 var errors = string.Join("\n", diagnostics);
                 throw new QueryParsingException($"Error parsing expression {where}: {errors}");
             }
-                
+
             var syntax = query.Syntax.GetDescendants<Statement>()[0];
             return syntax.Visit(new ScalarValueConverter());
         }
@@ -177,7 +189,6 @@ namespace System.Reactive.Kql
         public string[] Fields { get; set; }
 
         public List<RxKqlScalarValue> Expressions;
-
 
         public ProjectOperator()
         {
@@ -215,11 +226,11 @@ namespace System.Reactive.Kql
         {
             Expressions = ParseExpressionKusto(args);
         }
+
         public dynamic Project(IDictionary<string, object> instance)
         {
             var result = new ExpandoObject();
             var inst = instance;
-
 
             foreach (var exp in Expressions)
             {
@@ -228,13 +239,13 @@ namespace System.Reactive.Kql
 
                 // As per Kusto functionality, if extending an existing field in a query
                 // the value of the extended field overrides the object value
-                if (((IDictionary<string, object>)result).ContainsKey(name))
+                if (((IDictionary<string, object>) result).ContainsKey(name))
                 {
-                    ((IDictionary<string, object>)result)[name] = value;
+                    ((IDictionary<string, object>) result)[name] = value;
                 }
                 else
                 {
-                    ((IDictionary<string, object>)result).Add(name, value);
+                    ((IDictionary<string, object>) result).Add(name, value);
                 }
             }
 
@@ -273,8 +284,9 @@ namespace System.Reactive.Kql
             {
                 query = KustoCode.Parse(args);
             }
+
             var diagnostics = query.GetSyntaxDiagnostics()
-                    .Select(d => $"({d.Start}..{d.Start + d.Length}): {d.Message}");
+                .Select(d => $"({d.Start}..{d.Start + d.Length}): {d.Message}");
             if (diagnostics.Any())
             {
                 var errors = string.Join("\n", diagnostics);
@@ -420,6 +432,7 @@ namespace System.Reactive.Kql
         public string Operator { get; set; }
 
         public ScalarValue Left { get; set; }
+
         public ScalarValue Right { get; set; }
 
         public BinaryExpression()

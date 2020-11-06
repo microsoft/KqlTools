@@ -4,7 +4,7 @@
 // *                                                       *
 // ********************************************************/
 
-namespace Rx.Kql.UnitTest
+namespace Rx.Kql.UnitTests
 {
     using System;
     using System.Collections.Generic;
@@ -16,6 +16,19 @@ namespace Rx.Kql.UnitTest
     [TestClass]
     public class BooleanExpressions : TestBase
     {
+        [TestMethod]
+        public void TestBooleanValue()
+        {
+            dynamic evt = new ExpandoObject();
+            evt.Binary = true;
+            evt.BinaryFalse = false;
+
+            TestWhere(evt, "Binary == true", true);
+            TestWhere(evt, "BinaryFalse == false", true);
+            TestWhere(evt, "BinaryFalse != true", true);
+            TestWhere(evt, "BinaryFalse == true", false);
+        }
+
         [TestMethod]
         public void AndSingle()
         {
@@ -49,7 +62,7 @@ namespace Rx.Kql.UnitTest
             exp.x = 1;
             dynamic y = new ExpandoObject();
             y.z = 2;
-            exp.y = y;                              // this results in exp = { x=1, y={ z=2}}
+            exp.y = y; // this results in exp = { x=1, y={ z=2}}
 
             TestWhere(exp, "x == 1", true);
             TestWhere(exp, "y.z == 2", true);
@@ -63,17 +76,14 @@ namespace Rx.Kql.UnitTest
 
             dynamic y = new ExpandoObject();
             y.z = 2;
-            exp.y = y;  // this results in exp = { x=1, y={ z=2}}
+            exp.y = y; // this results in exp = { x=1, y={ z=2}}
 
             var subject = new Subject<IDictionary<string, object>>();
             var result = new List<IDictionary<string, object>>();
             string query = "| extend zz = y.z | where zz == 2 | project zz";
 
             subject.KustoQuery(query)
-                .Subscribe(e =>
-                {
-                    result.Add(e);
-                });
+                .Subscribe(e => { result.Add(e); });
 
             subject.OnNext(exp);
 
@@ -88,7 +98,7 @@ namespace Rx.Kql.UnitTest
             dynamic dict = new ExpandoObject();
             dict.SubscriptionDetailsData = new
             {
-                SubscriptionDetails = (ExpandoObject)null,
+                SubscriptionDetails = (ExpandoObject) null,
                 SubscriptionRoomNumber = "222",
                 IsSuccess = false
             };
@@ -116,8 +126,8 @@ namespace Rx.Kql.UnitTest
 
             var exp = new Dictionary<string, object>
             {
-                {"x", 1 },
-                {"developer", nestedDictionary }
+                { "x", 1 },
+                { "developer", nestedDictionary }
             };
 
             var subject = new Subject<IDictionary<string, object>>();
@@ -125,10 +135,7 @@ namespace Rx.Kql.UnitTest
             string query = "| extend myAge = developer.Age | project myAge";
 
             subject.KustoQuery(query)
-                .Subscribe(e =>
-                {
-                    result.Add(e);
-                });
+                .Subscribe(e => { result.Add(e); });
 
             subject.OnNext(exp);
 

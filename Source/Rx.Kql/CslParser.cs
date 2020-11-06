@@ -10,6 +10,9 @@ namespace System.Reactive.Kql
     using System.IO;
     using System.Text;
 
+    /// <summary>
+    /// Class <c>CslParagraph</c> contains a KQL query, as a string, and associated metadata.
+    /// </summary>
     public class CslParagraph
     {
         public string Description;
@@ -17,8 +20,19 @@ namespace System.Reactive.Kql
         public string Query;
     }
 
+    /// <summary>
+    /// Class <c>CslParser</c> provides methods for parsing *csl file into CslParagraph or CslFunction instances.
+    /// </summary>
+    /// <see cref="CslParagraph"/>
+    /// <see cref="CslFunction"/>
     public class CslParser
     {
+        /// <summary>
+        /// Reads the specified *.csl file and returns an array of one or more CslParagraph instances.
+        /// </summary>
+        /// <param name="cslFile">string - the path to the *.csl file.</param>
+        /// <returns>CslParagraph[] - array with one or more CslParagraph instances.</returns>
+        /// <see cref="CslParagraph"/>
         public static CslParagraph[] ReadFile(string cslFile)
         {
             var queries = new List<CslParagraph>();
@@ -90,6 +104,12 @@ namespace System.Reactive.Kql
             return queries.ToArray();
         }
 
+        /// <summary>
+        /// Reads the specified *.csl file and returns an array of one or more CslFunction instances.
+        /// </summary>
+        /// <param name="cslFile">string - the path to the *.csl file.</param>
+        /// <returns>CslFunction[] - array with one or more CslFunction instances.</returns>
+        /// <see cref="CslFunction"/>
         public static CslFunction[] ReadFunctionsFromFile(string cslFile)
         {
             List<CslFunction> result = new List<CslFunction>();
@@ -101,6 +121,12 @@ namespace System.Reactive.Kql
             return ReadAllLines(lines);
         }
 
+        /// <summary>
+        /// Returns an array of one or more CslFunction instances from the input string with one or more KQL statements.
+        /// </summary>
+        /// <param name="queryString">string - string with one or more KQL statements.</param>
+        /// <returns>CslFunction[] - array with one or more CslFunction instances.</returns>
+        /// <see cref="CslFunction"/>
         public static CslFunction[] ReadFunctionsFromQuery(string queryString)
         {
             string[] lines = queryString.Split(new[] { "\r\n", "\r", "\n" }, StringSplitOptions.None);
@@ -155,6 +181,9 @@ namespace System.Reactive.Kql
         }
     }
 
+    /// <summary>
+    /// Class <c>CslFunction</c> defines a KQL Function and associated metadata.
+    /// </summary>
     public class CslFunction
     {
         public string Comments { get; private set; }

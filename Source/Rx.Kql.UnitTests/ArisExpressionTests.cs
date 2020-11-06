@@ -4,7 +4,9 @@
 // *                                                       *
 // ********************************************************/
 
-namespace Rx.Kql.UnitTest
+using System;
+
+namespace Rx.Kql.UnitTests
 {
     using System;
     using System.Collections.Concurrent;

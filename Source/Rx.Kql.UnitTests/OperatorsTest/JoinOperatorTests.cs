@@ -7,7 +7,6 @@
 using System;
 using System.Dynamic;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
-using Rx.Kql.UnitTest;
 
 namespace Rx.Kql.UnitTests.OperatorsTest
 {

@@ -10,7 +10,7 @@ namespace System.Reactive.Kql
     using System.Reflection;
 
     /// <summary>
-    /// Attribute used to mark C# method as function available in Rx.KQL queries
+    /// Attribute used to mark C# methods as function available in Rx.KQL queries.
     /// </summary>
     [AttributeUsage(AttributeTargets.Method)]
     public class KqlScalarFunctionAttribute : Attribute
