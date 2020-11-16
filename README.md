@@ -3,28 +3,30 @@
 
 In order to view event logs today, users generally have to rely on tools that will first upload their data to storage **and then** query it. With Real-Time KQL, this is no longer necessary. Event processing happens **as events arrive, in real-time**.
 
-[Get started](Doc/GettingStarted.md) right away with using Real-Time KQL or learn [how it works](Source/RealTimeKql/RealTimeKql.Readme.md).
+[Get started](Doc/GettingStarted.md) right away with using Real-Time KQL or learn [how it works](Doc/Readme.md).
 
 ### Input Options
 
-|                           Windows                            |                            Linux                             |
-| :----------------------------------------------------------: | :----------------------------------------------------------: |
-| [winlog](Doc/Winlog.md): OS or application log you see in EventVwr |             [syslog](Doc/Syslog.md): the OS log              |
-| [evtx](Doc/Evtx.md): log file(s) on disk. Example is file(s) copied from another machine | **ebpf**: dynamic interception of kernel and user mode functions (coming soon) |
-| [etwSession](Doc/EtwSession.md): real-time session in Event Tracing for Windows (ETW) |                                                              |
-| [etl](Doc/Etl.md): previously recorded "Event Trace Log" by using ETW |                                                              |
+|                          |                           Windows                            |                            Linux                             |
+| :----------------------: | :----------------------------------------------------------: | :----------------------------------------------------------: |
+|       **OS Logs**        | [winlog](Doc/Winlog.md) - logs seen in EventVwr or log file(s) on disk |             [syslog](Doc/Syslog.md) - the OS log             |
+| **High-Volume Tracing ** | [etwSession](Doc/EtwSession.md) - Event Tracing for Windows (ETW) | **ebpf** (coming soon) - dynamic interception of kernel and user mode functions |
+
+
 
 ### Query Files
 
 Check out the [query writing guide](Doc/QueryGuide.md) for some best practices on coming up with queries for Real-Time KQL.
 
+
+
 ### Output Options
 
 |                       Real-Time Output                       |                         File Output                          |                        Upload Output                         |
 | :----------------------------------------------------------: | :----------------------------------------------------------: | :----------------------------------------------------------: |
-| [consoleOutput](Doc/ConsoleOutput.md): Results printed to standard output | [jsonOutput](Doc/JsonOutput.md): Each event is a JSON dictionary | [adxOutput](Doc/AdxOutput.md): Upload to Kusto (Azure Data Explorer) |
-| **webEvents**: Real-Time KQL acts as real-time server for events. | **csvOutput**: Each event is a row in Comma Separated Value table | [blobStorage](Doc/BlobStorage.md): Upload as JSON objects to BlobStorage |
-|                                                              | **htmlOutput**: Each event formatted as human-readable DIV element |                                                              |
+| [consoleOutput](Doc/ConsoleOutput.md) - Results printed to standard output | [jsonOutput](Doc/JsonOutput.md) - Each event is a JSON dictionary | [adxOutput](Doc/AdxOutput.md) - Upload to Kusto (Azure Data Explorer) |
+| **webEvents** - Real-Time KQL acts as real-time server for events. | **csvOutput** - Each event is a row in Comma Separated Value table | [blobStorage](Doc/BlobStorage.md) - Upload as JSON objects to BlobStorage |
+|                                                              | **htmlOutput** - Each event formatted as human-readable DIV element |                                                              |
 
 
 

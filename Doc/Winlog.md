@@ -1,12 +1,19 @@
 # WinLog
 
-This input option allows you to filter OS or application logs you see in EventVwr. You can also use this option with log file(s) on disk (e.g. file(s) copied from another machine).
+This input option allows you to filter the OS or application logs you see in EventVwr. It can also be used with log file(s) on disk (e.g. file(s) copied from another machine).
 
-*TODO: insert table of contents here*
+Jump To:
 
-### Real-Time Monitoring
+* [Real-Time Monitoring](#RealTimeMonitoring)
+  * [Using a WEC File](#UsingAWecFile)
+  * [Using Log](#UsingLog) 
+* [Historical Processing](#HistoricalProcessing)
+  * [Using a previously recorded Evtx Trace Log (.evtx files)](#RecordedEvtx)
+* [WinLog Options Overview](#WinLogOptionsOverview)
 
-#### Using a WEC File
+### <a id="RealTimeMonitoring"></a>Real-Time Monitoring
+
+#### <a id="UsingAWecFile"></a>Using a WEC File
 
 *TODO: description goes here*
 
@@ -22,7 +29,7 @@ This input option allows you to filter OS or application logs you see in EventVw
 * `--adxdirect` : use [direct ingestion](https://docs.microsoft.com/en-us/azure/data-explorer/kusto/api/netfx/about-kusto-ingest#direct-ingestion) instead of the default [queued ingestion](https://docs.microsoft.com/en-us/azure/data-explorer/kusto/api/netfx/about-kusto-ingest#queued-ingestion)
 * `--adxreset` : if the "EvtxOutput" table already exists, reset it
 
-#### Using Log
+#### <a id="UsingLog"></a>Using Log
 
 *TODO: description goes here*
 
@@ -38,11 +45,27 @@ This input option allows you to filter OS or application logs you see in EventVw
 * `--adxdirect` : use [direct ingestion](https://docs.microsoft.com/en-us/azure/data-explorer/kusto/api/netfx/about-kusto-ingest#direct-ingestion) instead of the default [queued ingestion](https://docs.microsoft.com/en-us/azure/data-explorer/kusto/api/netfx/about-kusto-ingest#queued-ingestion)
 * `--adxreset` : if the "EvtxOutput" table already exists, reset it
 
-### Historical or Offline Monitoring
 
-*TODO*
 
-### WinLog Options Overview
+### <a id="HistoricalProcessing"></a>Historical Processing
+
+#### <a id="RecordedEvtx"></a>Previously Recorded Evtx Trace Log
+
+*TODO: description goes here*
+
+**Example usage**:
+
+`RealtimeKql winlog --file=*.evtx --query=ProcessCreation.csl --adxcluster=CDOC.kusto.windows.net --adxdatabase=GeorgiTest --adxtable=SecurityEvtx`
+
+**Example breakdown**:
+
+* `--file=*.evtx` : use the pattern "*.evtx" to filter for files of interest
+* `--query=ProcessCreation.csl`: use [ProcessCreation.csl](../Source/RealTimeKql/ProcessCreation.csl) to process all events (in this case, ignore all events that are not process creation events). For more information on creating and using queries, see the [query writing guide](QueryGuide.md).
+* `--adxcluster=CDOC.kusto.windows.net --adxdatabase=GeorgiTest --adxtable=SecurityEvtx` : ingest all results to the "SecurityEvtx" table in the "GeorgiTest" database in the "CDOC.kusto.windows.net" Azure Data Explorer (ADX) cluster
+
+
+
+### <a id="WinLogOptionsOverview"></a>WinLog Options Overview
 
 You can also run`RealTimeKql Winlog --help ` from an Administrator Command Prompt to get this same overview of your options:
 
