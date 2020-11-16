@@ -1,87 +1,32 @@
-### Build Commands
-The tools can be built by running the following commands in the source folder,
-
-To build for Windows platform,
-
-	dotnet build KqlTools.sln -r win-x64
-
-To build for Linux platform,
-
-	dotnet build KqlTools.sln -r linux-x64
-
-# Real-Time KQL 
+# Real-Time KQL
 ![.NET Core Desktop](https://github.com/microsoft/KqlTools/workflows/.NET%20Core%20Desktop/badge.svg?branch=master&event=push)
 
-The Real-Time KQL tools allow the user to explore the events by directly viewing and querying real-time streams. For example, you can filter the stream and show only the events of interest. You can choose which properties of the events to display, and group/count certain events in a time window:
+In order to view event logs today, users generally have to rely on tools that will first upload their data to storage **and then** query it. With Real-Time KQL, this is no longer necessary. Event processing happens **as events arrive, in real-time**.
 
-![StandingQuery.JPG](StandingQuery.JPG)
+[Get started](Doc/GettingStarted.md) right away with using Real-Time KQL or learn [how it works](Source/RealTimeKql/RealTimeKql.Readme.md).
 
-Instead of "loading data" **and then** "querying" everything happens **as events arrive**. 
+### Input Options
 
-For example:
+|                           Windows                            |                            Linux                             |
+| :----------------------------------------------------------: | :----------------------------------------------------------: |
+| [winlog](Doc/Winlog.md): OS or application log you see in EventVwr |             [syslog](Doc/Syslog.md): the OS log              |
+| [evtx](Doc/Evtx.md): log file(s) on disk. Example is file(s) copied from another machine | **ebpf**: dynamic interception of kernel and user mode functions (coming soon) |
+| [etwSession](Doc/EtwSession.md): real-time session in Event Tracing for Windows (ETW) |                                                              |
+| [etl](Doc/Etl.md): previously recorded "Event Trace Log" by using ETW |                                                              |
 
-- if an event does not match a filter it is ignored
-- if the event fits in predefined time-window, its numerical data is added to the aggregation computational state. At the end of the window, the aggregation result is produced as output event and the state is reset.
+### Query Files
 
-The tool can be used in offline mode, on the source machine. In this mode, it is just a better alternative of the limited OS tools like grep in Linux and EventVwr in Windows.
+Check out the [query writing guide](Doc/QueryGuide.md) for some best practices on coming up with queries for Real-Time KQL.
 
-Here is how to use the tool to see processes started on a Windows machine:
+### Output Options
 
-	RealTimeKql winlog --log=Security --query=ProcessCreation.csl --outputconsole
+|                       Real-Time Output                       |                         File Output                          |                        Upload Output                         |
+| :----------------------------------------------------------: | :----------------------------------------------------------: | :----------------------------------------------------------: |
+| [consoleOutput](Doc/ConsoleOutput.md): Results printed to standard output | [jsonOutput](Doc/JsonOutput.md): Each event is a JSON dictionary | [adxOutput](Doc/AdxOutput.md): Upload to Kusto (Azure Data Explorer) |
+| **webEvents**: Real-Time KQL acts as real-time server for events. | **csvOutput**: Each event is a row in Comma Separated Value table | [blobStorage](Doc/BlobStorage.md): Upload as JSON objects to BlobStorage |
+|                                                              | **htmlOutput**: Each event formatted as human-readable DIV element |                                                              |
 
-The same on Linux:
 
-	RealTimeKql syslog --query=SylogQuery.csl --outputconsole
-
-Optionally, the tool can be used for prepossessing the stream and then uploading to a database, such as Azure Data Explorer (ADX = Kuso)
-
-## Input choices
-
-The tool is designed to work on a real-time stream, which may never end. Optionally, you can pass in files(s) and they will be read only once and processed as a stream.  
-
-The supported options are:
-
-- Windows:
-	- **winlog**: OS or application log you see in EventVwr
-	- **evtx**: log file(s) on disk. Example is file(s) copied from another machine
-	- **etwSession**: real-time session in Event Tracing for Windows (ETW)
-	- **etl**: previously recorded "Event Trace Log" by using ETW
-- Linux:
-	- **syslog**: the OS log (coming soon)
-	- **ebpf**: dynamic interception of kernel and user mode functions (coming soon)
-
-## Query file
-
-The query file describes what processing to apply to the events on the stream. It uses a subset of the Kusto Query Language(KQL) which is specifically useful for real-time viewing and prepossessing of streams.
-
-The best practice to create query files is:
-
-- Upload some raw events into Kusto (ADX), without specifying query-file
-- Look at the data, and define some useful query that shows what you want as output
-- Save the query as **.kql** file and pass this in the RealTimeKQL command line
-
-Here are the query files for the two example command-lines above:
-
-- [Processes started on Windows](Source/RealTimeKql/ProcessCreation.csl)
-- Processes started on Linux
-
-## Output choices
-
-The output of the tool is also treated as a stream, and can be infinite.
-Here are the options:
-
-- Real-Time user experiences:
-	- **consoleOutput**: the result is printed on screen (standard output), and it will roll-off depending how you setup the console window buffer
-	- **webEvents** the tool acts as real-time server for events. Users whose browser is compatible with HTML5 standard can see events in real-time.
-- Files
-	- **csvOutput**: Each event is a row in Comma Separated Value table
-	- **jsonOutput**: Each event is a JSON dictionary
-	- **htmlOutput**: Each event formatted as human-readable DIV element
-- Upload 
-	- **blobStorage**: Upload as JSON objects to BlobStorage
-	- **adxOutput**: Upload to Kusto (Azure Data Explorer)
-
-Detailed help for RealTimeKql can be found at, [RealTimeKqlHelp](Source/RealTimeKql/RealTimeKql.Readme.md)
 
 ## Contributing
 
