@@ -7,10 +7,10 @@ In order to view event logs today, users generally have to rely on tools that wi
 
 ### Input Options
 
-|                          |                           Windows                            |                            Linux                             |
-| :----------------------: | :----------------------------------------------------------: | :----------------------------------------------------------: |
-|       **OS Logs**        | [winlog](Doc/Winlog.md) - logs seen in EventVwr or log file(s) on disk |             [syslog](Doc/Syslog.md) - the OS log             |
-| **High-Volume Tracing ** | [etwSession](Doc/EtwSession.md) - Event Tracing for Windows (ETW) | **ebpf** (coming soon) - dynamic interception of kernel and user mode functions |
+|                         |                           Windows                            |                            Linux                             |
+| :---------------------: | :----------------------------------------------------------: | :----------------------------------------------------------: |
+|       **OS Logs**       | [winlog](Doc/Winlog.md) - logs seen in EventVwr or log file(s) on disk |             [syslog](Doc/Syslog.md) - the OS log             |
+| **High-Volume Tracing** | [etwSession](Doc/EtwSession.md) - Event Tracing for Windows (ETW) | **ebpf** (coming soon) - dynamic interception of kernel and user mode functions |
 
 
 

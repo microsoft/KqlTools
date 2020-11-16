@@ -13,6 +13,8 @@
 
 ### Download and Setup for Windows
 
+Watch a video guide for building Real-Time KQL on a Windows machine [here](https://youtu.be/_7K398SXf5A).
+
 1. [Download](https://github.com/microsoft/KqlTools/archive/master.zip) the Real-Time KQL Project and extract all the files.
 2. Open a Command Prompt as Administrator and navigate to the folder where you saved the project.
 3. Navigate to the "Source" folder.

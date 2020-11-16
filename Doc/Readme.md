@@ -8,7 +8,7 @@ For instance, suppose a user wanted to see if there was an adversary trying to l
 
 This diagram shows an overview of how Real-Time KQL works:
 
-![StandingQuery.JPG](StandingQuery.JPG)
+![StandingQuery.jpg](StandingQuery.jpg)
 
 A user can specify the input and output sources as well as any query files to apply to the given input stream. Real-Time KQL will process the event stream and output the result as another stream to the output source the user had chosen.
 
