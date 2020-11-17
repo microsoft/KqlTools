@@ -14,6 +14,8 @@ A user can specify the input and output sources as well as any query files to ap
 
 [Get started](GettingStarted.md) using Real-Time KQL or see the utility in action:
 
-- [WinLog Demo] *TODO: add link to video demo*
-- [Etw Demo] *TODO: add link to video demo*
-- [Syslog Demo] *TODO: add link to video demo*
+|      WinLog (Windows)      |      Etw (Windows)      | Syslog (Linux) |
+| :------------------------: | :---------------------: | :------------: |
+|            Demo            |          Demo           |      Demo      |
+| [Documentation](Winlog.md) | [Documentation](Etw.md) | Documentation  |
+

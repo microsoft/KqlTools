@@ -1,6 +1,6 @@
 # WinLog
 
-This input option allows you to filter the OS or application logs you see in EventVwr. It can also be used with log file(s) on disk (e.g. file(s) copied from another machine).
+This input option allows you to filter the OS or application logs you see in EventVwr. It can also be used with log file(s) on disk (e.g. file(s) copied from another machine). You can watch a demonstration of using Real-Time KQL for WinLog [here].
 
 Jump To:
 
@@ -15,7 +15,7 @@ Jump To:
 
 #### <a id="UsingAWecFile"></a>Using a WEC File
 
-*TODO: description goes here*
+You can use an XML-formatted query file to filter through windows event logs.
 
 **Example usage**:
 
@@ -23,7 +23,7 @@ Jump To:
 
 **Example breakdown**:
 
-* `--wecfile=WecFilter.xml` : use the XML-formatted query file "WecFilter.xml" to filter through windows logs
+* `--wecfile=WecFilter.xml` : use the XML-formatted query file [WecFilter.xml](https://github.com/microsoft/KqlTools/blob/master/Source/RealTimeKql/WecFilter.xml) to filter through windows logs
 *  `--readexisting` : start reading events from the beginning of the log (as opposed to just future logs)
 * `--adxcluster=CDOC.kusto.windows.net --adxdatabase=GeorgiTest --adxtable=EvtxOutput` : ingest all results to the "EvtxOutput" table in the "GeorgiTest" database in the "CDOC.kusto.windows.net" Azure Data Explorer (ADX) cluster
 * `--adxdirect` : use [direct ingestion](https://docs.microsoft.com/en-us/azure/data-explorer/kusto/api/netfx/about-kusto-ingest#direct-ingestion) instead of the default [queued ingestion](https://docs.microsoft.com/en-us/azure/data-explorer/kusto/api/netfx/about-kusto-ingest#queued-ingestion)
@@ -31,16 +31,17 @@ Jump To:
 
 #### <a id="UsingLog"></a>Using Log
 
-*TODO: description goes here*
+You can also simply specify the specific log you wish to monitor and use Real-Time KQL to process events generated in that log.
 
 **Example usage:**
 
-`RealtimeKql winlog --log="Security" --readexisting --query=QueryFile.csl --adxcluster=CDOC.kusto.windows.net --adxdatabase=GeorgiTest --adxtable=SecurityOutput --adxdirect --adxreset`
+`RealtimeKql winlog --log="Security" --readexisting --query=ProcessCreation.csl --adxcluster=CDOC.kusto.windows.net --adxdatabase=GeorgiTest --adxtable=SecurityOutput --adxdirect --adxreset`
 
 **Example breakdown:**
 
 * `--log="Security"` : monitor the Security log
 *  `--readexisting` : start reading events from the beginning of the log (as opposed to just future logs)
+*  `--query=ProcessCreation.csl` : use [ProcessCreation.csl](../Source/RealTimeKql/ProcessCreation.csl) to process all events (in this case, ignore all events that are not process creation events). For more information on creating and using queries, see the [query writing guide](QueryGuide.md)
 * `--adxcluster=CDOC.kusto.windows.net --adxdatabase=GeorgiTest --adxtable=SecurityOutput` : ingest all results to the "SecurityOutput" table in the "GeorgiTest" database in the "CDOC.kusto.windows.net" Azure Data Explorer (ADX) cluster
 * `--adxdirect` : use [direct ingestion](https://docs.microsoft.com/en-us/azure/data-explorer/kusto/api/netfx/about-kusto-ingest#direct-ingestion) instead of the default [queued ingestion](https://docs.microsoft.com/en-us/azure/data-explorer/kusto/api/netfx/about-kusto-ingest#queued-ingestion)
 * `--adxreset` : if the "SecurityOutput" table already exists, reset it
@@ -51,7 +52,7 @@ Jump To:
 
 #### <a id="RecordedEvtx"></a>Previously Recorded Evtx Trace Log (.evtx files)
 
-*TODO: description goes here*
+You can also use Real-Time KQL to process pre-recorded Evtx Trace log files (*.evtx files).
 
 **Example usage**:
 
@@ -60,7 +61,7 @@ Jump To:
 **Example breakdown**:
 
 * `--file=*.evtx` : use the pattern "*.evtx" to filter for files of interest
-* `--query=ProcessCreation.csl`: use [ProcessCreation.csl](../Source/RealTimeKql/ProcessCreation.csl) to process all events (in this case, ignore all events that are not process creation events). For more information on creating and using queries, see the [query writing guide](QueryGuide.md).
+* `--query=ProcessCreation.csl`: use [ProcessCreation.csl](../Source/RealTimeKql/ProcessCreation.csl) to process all events (in this case, ignore all events that are not process creation events). For more information on creating and using queries, see the [query writing guide](QueryGuide.md)
 * `--adxcluster=CDOC.kusto.windows.net --adxdatabase=GeorgiTest --adxtable=SecurityEvtx` : ingest all results to the "SecurityEvtx" table in the "GeorgiTest" database in the "CDOC.kusto.windows.net" Azure Data Explorer (ADX) cluster
 
 

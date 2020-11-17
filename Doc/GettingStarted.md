@@ -31,10 +31,8 @@ Watch a video guide for building Real-Time KQL on a Windows machine [here](https
 1. Make sure you're in the folder housing the .exe file (see previous section for instructions on getting here).
 2. Run `RealTimeKql --help` to get an overview of your options.
 3. For more information and examples on using Real-Time KQL for Windows:
-   - [winlog](Winlog.md): OS or application log you see in EventVwr
-   - [evtx](Evtx.md): log file(s) on disk. Example is file(s) copied from another machine
-   - [etwSession](EtwSession.md): real-time session in Event Tracing for Windows (ETW)
-   - [etl](Etl.md): previously recorded "Event Trace Log" by using ETW
+   - [winlog](Winlog.md): OS or application logs you see in EventVwr or log file(s) on disk
+   - [etw](Etw.md): real-time session in Event Tracing for Windows (ETW) or previously recorded "Event Trace Log"
 
 ### Download and Setup for Linux
 
