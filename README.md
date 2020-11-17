@@ -10,7 +10,7 @@ In order to view event logs today, users generally have to rely on tools that wi
 |                         |                           Windows                            |                            Linux                             |
 | :---------------------: | :----------------------------------------------------------: | :----------------------------------------------------------: |
 |       **OS Logs**       | [winlog](Doc/Winlog.md) - logs seen in EventVwr or log file(s) on disk |             [syslog](Doc/Syslog.md) - the OS log             |
-| **High-Volume Tracing** | [etwSession](Doc/EtwSession.md) - Event Tracing for Windows (ETW) | **ebpf** (coming soon) - dynamic interception of kernel and user mode functions |
+| **High-Volume Tracing** |     [etw](Doc/Etw.md) - Event Tracing for Windows (ETW)      | **ebpf** (coming soon) - dynamic interception of kernel and user mode functions |
 
 
 
@@ -24,8 +24,8 @@ Check out the [query writing guide](Doc/QueryGuide.md) for some best practices o
 
 |                       Real-Time Output                       |                         File Output                          |                        Upload Output                         |
 | :----------------------------------------------------------: | :----------------------------------------------------------: | :----------------------------------------------------------: |
-| [consoleOutput](Doc/ConsoleOutput.md) - Results printed to standard output | [jsonOutput](Doc/JsonOutput.md) - Each event is a JSON dictionary | [adxOutput](Doc/AdxOutput.md) - Upload to Kusto (Azure Data Explorer) |
-| **webEvents** - Real-Time KQL acts as real-time server for events. | **csvOutput** - Each event is a row in Comma Separated Value table | [blobStorage](Doc/BlobStorage.md) - Upload as JSON objects to BlobStorage |
+| [consoleOutput](Doc/RealTimeOutput.md#ConsoleOutput) - Results printed to standard output | [jsonOutput](Doc/FileOutput.md#JSONOutput) - Each event is a JSON dictionary | [adxOutput](Doc/UploadOutput.md#ADXOutput) - Upload to Kusto (Azure Data Explorer) |
+| **webEvents** - Real-Time KQL acts as real-time server for events. | **csvOutput** - Each event is a row in Comma Separated Value table | [blobStorage](Doc/UploadOutput.md#BlobStorage) - Upload as JSON objects to BlobStorage |
 |                                                              | **htmlOutput** - Each event formatted as human-readable DIV element |                                                              |
 
 

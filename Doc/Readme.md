@@ -12,7 +12,7 @@ This diagram shows an overview of how Real-Time KQL works:
 
 A user can specify the input and output sources as well as any query files to apply to the given input stream. Real-Time KQL will process the event stream and output the result as another stream to the output source the user had chosen.
 
-[Get started](GettingStarted.md) using Real-Time KQL or see the utility in action:
+**[Get started](GettingStarted.md) using Real-Time KQL or see the utility in action:**
 
 |      WinLog (Windows)      |      Etw (Windows)      | Syslog (Linux) |
 | :------------------------: | :---------------------: | :------------: |

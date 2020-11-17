@@ -1,8 +1,10 @@
 # WinLog
 
-This input option allows you to filter the OS or application logs you see in EventVwr. It can also be used with log file(s) on disk (e.g. file(s) copied from another machine). You can watch a demonstration of using Real-Time KQL for WinLog [here].
+This input option allows you to filter the OS or application logs you see in EventVwr. It can also be used with log file(s) on disk (e.g. file(s) copied from another machine). 
 
-Jump To:
+**You can watch a demonstration of using Real-Time KQL for WinLog [here].**
+
+**Jump To:**
 
 * [Real-Time Monitoring](#RealTimeMonitoring)
   * [Using a WEC File](#UsingAWecFile)
@@ -11,9 +13,11 @@ Jump To:
   * [Using a previously recorded Evtx Trace Log (.evtx files)](#RecordedEvtx)
 * [WinLog Options Overview](#WinLogOptionsOverview)
 
-### <a id="RealTimeMonitoring"></a>Real-Time Monitoring
 
-#### <a id="UsingAWecFile"></a>Using a WEC File
+
+## <a id="RealTimeMonitoring"></a>Real-Time Monitoring
+
+### <a id="UsingAWecFile"></a>Using a WEC File
 
 You can use an XML-formatted query file to filter through windows event logs.
 
@@ -29,7 +33,7 @@ You can use an XML-formatted query file to filter through windows event logs.
 * `--adxdirect` : use [direct ingestion](https://docs.microsoft.com/en-us/azure/data-explorer/kusto/api/netfx/about-kusto-ingest#direct-ingestion) instead of the default [queued ingestion](https://docs.microsoft.com/en-us/azure/data-explorer/kusto/api/netfx/about-kusto-ingest#queued-ingestion)
 * `--adxreset` : if the "EvtxOutput" table already exists, reset it
 
-#### <a id="UsingLog"></a>Using Log
+### <a id="UsingLog"></a>Using Log
 
 You can also simply specify the specific log you wish to monitor and use Real-Time KQL to process events generated in that log.
 
@@ -48,9 +52,9 @@ You can also simply specify the specific log you wish to monitor and use Real-Ti
 
 
 
-### <a id="HistoricalProcessing"></a>Historical Processing
+## <a id="HistoricalProcessing"></a>Historical Processing
 
-#### <a id="RecordedEvtx"></a>Previously Recorded Evtx Trace Log (.evtx files)
+### <a id="RecordedEvtx"></a>Previously Recorded Evtx Trace Log (.evtx files)
 
 You can also use Real-Time KQL to process pre-recorded Evtx Trace log files (*.evtx files).
 
@@ -66,7 +70,7 @@ You can also use Real-Time KQL to process pre-recorded Evtx Trace log files (*.e
 
 
 
-### <a id="WinLogOptionsOverview"></a>WinLog Options Overview
+## <a id="WinLogOptionsOverview"></a>WinLog Options Overview
 
 You can also run`RealTimeKql Winlog --help ` from an Administrator Command Prompt to get this same overview of your options:
 

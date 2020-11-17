@@ -1,0 +1,4 @@
+# Syslog
+
+*Documentation Coming Soon*
+

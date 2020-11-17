@@ -1,6 +1,6 @@
 # Getting Started with Real-Time KQL
 
-### Prerequisites
+## Prerequisites
 
 * Real-Time KQL has to be built in a Windows machine, but can be published to either a Windows or Linux machine. (See below for instructions on publishing to a Linux machine).
 
@@ -10,6 +10,10 @@
   - Download and install the specific version (4.6.2). Make sure to install the Developer Pack (and not the Runtime).
 - [Visual Studio 2019](https://visualstudio.microsoft.com/downloads/)
   - Only required if you want to run Real-Time KQL on a Linux machine.
+
+
+
+## Windows
 
 ### Download and Setup for Windows
 
@@ -33,6 +37,10 @@ Watch a video guide for building Real-Time KQL on a Windows machine [here](https
 3. For more information and examples on using Real-Time KQL for Windows:
    - [winlog](Winlog.md): OS or application logs you see in EventVwr or log file(s) on disk
    - [etw](Etw.md): real-time session in Event Tracing for Windows (ETW) or previously recorded "Event Trace Log"
+
+
+
+## Linux
 
 ### Download and Setup for Linux
 
