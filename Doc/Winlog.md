@@ -43,13 +43,13 @@ Jump To:
 *  `--readexisting` : start reading events from the beginning of the log (as opposed to just future logs)
 * `--adxcluster=CDOC.kusto.windows.net --adxdatabase=GeorgiTest --adxtable=SecurityOutput` : ingest all results to the "SecurityOutput" table in the "GeorgiTest" database in the "CDOC.kusto.windows.net" Azure Data Explorer (ADX) cluster
 * `--adxdirect` : use [direct ingestion](https://docs.microsoft.com/en-us/azure/data-explorer/kusto/api/netfx/about-kusto-ingest#direct-ingestion) instead of the default [queued ingestion](https://docs.microsoft.com/en-us/azure/data-explorer/kusto/api/netfx/about-kusto-ingest#queued-ingestion)
-* `--adxreset` : if the "EvtxOutput" table already exists, reset it
+* `--adxreset` : if the "SecurityOutput" table already exists, reset it
 
 
 
 ### <a id="HistoricalProcessing"></a>Historical Processing
 
-#### <a id="RecordedEvtx"></a>Previously Recorded Evtx Trace Log
+#### <a id="RecordedEvtx"></a>Previously Recorded Evtx Trace Log (.evtx files)
 
 *TODO: description goes here*
 
