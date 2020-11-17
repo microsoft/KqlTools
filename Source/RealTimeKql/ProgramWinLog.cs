@@ -4,7 +4,7 @@
 // *                                                       *
 // ********************************************************/
 
-// #define BUILT_FOR_WINDOWS Uncomment this line to get intellisense to work
+//#define BUILT_FOR_WINDOWS Uncomment this line to get intellisense to work
 
 #if BUILT_FOR_WINDOWS
 
@@ -53,7 +53,7 @@ namespace RealTimeKql
                 "Optional: Query file that contains the windows event log filtering using structured xml query format. Refer, https://docs.microsoft.com/en-us/windows/win32/wes/consuming-events",
                 CommandOptionType.SingleValue);
 
-            var filterPatternOption = command.Option("-f|--file <value>",
+            var filePatternOption = command.Option("-f|--file <value>",
                 "File pattern to filter files by. eg, --file=*.evtx",
                 CommandOptionType.SingleValue);
 
@@ -181,10 +181,10 @@ namespace RealTimeKql
 
                 try
                 {
-                    if (filterPatternOption.HasValue())
+                    if (filePatternOption.HasValue())
                     {
                         UploadEvtxFiles(
-                            filterPatternOption.Value(), 
+                            filePatternOption.Value(), 
                             kqlQueryOption.Value(), 
                             outputFileOption.Value(),
                             blobStorageConnectionStringOption.Value(), 

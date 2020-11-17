@@ -4,7 +4,7 @@
 // *                                                       *
 // ********************************************************/
 
-// #define BUILT_FOR_WINDOWS Uncomment this line to get intellisense to work
+//#define BUILT_FOR_WINDOWS Uncomment this line to get intellisense to work
 
 #if BUILT_FOR_WINDOWS
 
@@ -29,7 +29,7 @@ namespace RealTimeKql
                 + Environment.NewLine + "\tRealtimeKql etw --session=tcp --query=QueryFile.csl --adxcluster=CDOC.kusto.windows.net --adxdatabase=GeorgiTest --adxtable=EtwTcp --adxdirect --adxreset" + Environment.NewLine
                 + Environment.NewLine + "Note: To use real-time mode, the tool must be run with ETW reader permissions" + Environment.NewLine
                 + Environment.NewLine + "Previously recorded ETL Trace Log (.etl files)"
-                + Environment.NewLine + "\tRealtimeKql etw --filter=*.etl --query=QueryFile.csl --adxcluster=CDOC.kusto.windows.net --adxdatabase=GeorgiTest --adxtable=EtwTcp" + Environment.NewLine
+                + Environment.NewLine + "\tRealtimeKql etw --file=*.etl --query=QueryFile.csl --adxcluster=CDOC.kusto.windows.net --adxdatabase=GeorgiTest --adxtable=EtwTcp" + Environment.NewLine
                 + Environment.NewLine + "When Kusto is not accessible, we can log the data to a text file."
                 + Environment.NewLine + "\tRealtimeKql etw --session=tcp --query=QueryFile.csl --outputjson=Tcp.json" + Environment.NewLine
                 + Environment.NewLine + "Note: Logman can be used to start a ETW trace. In this example we are creating a trace session named tcp with Tcp Provider guid." + Environment.NewLine
@@ -46,8 +46,8 @@ namespace RealTimeKql
                 "Name of the ETW Session to attach to. eg, --session=tcp. tcp is the name of the session started using logman or such tools.",
                 CommandOptionType.SingleValue);
 
-            var filterPatternOption = command.Option("-f|--file <value>",
-                "File pattern to filter files by. eg, --filter=*.etl",
+            var filePatternOption = command.Option("-f|--file <value>",
+                "File pattern to filter files by. eg, --file=*.etl",
                 CommandOptionType.SingleValue);
 
             // query for real-time view or pre-processing
@@ -168,10 +168,10 @@ namespace RealTimeKql
 
                 try
                 {
-                    if (filterPatternOption.HasValue())
+                    if (filePatternOption.HasValue())
                     {
                         UploadEtlFiles(
-                            filterPatternOption.Value(),
+                            filePatternOption.Value(),
                             kqlQueryOption.Value(),
                             outputFileOption.Value(),
                             blobStorageConnectionStringOption.Value(),
