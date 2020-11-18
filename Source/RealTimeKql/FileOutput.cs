@@ -59,9 +59,9 @@ namespace RealTimeKql
 
         public void OnCompleted()
         {
+            running = false;
             if (error != true)
             {
-                running = false;
                 outputFile.Write($"{Environment.NewLine}]{Environment.NewLine}");
                 outputFile.Dispose();
                 outputFile = null;
