@@ -1,4 +1,5 @@
-﻿using Newtonsoft.Json;
+﻿using Kusto.Ingest.Exceptions;
+using Newtonsoft.Json;
 using System;
 using System.Collections.Generic;
 using System.IO;
@@ -10,10 +11,13 @@ namespace RealTimeKql
         public string OutputFileName { get; private set; }
         private StreamWriter outputFile;
         private bool firstEntry = true;
+
+        private bool running = false;
         private bool error = false;
 
         public FileOutput(string outputFileName)
         {
+            running = true;
             OutputFileName = outputFileName;
             outputFile = new StreamWriter(this.OutputFileName);
             outputFile.Write($"[{Environment.NewLine}");
@@ -21,6 +25,11 @@ namespace RealTimeKql
 
         public void OnNext(IDictionary<string, object> value)
         {
+            if(!running)
+            {
+                return;
+            }
+
             string content;
             if (firstEntry)
             {
@@ -52,6 +61,7 @@ namespace RealTimeKql
         {
             if (error != true)
             {
+                running = false;
                 outputFile.Write($"{Environment.NewLine}]{Environment.NewLine}");
                 outputFile.Dispose();
                 outputFile = null;
