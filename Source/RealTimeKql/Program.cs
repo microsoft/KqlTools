@@ -392,7 +392,7 @@ namespace RealTimeKql
             if (kscbAdmin != null)
             {
                 // output to kusto
-                ku = CreateUploader(UploadTimespan, outputFileName, blobConnectionString, blobContainerName, kscbAdmin, kscbIngest, directIngest, tableName, resetTable);
+                ku = CreateUploader(UploadTimespan, blobConnectionString, blobContainerName, kscbAdmin, kscbIngest, directIngest, tableName, resetTable);
                 Task task = Task.Factory.StartNew(() =>
                 {
                     RunUploader(ku, _converter, queryFile);
@@ -528,7 +528,6 @@ namespace RealTimeKql
 
         private static BlockingKustoUploader CreateUploader(
             TimeSpan flushDuration,
-            string _outputFileName,
             string blobConnectionString,
             string blobContainerName,
             KustoConnectionStringBuilder kscbAdmin,

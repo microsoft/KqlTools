@@ -265,8 +265,24 @@ namespace RealTimeKql
             if (files != null && files.Length > 0)
             {
                 var etw = EvtxAsDictionaryObservable.FromFiles(files);
-                var ku = CreateUploader(UploadTimespan, _outputFileName, blobConnectionString, blobContainerName, kscbAdmin, kscbIngest, _demoMode, _tableName, _resetTable);
-                RunUploader(ku, etw, _queryFile);
+                if(kscbAdmin != null)
+                {
+                    // output to kusto  
+                    var ku = CreateUploader(UploadTimespan, blobConnectionString, blobContainerName, kscbAdmin, kscbIngest, _demoMode, _tableName, _resetTable);
+                    RunUploader(ku, etw, _queryFile);
+                }
+                else if (!string.IsNullOrEmpty(_outputFileName))
+                {
+                    // output to file
+                    var fileOutput = new FileOutput(_outputFileName);
+                    RunFileOutput(fileOutput, etw, _queryFile);
+                }
+                else
+                {
+                    // output to console
+                    var consoleOutput = new ConsoleOutput();
+                    RunConsoleOutput(consoleOutput, etw, _queryFile);
+                }
             }
         }
 
@@ -285,6 +301,9 @@ namespace RealTimeKql
             bool _resetTable)
         {
             IObservable<IDictionary<string, object>> etw;
+            BlockingKustoUploader ku = null;
+            FileOutput fileOutput = null;
+            ConsoleOutput consoleOutput = null;
 
             if (!string.IsNullOrEmpty(_wecFile))
             {
@@ -308,13 +327,44 @@ namespace RealTimeKql
                 Console.WriteLine("Listening using Log Name '{0}'. Press Enter to terminate", _logName);
             }
 
-            var ku = CreateUploader(UploadTimespan, _outputFileName, blobConnectionString, blobContainerName, kscbAdmin, kscbIngest, _demoMode, _tableName, _resetTable);
-            Task task = Task.Factory.StartNew(() =>
+            // output
+            if (kscbAdmin != null)
             {
-                RunUploader(ku, etw, _queryFile);
-            });
+                // output to kusto
+                ku = CreateUploader(UploadTimespan, blobConnectionString, blobContainerName, kscbAdmin, kscbIngest, _demoMode, _tableName, _resetTable);
+                Task task = Task.Factory.StartNew(() =>
+                {
+                    RunUploader(ku, etw, _queryFile);
+                });
+            }
+            else if (!string.IsNullOrEmpty(_outputFileName))
+            {
+                // output to file
+                fileOutput = new FileOutput(_outputFileName);
+                RunFileOutput(fileOutput, etw, _queryFile);
+            }
+            else
+            {
+                // output to console
+                consoleOutput = new ConsoleOutput();
+                RunConsoleOutput(consoleOutput, etw, _queryFile);
+            }
+
             string readline = Console.ReadLine();
-            ku.OnCompleted();
+
+            // clean up
+            if (kscbAdmin != null)
+            {
+                ku.OnCompleted();
+            }
+            else if (!string.IsNullOrEmpty(_outputFileName))
+            {
+                fileOutput.OnCompleted();
+            }
+            else
+            {
+                consoleOutput.OnCompleted();
+            }
         }
     }
 }

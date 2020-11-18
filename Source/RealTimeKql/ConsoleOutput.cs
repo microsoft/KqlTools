@@ -5,12 +5,21 @@ namespace RealTimeKql
 {
     class ConsoleOutput: IObserver<IDictionary<string, object>>
     {
+        private bool running = false;
         private bool error = false;
+
+        public ConsoleOutput()
+        {
+            running = true;
+        }
 
         public void OnNext(IDictionary<string, object> value)
         {
-            // printing value to console
-            Console.WriteLine(string.Join("\t", value.Values));
+            if(running)
+            {
+                // printing value to console
+                Console.WriteLine(string.Join("\t", value.Values));
+            }
         }
 
         public void OnError(Exception error)
@@ -20,6 +29,7 @@ namespace RealTimeKql
 
         public void OnCompleted()
         {
+            running = false;
             if (error != true)
             {
                 Console.WriteLine("Completed!");
