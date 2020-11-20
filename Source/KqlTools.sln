@@ -13,6 +13,8 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "RealTimeKql", "RealTimeKql\
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Microsoft.Syslog", "Microsoft.Syslog\Microsoft.Syslog.csproj", "{E6AC40D2-EB4D-4AA5-B071-E01674E3A491}"
 EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "SimpleCsvReader", "SimpleCsvReader\SimpleCsvReader.csproj", "{F00C83ED-038E-4238-8F5B-92342297CBA0}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -61,6 +63,14 @@ Global
 		{E6AC40D2-EB4D-4AA5-B071-E01674E3A491}.Release|Any CPU.Build.0 = Release|Any CPU
 		{E6AC40D2-EB4D-4AA5-B071-E01674E3A491}.Release|x64.ActiveCfg = Release|Any CPU
 		{E6AC40D2-EB4D-4AA5-B071-E01674E3A491}.Release|x64.Build.0 = Release|Any CPU
+		{F00C83ED-038E-4238-8F5B-92342297CBA0}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{F00C83ED-038E-4238-8F5B-92342297CBA0}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{F00C83ED-038E-4238-8F5B-92342297CBA0}.Debug|x64.ActiveCfg = Debug|Any CPU
+		{F00C83ED-038E-4238-8F5B-92342297CBA0}.Debug|x64.Build.0 = Debug|Any CPU
+		{F00C83ED-038E-4238-8F5B-92342297CBA0}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{F00C83ED-038E-4238-8F5B-92342297CBA0}.Release|Any CPU.Build.0 = Release|Any CPU
+		{F00C83ED-038E-4238-8F5B-92342297CBA0}.Release|x64.ActiveCfg = Release|Any CPU
+		{F00C83ED-038E-4238-8F5B-92342297CBA0}.Release|x64.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
