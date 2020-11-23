@@ -88,23 +88,23 @@ You can also use Real-Time KQL to process pre-recorded ETL Trace log files (*.et
 You can also run`RealTimeKql Etw --help ` from an Administrator Command Prompt to get this same overview of your options:
 
 ```
-Usage: RealTimeKql Etw [options]
+Usage: RealTimeKql.exe Etw [options]
 
 Options:
-	-?|-h|--help               Show help information
-	-s|--session <value>       Name of the ETW Session to attach to. eg, --session=tcp. tcp is the name of the session started using logman or such tools.
-	-f|--file <value>          File pattern to filter files by. eg, --filter=*.etl
-	-q|--query <value>         Optional: KQL filter query file that describes what processing to apply to the events on the stream. It uses a subset of Kusto Query Language, https://docs.microsoft.com/en-us/azure/data-explorer/kusto/query/
-	-oc|--outputconsole        Log the output to console.
-	-oj|--outputjson <value>   Write output to JSON file. eg, --outputjson=FilterOutput.json
-	-bscs|--blobstorageconnectionstring <value>  Azure Blob Storage Connection string. Optional when want to upload as JSON to blob storage.
-	-bsc|--blobstoragecontainer <value>          Azure Blob Storage container name. Optional when want to upload as JSON to blob storage.
-	-ad|--adxauthority <value>    Azure Data Explorer (ADX) authority. Optional when not specified microsoft.com is used. eg, --adxauthority=microsoft.com
-	-aclid|--adxclientid <value>  Azure Data Explorer (ADX) ClientId. Optional ClientId that has permissions to access Azure Data Explorer.
-	-akey|--adxkey <value>        Azure Data Explorer (ADX) Access Key. Used along with ClientApp Id
-	-ac|--adxcluster <value>   Azure Data Explorer (ADX) cluster address. eg, --adxcluster=CDOC.kusto.windows.net
-	-ad|--adxdatabase <value>  Azure Data Explorer (ADX) database name. eg, --adxdatabase=TestDb
-	-at|--adxtable <value>     Azure Data Explorer (ADX) table name. eg, --adxtable=OutputTable
-	-ar|--adxreset             The existing data in the destination table is dropped before new data is logged.
-	-ad|--adxdirect            Default upload to ADX is using queued ingest. Use this option to do a direct ingest to ADX.
+  -?|-h|--help                                 Show help information
+  -s|--session <value>                         Name of the ETW Session to attach to. eg, --session=tcp. tcp is the name of the session started using logman or such tools.
+  -f|--file <value>                            File pattern to filter files by. eg, --filter=*.etl
+  -q|--query <value>                           Optional: KQL filter query file that describes what processing to apply to the events on the stream. It uses a subset of Kusto Query Language, https://docs.microsoft.com/en-us/azure/data-explorer/kusto/query/
+  -oc|--outputconsole                          Log the output to console.
+  -oj|--outputjson <value>                     Write output to JSON file. eg, --outputjson=FilterOutput.json
+  -bscs|--blobstorageconnectionstring <value>  Azure Blob Storage Connection string. Optional when want to upload as JSON to blob storage.
+  -bsc|--blobstoragecontainer <value>          Azure Blob Storage container name. Optional when want to upload as JSON to blob storage.
+  -ad|--adxauthority <value>                   Azure Data Explorer (ADX) authority. Optional when not specified microsoft.com is used. eg, --adxauthority=microsoft.com
+  -aclid|--adxclientid <value>                 Azure Data Explorer (ADX) ClientId. Optional ClientId that has permissions to access Azure Data Explorer.
+  -akey|--adxkey <value>                       Azure Data Explorer (ADX) Access Key. Used along with ClientApp Id
+  -ac|--adxcluster <value>                     Azure Data Explorer (ADX) cluster address. eg, --adxcluster=CDOC.kusto.windows.net
+  -ad|--adxdatabase <value>                    Azure Data Explorer (ADX) database name. eg, --adxdatabase=TestDb
+  -at|--adxtable <value>                       Azure Data Explorer (ADX) table name. eg, --adxtable=OutputTable
+  -ar|--adxreset                               The existing data in the destination table is dropped before new data is logged.
+  -ad|--adxdirect                              Default upload to ADX is using queued ingest. Use this option to do a direct ingest to ADX.
 ```

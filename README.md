@@ -3,14 +3,28 @@
 
 In order to view event logs today, users generally have to rely on tools that will first upload their data to storage **and then** query it. With Real-Time KQL, this is no longer necessary. Event processing happens **as events arrive, in real-time**.
 
-[Get started](Doc/GettingStarted.md) right away with using Real-Time KQL or learn [how it works](Doc/Readme.md).
 
-### Input Options
 
-|                         |                           Windows                            |                            Linux                             |
-| :---------------------: | :----------------------------------------------------------: | :----------------------------------------------------------: |
-|       **OS Logs**       | [winlog](Doc/Winlog.md) - logs seen in EventVwr or log file(s) on disk |             [syslog](Doc/Syslog.md) - the OS log             |
-| **High-Volume Tracing** |     [etw](Doc/Etw.md) - Event Tracing for Windows (ETW)      | **ebpf** (coming soon) - dynamic interception of kernel and user mode functions |
+![Doc/StandingQuery.jpg](Doc/StandingQuery.jpg)
+
+
+
+[**Get started**](Doc/GettingStarted.md) right away with using Real-Time KQL or learn [**how it works**](Doc/Readme.md).
+
+
+
+<div align="center">
+    <a href=""><img src="DownloadWindowsButton.png" width="40%"/></a>&nbsp;&nbsp;&nbsp;&nbsp;<a href="https://github.com/microsoft/KqlTools/releases/download/v1.0.0/RealTimeKql-linux-TestRelease.zip"><img src="DownloadLinuxButton.png" width="40%"/></a>
+</div>
+
+
+
+### Demos and Documentation
+
+|           WinLog (Windows)           | Etw (Windows) |            Syslog (Linux)            |
+| :----------------------------------: | :-----------: | :----------------------------------: |
+| [Demo](https://youtu.be/GoTSuWPrkig) |     Demo      | [Demo](https://youtu.be/kw6bSGolnpU) |
+|         [Doc](Doc/Winlog.md)         | [Doc](Etw.md) |         [Doc](Doc/Syslog.md)         |
 
 
 
