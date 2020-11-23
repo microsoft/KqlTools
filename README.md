@@ -14,7 +14,7 @@ In order to view event logs today, users generally have to rely on tools that wi
 
 
 <div align="center">
-    <a href=""><img src="DownloadWindowsButton.png" width="40%"/></a>&nbsp;&nbsp;&nbsp;&nbsp;<a href="https://github.com/microsoft/KqlTools/releases/download/v1.0.0/RealTimeKql-linux-TestRelease.zip"><img src="DownloadLinuxButton.png" width="40%"/></a>
+    <a href="https://github.com/microsoft/KqlTools/releases/download/v1.0.0/RealTimeKql-winx64-TestRelease.zip"><img src="DownloadWindowsButton.png" width="40%"/></a>&nbsp;&nbsp;&nbsp;&nbsp;<a href="https://github.com/microsoft/KqlTools/releases/download/v1.0.0/RealTimeKql-linux-TestRelease.zip"><img src="DownloadLinuxButton.png" width="40%"/></a>
 </div>
 
 
