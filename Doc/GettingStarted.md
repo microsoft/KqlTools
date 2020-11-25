@@ -1,75 +1,84 @@
 # Getting Started with Real-Time KQL
 
-## Prerequisites
+This guide will walk you through the process of downloading and setting up the KqlTools suite for use on either a Windows or Linux machine. Start by downloading the appropriate files for your machine:
 
-* Real-Time KQL has to be built in a Windows machine, but can be published to either a Windows or Linux machine. (See below for instructions on publishing to a Linux machine).
+<div align="center">
+    <a href="https://github.com/microsoft/KqlTools/releases/download/v1.0.0/RealTimeKql-winx64-TestRelease.zip"><img src="../DownloadWindowsButton.png" width="40%"/></a>&nbsp;&nbsp;&nbsp;&nbsp;<a href="https://github.com/microsoft/KqlTools/releases/download/v1.0.0/RealTimeKql-linux-TestRelease.zip"><img src="../DownloadLinuxButton.png" width="40%"/></a>
+</div>
 
-- [.NET SDK 3.1.200](https://dotnet.microsoft.com/download/dotnet-core/3.1#sdk-3.1.200)
-  - Download and install the specific version (3.1.200).
-- [.NET Framework 4.6.2 Developer Pack](https://dotnet.microsoft.com/download/dotnet-framework/net462)
-  - Download and install the specific version (4.6.2). Make sure to install the Developer Pack (and not the Runtime).
-- [Visual Studio 2019](https://visualstudio.microsoft.com/downloads/)
-  - Only required if you want to run Real-Time KQL on a Linux machine.
+**Jump To:**
+
+* [Windows](#Windows)
+  * [Prerequisites](#WinPreReq)
+  * [Download and Setup](#WinDownSet)
+  * [Running Real-Time KQL](#WinRun)
+* [Linux](#Linux)
+  * [Prerequisites](#LinuxPreReq)
+  * [Download and Setup](#LinuxDownSet)
+  * [Running Real-Time KQL](#LinuxRun)
 
 
 
-## Windows
+## <a id="Windows"></a>Windows
 
-### Download and Setup for Windows
+### <a id="WinPreReq"></a>Prerequisites
 
-Watch a video guide for building Real-Time KQL on a Windows machine [here](https://youtu.be/_7K398SXf5A).
+1. Install [.NET Core SDK 3.1.200](https://dotnet.microsoft.com/download/dotnet-core/thank-you/sdk-3.1.200-windows-x64-installer)
 
-1. [Download](https://github.com/microsoft/KqlTools/archive/master.zip) the Real-Time KQL Project and extract all the files.
-2. Open a Command Prompt as Administrator and navigate to the folder where you saved the project.
-3. Navigate to the "Source" folder.
+### <a id="WinDownSet"></a>Download and Setup
 
-### Build for Windows
-1. Within the source folder, run `dotnet build KqlTools.sln -r win-x64 `
-2. Right above the "Build succeeded." message, there will be a series of paths printed to console. Find the path following "RealTimeKql ->".
-3. Copy everything in the path except for the .exe file at the end. Your path will look something like "...\Source\RealTimeKql\bin\Debug\net462\win-x64\".
-4. Navigate to the folder with the .exe file by using the path you just copied.
-5. You can now run the program from this folder.
+1. [Download](https://github.com/microsoft/KqlTools/releases/download/v1.0.0/RealTimeKql-winx64-TestRelease.zip) and extract the program files for Windows. (You can also download the files using the link at the top of the page.)
+2. Open a Command Prompt as Administrator and navigate to the folder where you've extracted the files.
+3. Navigate into the `win-x64` folder. This is the folder from which you will run Real-Time KQL.
 
-### Run on Windows
+### <a id="WinRun"></a>Running Real-Time KQL
 
-1. Make sure you're in the folder housing the .exe file (see previous section for instructions on getting here).
-2. Run `RealTimeKql --help` to get an overview of your options.
-3. For more information and examples on using Real-Time KQL for Windows:
+1. From within the `RealTimeKql-linux-TestRelease` folder, run the following command to get an overview of your options:
+```bash
+RealTimeKql --help
+```
+2. For more information and examples on using Real-Time KQL for Windows:
    - [winlog](Winlog.md): OS or application logs you see in EventVwr or log file(s) on disk
    - [etw](Etw.md): real-time session in Event Tracing for Windows (ETW) or previously recorded "Event Trace Log"
 
 
 
-## Linux
+## <a id="Linux"></a>Linux
 
-### Download and Setup for Linux
+### <a id="LinuxPreReq"></a>Prerequisites
 
-1. [Download](https://github.com/microsoft/KqlTools/archive/master.zip) the Real-Time KQL Project and extract all the files.
-2. Navigate to the "Source" folder.
-3. Open "KqlTools.sln" in Visual Studio 2019.
+#### Install .NET Core 3.1
 
-### Publish for Linux
+1. Add the Microsoft package signing key to your list of trust keys and add the package repository. Open a terminal and run the following commands:
 
-1. Right-click the "RealTimeKql" project in the Solution Explorer and select "Publish".
+```bash
+wget https://packages.microsoft.com/config/ubuntu/20.04/packages-microsoft-prod.deb -O packages-microsoft-prod.deb
+sudo dpkg -i packages-microsoft-prod.deb
+```
 
-2. If you don't get the following pop-up window right away, you may have to repeat Step 1:
-   ![PublishPopUp.png](PublishPopUp.png)
+2. Install the .NET SDK:
 
-3. In the Publish pop-up window above, click "Folder" and then "Next". Then select "Finish".
+```bash
+sudo apt-get update; \
+  sudo apt-get install -y apt-transport-https && \
+  sudo apt-get update && \
+  sudo apt-get install -y dotnet-sdk-3.1
+```
 
-4. Now select the edit icon next to "Target runtime". 
 
-5. Match your Profile settings to these:
-   ![ProfileSettingsPublishToLinux.png](ProfileSettingsPublishToLinux.png)
 
-   If you can't see "Deployment mode" right away, you can hit "Save" and then the edit icon next to "Target runtime" again. You should now be able to change your "Deployment mode" if needed.
+### <a id="LinuxDownSet"></a>Download and Setup
 
-6. Save to exit the Profile settings window. Your Publish Summary should look like this now:
-   ![PublishToLinuxSummary.png](PublishToLinuxSummary.png)
+1. [Download](https://github.com/microsoft/KqlTools/releases/download/v1.0.0/RealTimeKql-linux-TestRelease.zip) and extract the program files for Linux. (You can also download the files using the link at the top of the page.)
+2. Open a terminal window and navigate to the folder where you've extracted the files.
+3. Navigate into the `RealTimeKql-linux-TestRelease` folder. This is the folder from which you will run Real-Time KQL.
 
-4. Hit "Publish".
-5. In the output window, note the last path printed beginning with "RealTimeKql ->" and ending with "\bin\Release\netcoreapp3.2\publish"
+### <a id="LinuxRun"></a>Running Real-Time KQL
 
-### Run on Linux
+1. From within the `RealTimeKql-linux-TestRelease` folder, run the following command to get an overview of your options:
 
-*TODO*
+```bash
+sudo ./RealTimeKql syslog --help
+```
+
+2. For more information and examples on using Real-Time KQL for Linux, see the [syslog guide](Syslog.md).
