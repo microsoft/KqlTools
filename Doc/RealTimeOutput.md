@@ -9,7 +9,7 @@ Real-Time KQL supports real-time outputs. The output is treated as a stream and 
 
 ## <a id="ConsoleOutput"></a>Console Output
 
-With the console output option, the results are printed on screen (standard output). The results will roll-off depending on how your setup the console window buffer.
+With the console output option, the results are printed on screen (standard output). The results will roll-off depending on how you've set up the console window buffer.
 
 **Example Usage**
 
@@ -18,7 +18,7 @@ With the console output option, the results are printed on screen (standard outp
 **Example Usage Breakdown**
 
 * `--logfile=/var/log/auth.log` : attach Real-Time KQL to the `/var/log/auth.log` file
-* `--outputconsole` : write the results to console
+* `--outputconsole` : print the results to console
 
 
 

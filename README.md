@@ -24,7 +24,7 @@ In order to view event logs today, users generally have to rely on tools that wi
 |           WinLog (Windows)           |            Etw (Windows)             |            Syslog (Linux)            |
 | :----------------------------------: | :----------------------------------: | :----------------------------------: |
 | [Demo](https://youtu.be/GoTSuWPrkig) | [Demo](https://youtu.be/1UOL1Sg7puQ) | [Demo](https://youtu.be/kw6bSGolnpU) |
-|         [Doc](Doc/Winlog.md)         |            [Doc](Etw.md)             |         [Doc](Doc/Syslog.md)         |
+|         [Doc](Doc/Winlog.md)         |          [Doc](Doc/Etw.md)           |         [Doc](Doc/Syslog.md)         |
 
 
 

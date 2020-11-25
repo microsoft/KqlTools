@@ -10,7 +10,7 @@ This diagram shows an overview of how Real-Time KQL works:
 
 ![StandingQuery.jpg](StandingQuery.jpg)
 
-A user can specify the input and output sources as well as any query files to apply to the given input stream. Real-Time KQL will process the event stream and output the result as another stream to the output source the user had chosen.
+A user can specify the input and output sources as well as any query files to apply to the given input stream. Real-Time KQL will process the event stream and output the result.
 
 [**Get started**](GettingStarted.md) using Real-Time KQL.
 
@@ -21,7 +21,7 @@ A user can specify the input and output sources as well as any query files to ap
 |           WinLog (Windows)           |            Etw (Windows)             |            Syslog (Linux)            |
 | :----------------------------------: | :----------------------------------: | :----------------------------------: |
 | [Demo](https://youtu.be/GoTSuWPrkig) | [Demo](https://youtu.be/1UOL1Sg7puQ) | [Demo](https://youtu.be/kw6bSGolnpU) |
-|         [Doc](Doc/Winlog.md)         |            [Doc](Etw.md)             |         [Doc](Doc/Syslog.md)         |
+|           [Doc](Winlog.md)           |            [Doc](Etw.md)             |           [Doc](Syslog.md)           |
 
 
 
@@ -29,14 +29,14 @@ A user can specify the input and output sources as well as any query files to ap
 
 |                         |                           Windows                            |                            Linux                             |
 | :---------------------: | :----------------------------------------------------------: | :----------------------------------------------------------: |
-|       **OS Logs**       | [winlog](Doc/Winlog.md) - logs seen in EventVwr or log file(s) on disk |             [syslog](Doc/Syslog.md) - the OS log             |
-| **High-Volume Tracing** |     [etw](Doc/Etw.md) - Event Tracing for Windows (ETW)      | **ebpf** (coming soon) - dynamic interception of kernel and user mode functions |
+|       **OS Logs**       | [winlog](Winlog.md) - logs seen in EventVwr or log file(s) on disk |               [syslog](Syslog.md) - the OS log               |
+| **High-Volume Tracing** |       [etw](Etw.md) - Event Tracing for Windows (ETW)        | **ebpf** (coming soon) - dynamic interception of kernel and user mode functions |
 
 
 
 ### Query Files
 
-Check out the [query writing guide](Doc/QueryGuide.md) for some best practices on coming up with queries for Real-Time KQL.
+Check out the [query writing guide](QueryGuide.md) for some best practices on coming up with queries for Real-Time KQL.
 
 
 
@@ -44,6 +44,6 @@ Check out the [query writing guide](Doc/QueryGuide.md) for some best practices o
 
 |                       Real-Time Output                       |                         File Output                          |                        Upload Output                         |
 | :----------------------------------------------------------: | :----------------------------------------------------------: | :----------------------------------------------------------: |
-| [consoleOutput](Doc/RealTimeOutput.md#ConsoleOutput) - Results printed to standard output | [jsonOutput](Doc/FileOutput.md#JSONOutput) - Each event is a JSON dictionary | [adxOutput](Doc/UploadOutput.md#ADXOutput) - Upload to Kusto (Azure Data Explorer) |
-| **webEvents** - Real-Time KQL acts as real-time server for events. | **csvOutput** - Each event is a row in Comma Separated Value table | [blobStorage](Doc/UploadOutput.md#BlobStorage) - Upload as JSON objects to BlobStorage |
+| [consoleOutput](RealTimeOutput.md#ConsoleOutput) - Results printed to standard output | [jsonOutput](FileOutput.md#JSONOutput) - Each event is a JSON dictionary | [adxOutput](UploadOutput.md#ADXOutput) - Upload to Kusto (Azure Data Explorer) |
+| **webEvents** - Real-Time KQL acts as real-time server for events. | **csvOutput** - Each event is a row in Comma Separated Value table | [blobStorage](UploadOutput.md#BlobStorage) - Upload as JSON objects to BlobStorage |
 |                                                              | **htmlOutput** - Each event formatted as human-readable DIV element |                                                              |

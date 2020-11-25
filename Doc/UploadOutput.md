@@ -11,7 +11,7 @@ Real-Time KQL supports uploading output to external storage. The output is treat
 
 With the Azure Data Explorer (Kusto) output option, you can upload events to Kusto for further analysis and querying.
 
-**Example usage - Processing a previously record ETL Trace Log (.etl files):**
+**Example usage - Processing a previously recorded ETL Trace Log (.etl files):**
 
 `RealtimeKql etw --file=*.etl --adxcluster=CDOC.kusto.windows.net --adxdatabase=GeorgiTest --adxtable=EtwTcp --adxdirect --adxreset`
 

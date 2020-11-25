@@ -33,7 +33,7 @@ This guide will walk you through the process of downloading and setting up the K
 
 ### <a id="WinRun"></a>Running Real-Time KQL
 
-1. From within the `RealTimeKql-linux-TestRelease` folder, run the following command to get an overview of your options:
+1. From within the `win-x64` folder, run the following command to get an overview of your options:
 ```bash
 RealTimeKql --help
 ```
@@ -49,7 +49,7 @@ RealTimeKql --help
 
 #### Install .NET Core 3.1
 
-1. Add the Microsoft package signing key to your list of trust keys and add the package repository. Open a terminal and run the following commands:
+1. Add the Microsoft package signing key to your list of trusted keys and add the package repository. Open a terminal and run the following commands:
 
 ```bash
 wget https://packages.microsoft.com/config/ubuntu/20.04/packages-microsoft-prod.deb -O packages-microsoft-prod.deb

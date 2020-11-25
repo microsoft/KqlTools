@@ -5,8 +5,8 @@ Real-Time KQL supports writing output to files. The output is treated as a strea
 **Jump To:**
 
 * [JSON Output](#JSONOutput)
-* [CSV Output](CSVOutput)
-* [HTML Output](HTML Output)
+* [CSV Output](#CSVOutput)
+* [HTML Output](#HTML Output)
 
 ## <a id="JSONOutput"></a>JSON Output
 
