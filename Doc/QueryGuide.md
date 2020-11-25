@@ -12,7 +12,7 @@ The query file describes what processing to apply to the events on the stream. I
 
 ## <a id="BestPractice"></a>Best Practice for Creating Query Files
 
-You can watch a demonstration of the best practice for creating query files [here].
+You can watch a demonstration of the best practice for creating query files [here](https://youtu.be/GoTSuWPrkig).
 
 **General Guideline:**
 

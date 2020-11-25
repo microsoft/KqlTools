@@ -4,7 +4,7 @@ Real-Time KQL allows users to examine activity on their machine by directly view
 
 For instance, suppose a user wanted to see if there was an adversary trying to login into their computer simply by guessing different passwords repeatedly (brute-force). This user could then, for example, use Real-Time KQL to filter through 1000s of events and see only the instances where an adversary has attempted to login into their machine 3 or more times in a 30 second window.
 
-[This query] accomplishes the job mentioned above using syslog events on a Linux machine.
+See the [query guide](QueryGuide.md) for more information on how to accomplish tasks like the one mentioned above.
 
 This diagram shows an overview of how Real-Time KQL works:
 
@@ -18,10 +18,10 @@ A user can specify the input and output sources as well as any query files to ap
 
 ### Demos and Documentation
 
-|           WinLog (Windows)           | Etw (Windows) |            Syslog (Linux)            |
-| :----------------------------------: | :-----------: | :----------------------------------: |
-| [Demo](https://youtu.be/GoTSuWPrkig) |     Demo      | [Demo](https://youtu.be/kw6bSGolnpU) |
-|         [Doc](Doc/Winlog.md)         | [Doc](Etw.md) |         [Doc](Doc/Syslog.md)         |
+|           WinLog (Windows)           |            Etw (Windows)             |            Syslog (Linux)            |
+| :----------------------------------: | :----------------------------------: | :----------------------------------: |
+| [Demo](https://youtu.be/GoTSuWPrkig) | [Demo](https://youtu.be/1UOL1Sg7puQ) | [Demo](https://youtu.be/kw6bSGolnpU) |
+|         [Doc](Doc/Winlog.md)         |            [Doc](Etw.md)             |         [Doc](Doc/Syslog.md)         |
 
 
 
