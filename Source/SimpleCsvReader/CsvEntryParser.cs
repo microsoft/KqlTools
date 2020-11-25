@@ -42,7 +42,7 @@ namespace SimpleCsvReader
         private void ParseSimpleCell(string row)
         {
             StringBuilder cell = new StringBuilder();
-            while(row[_rowPos] != ',')
+            while((_rowPos < row.Length) && (row[_rowPos] != ','))
             {
                 cell.Append(row[_rowPos]);
                 _rowPos++;
@@ -97,6 +97,7 @@ namespace SimpleCsvReader
                         {
                             // reached end of cell
                             _temp.Add(header, cell.ToString());
+                            _rowPos++;
                             return;
                         }
                         else

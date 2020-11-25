@@ -1,16 +1,10 @@
-﻿// /********************************************************
-// *                                                       *
-// *   Copyright (C) Microsoft. All rights reserved.       *
-// *                                                       *
-// ********************************************************/
+﻿using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Threading;
 
 namespace SimpleCsvReader
 {
-    using System;
-    using System.Collections.Generic;
-    using System.Linq;
-    using System.Threading;
-
     /// <summary>
     ///     Base class for components implementing the <see cref="IObservable{T}" /> interface.
     /// </summary>
@@ -26,7 +20,7 @@ namespace SimpleCsvReader
         // We use copy, add/remove, replace method when adding/removing subscriptions
         // As a benefit, when we call OnNext on each subscriber, we iterate the list without locks
         private IList<Subscription> _subscriptions = new List<Subscription>();
-        private readonly object _lock = new object(); 
+        private readonly object _lock = new object();
 
         #region IObservable implementation
 
@@ -35,7 +29,7 @@ namespace SimpleCsvReader
         /// <returns>A disposable subscription object. Disposing the object cancels the subscription.</returns>
         public IDisposable Subscribe(IObserver<T> observer)
         {
-            return AddSubscription(observer); 
+            return AddSubscription(observer);
         }
 
         #endregion
@@ -44,7 +38,7 @@ namespace SimpleCsvReader
         /// <param name="observer">An observer instance.</param>
         public void Unsubscribe(IObserver<T> observer)
         {
-            RemoveSubscription(observer); 
+            RemoveSubscription(observer);
         }
 
         /// <summary>Broadcasts an data. Calls the OnNext method of all subscribed observers. </summary>
@@ -80,7 +74,7 @@ namespace SimpleCsvReader
                 var subscr = new Subscription() { Observable = this, Observer = observer };
                 newList.Add(subscr);
                 Interlocked.Exchange(ref _subscriptions, newList);
-                return subscr; 
+                return subscr;
             }
         }
 
@@ -100,8 +94,8 @@ namespace SimpleCsvReader
 
         private void ForEachSubscription(Action<IObserver<T>> action)
         {
-            var sList = _subscriptions; 
-            for(int i = 0; i < sList.Count; i++)
+            var sList = _subscriptions;
+            for (int i = 0; i < sList.Count; i++)
             {
                 action(sList[i].Observer);
             }

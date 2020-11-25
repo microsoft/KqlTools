@@ -40,8 +40,6 @@ namespace SimpleCsvReader
             {
                 simpleCsvParser.ParseRow(row);
             }
-
-            OnCompleted();
         }
 
         public void OnNext(IDictionary<string, object> value)
