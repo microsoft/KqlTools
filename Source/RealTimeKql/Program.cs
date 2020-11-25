@@ -20,6 +20,7 @@ namespace RealTimeKql
     using System.Reflection;
     using System.Threading.Tasks;
     using Kusto.Data;
+    using Kusto.Language.Syntax;
     using Microsoft.Extensions.CommandLineUtils;
     using Microsoft.Syslog;
     using Microsoft.Syslog.Model;
@@ -69,11 +70,14 @@ namespace RealTimeKql
                 return 0;
             });
 
+
+
 #if BUILT_FOR_WINDOWS
             app.Command("WinLog", InvokeWinLog);
             app.Command("Etw", InvokeEtw);
+            app.Command("Csv", InvokeCsv);
 #endif
-
+            app.Command("Csv", InvokeCsv);
             app.Command("Syslog", InvokeSyslog);
 
             try
