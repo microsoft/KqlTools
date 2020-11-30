@@ -14,23 +14,12 @@ A user can specify the input and output sources as well as any query files to ap
 
 [**Get started**](GettingStarted.md) using Real-Time KQL.
 
-
-
 ### Demos and Documentation
-
-|           WinLog (Windows)           |            Etw (Windows)             |            Syslog (Linux)            |
-| :----------------------------------: | :----------------------------------: | :----------------------------------: |
-| [Demo](https://youtu.be/GoTSuWPrkig) | [Demo](https://youtu.be/1UOL1Sg7puQ) | [Demo](https://youtu.be/kw6bSGolnpU) |
-|           [Doc](Winlog.md)           |            [Doc](Etw.md)             |           [Doc](Syslog.md)           |
-
-
-
-### Input Options
 
 |                         |                           Windows                            |                            Linux                             |
 | :---------------------: | :----------------------------------------------------------: | :----------------------------------------------------------: |
-|       **OS Logs**       | [winlog](Winlog.md) - logs seen in EventVwr or log file(s) on disk |               [syslog](Syslog.md) - the OS log               |
-| **High-Volume Tracing** |       [etw](Etw.md) - Event Tracing for Windows (ETW)        | **ebpf** (coming soon) - dynamic interception of kernel and user mode functions |
+|       **OS Logs**       | **WinLog** - logs seen in EventVwr or log file(s) on disk<br />[Doc](Winlog.md) / [Demo](https://youtu.be/GoTSuWPrkig) | **Syslog** - the OS log<br />[Doc](Syslog.md) / [Demo](https://youtu.be/kw6bSGolnpU) |
+| **High-Volume Tracing** | **Etw** - Event Tracing for Windows<br />[Doc](Etw.md) / [Demo](https://youtu.be/1UOL1Sg7puQ) | **EBPF** - dynamic interception of kernel and user mode functions<br />*Coming soon* |
 
 
 

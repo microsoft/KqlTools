@@ -21,10 +21,10 @@ In order to view event logs today, users generally have to rely on tools that wi
 
 ### Demos and Documentation
 
-|           WinLog (Windows)           |            Etw (Windows)             |            Syslog (Linux)            |
-| :----------------------------------: | :----------------------------------: | :----------------------------------: |
-| [Demo](https://youtu.be/GoTSuWPrkig) | [Demo](https://youtu.be/1UOL1Sg7puQ) | [Demo](https://youtu.be/kw6bSGolnpU) |
-|         [Doc](Doc/Winlog.md)         |          [Doc](Doc/Etw.md)           |         [Doc](Doc/Syslog.md)         |
+|                         |                           Windows                            |                            Linux                             |
+| :---------------------: | :----------------------------------------------------------: | :----------------------------------------------------------: |
+|       **OS Logs**       | **WinLog** - logs seen in EventVwr or log file(s) on disk<br />[Doc](Doc/Winlog.md) / [Demo](https://youtu.be/GoTSuWPrkig) | **Syslog** - the OS log<br />[Doc](Doc/Syslog.md) / [Demo](https://youtu.be/kw6bSGolnpU) |
+| **High-Volume Tracing** | **Etw** - Event Tracing for Windows<br />[Doc](Doc/Etw.md) / [Demo](https://youtu.be/1UOL1Sg7puQ) | **EBPF** - dynamic interception of kernel and user mode functions<br />*Coming soon* |
 
 
 
