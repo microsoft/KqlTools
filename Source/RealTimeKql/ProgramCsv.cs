@@ -2,11 +2,7 @@
 using Microsoft.Extensions.CommandLineUtils;
 using SimpleCsvReader;
 using System;
-using System.Collections.Generic;
 using System.IO;
-using System.Linq;
-using System.Security.Cryptography;
-using System.Text;
 using System.Threading.Tasks;
 
 namespace RealTimeKql
@@ -17,7 +13,9 @@ namespace RealTimeKql
         {
             command.Description = "Realtime filter of Csv files";
 
-            // TODO: add extended help text here
+            command.ExtendedHelpText = Environment.NewLine + "Use this option to filter events within a CSV file." + Environment.NewLine
+                + Environment.NewLine + "Sample usage"
+                + Environment.NewLine + "\tRealTimeKql csv --file=Sample.csv --outputconsole" + Environment.NewLine;
 
             command.HelpOption("-?|-h|--help");
 

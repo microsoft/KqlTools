@@ -31,8 +31,6 @@ namespace RealTimeKql
                 return;
             }
 
-            PrettyPrintEntryCount();
-
             string content;
             if (firstEntry)
             {
@@ -48,6 +46,7 @@ namespace RealTimeKql
             {
                 outputFile.Write(content);
                 outputFile.Flush();
+                PrettyPrintEntryCount();
             }
             catch (Exception ex)
             {
@@ -77,7 +76,7 @@ namespace RealTimeKql
         {
             numEntries++;
             Console.SetCursorPosition(0, Console.CursorTop);
-            Console.Write($"Writing entry # {numEntries}");
+            Console.Write($"Wrote entry # {numEntries}");
         }
     }
 }

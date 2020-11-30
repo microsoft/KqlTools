@@ -7,6 +7,7 @@ namespace RealTimeKql
     {
         private bool running = false;
         private bool error = false;
+        private bool firstEntry = true;
 
         public ConsoleOutput()
         {
@@ -17,6 +18,12 @@ namespace RealTimeKql
         {
             if(running)
             {
+                if(firstEntry)
+                {
+                    firstEntry = false;
+                    Console.WriteLine(string.Join("\t", value.Keys));
+                }
+
                 // printing value to console
                 Console.WriteLine(string.Join("\t", value.Values));
             }
