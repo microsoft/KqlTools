@@ -11,12 +11,13 @@ namespace RealTimeKql
         public string OutputFileName { get; private set; }
         private StreamWriter outputFile;
         private bool firstEntry = true;
-
         private bool running = false;
         private bool error = false;
+        private int numEntries = 0;
 
         public FileOutput(string outputFileName)
         {
+            numEntries = 0;
             running = true;
             OutputFileName = outputFileName;
             outputFile = new StreamWriter(this.OutputFileName);
@@ -45,6 +46,7 @@ namespace RealTimeKql
             {
                 outputFile.Write(content);
                 outputFile.Flush();
+                PrettyPrintEntryCount();
             }
             catch (Exception ex)
             {
@@ -66,8 +68,15 @@ namespace RealTimeKql
                 outputFile.Dispose();
                 outputFile = null;
 
-                Console.WriteLine("Completed!");
+                Console.WriteLine("\nCompleted!");
             }
+        }
+
+        private void PrettyPrintEntryCount()
+        {
+            numEntries++;
+            Console.SetCursorPosition(0, Console.CursorTop);
+            Console.Write($"Wrote entry # {numEntries}");
         }
     }
 }

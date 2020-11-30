@@ -63,6 +63,7 @@
 	<ProjectReference Include="..\EvtxEventXmlScrubber\EvtxEventXmlScrubber.csproj" Condition="'$(RuntimeIdentifier)'=='win-x64'" />
     <ProjectReference Include="..\Microsoft.Syslog\Microsoft.Syslog.csproj" />
     <ProjectReference Include="..\Rx.Kql\Rx.Kql.csproj" />
+    <ProjectReference Include="..\SimpleCsvReader\SimpleCsvReader.csproj" />
   </ItemGroup>
 
 </Project>
