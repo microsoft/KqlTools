@@ -1,4 +1,5 @@
 # Real-Time KQL
+
 ![.NET Core Desktop](https://github.com/microsoft/KqlTools/workflows/.NET%20Core%20Desktop/badge.svg?branch=master&event=push)
 
 In order to view event logs today, users generally have to rely on tools that will first upload their data to storage **and then** query it. With Real-Time KQL, this is no longer necessary. Event processing happens **as events arrive, in real-time**.
@@ -19,6 +20,7 @@ In order to view event logs today, users generally have to rely on tools that wi
 
 
 
+
 ### Demos and Documentation
 
 |                         |                           Windows                            |                            Linux                             |
@@ -26,7 +28,7 @@ In order to view event logs today, users generally have to rely on tools that wi
 |       **OS Logs**       | **WinLog** - logs seen in EventVwr or log file(s) on disk<br />[Doc](Doc/Winlog.md) / [Demo](https://youtu.be/GoTSuWPrkig) | **Syslog** - the OS log<br />[Doc](Doc/Syslog.md) / [Demo](https://youtu.be/kw6bSGolnpU) |
 | **High-Volume Tracing** | **Etw** - Event Tracing for Windows<br />[Doc](Doc/Etw.md) / [Demo](https://youtu.be/1UOL1Sg7puQ) | **EBPF** - dynamic interception of kernel and user mode functions<br />*Coming soon* |
 
-
+You can input pre-recorded [Csv files](Doc/Csv.md) to Real-Time KQL.
 
 ### Query Files
 
