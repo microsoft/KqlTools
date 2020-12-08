@@ -558,7 +558,8 @@ namespace RealTimeKql
             else
             {
                 KqlNode preProcessor = new KqlNode();
-                preProcessor.KqlKqlQueryFailed += PreProcessor_KqlKqlQueryFailed; ;
+                preProcessor.KqlKqlQueryFailed += PreProcessor_KqlKqlQueryFailed;
+                ScalarFunctionFactory.AddFunctions(typeof(CustomScalarFunctions));
                 preProcessor.AddCslFile(_queryFile);
 
                 if (preProcessor.FailedKqlQueryList.Count > 0)
@@ -599,6 +600,7 @@ namespace RealTimeKql
             {
                 KqlNode preProcessor = new KqlNode();
                 preProcessor.KqlKqlQueryFailed += PreProcessor_KqlKqlQueryFailed;
+                ScalarFunctionFactory.AddFunctions(typeof(CustomScalarFunctions));
                 preProcessor.AddCslFile(queryFile);
 
                 if (preProcessor.FailedKqlQueryList.Count > 0)
@@ -633,6 +635,7 @@ namespace RealTimeKql
             {
                 KqlNode preProcessor = new KqlNode();
                 preProcessor.KqlKqlQueryFailed += PreProcessor_KqlKqlQueryFailed;
+                ScalarFunctionFactory.AddFunctions(typeof(CustomScalarFunctions));
                 preProcessor.AddCslFile(queryFile);
 
                 if (preProcessor.FailedKqlQueryList.Count > 0)
