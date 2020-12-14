@@ -57,8 +57,8 @@ namespace RealTimeKql
 
             // output
             var consoleLogOption = command.Option("-oc|--outputconsole",
-                "Log the output to console.",
-                CommandOptionType.NoValue);
+                "Optional: Specify the format for console output. eg, --outputconsole=table. The default format for console output is JSON.",
+                CommandOptionType.SingleValue);
 
             var outputFileOption = command.Option("-oj|--outputjson <value>",
                 "Write output to JSON file. eg, --outputjson=FilterOutput.json",
@@ -272,7 +272,8 @@ namespace RealTimeKql
                 else
                 {
                     // output to console
-                    var consoleOutput = new ConsoleOutput();
+                    bool tableFormat = consoleLogOption == "table" ? true : false;
+                    var consoleOutput = new ConsoleOutput(tableFormat);
                     RunConsoleOutput(consoleOutput, etw, _queryFile);
                 }
             }
@@ -317,7 +318,8 @@ namespace RealTimeKql
             else
             {
                 // output to console
-                consoleOutput = new ConsoleOutput();
+                bool tableFormat = consoleLogOption == "table" ? true : false;
+                consoleOutput = new ConsoleOutput(tableFormat);
                 RunConsoleOutput(consoleOutput, etw, _queryFile);
             }
 
