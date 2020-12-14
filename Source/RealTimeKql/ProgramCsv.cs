@@ -150,6 +150,7 @@ namespace RealTimeKql
                     ProcessCsvRealTime(
                     filePathOption.Value(),
                     kqlQueryOption.Value(),
+                    consoleLogOption.Value(),
                     outputFileOption.Value(),
                     blobStorageConnectionStringOption.Value(),
                     blobStorageContainerOption.Value(),

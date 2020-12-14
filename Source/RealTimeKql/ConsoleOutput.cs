@@ -14,6 +14,9 @@ namespace RealTimeKql
         {
             _running = true;
             _tableFormat = tableFormat;
+
+            // DEBUG
+            Console.WriteLine("tableFormat: {0}", tableFormat);
         }
 
         public void OnNext(IDictionary<string, object> value)

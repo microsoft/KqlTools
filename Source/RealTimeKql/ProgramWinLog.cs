@@ -128,54 +128,53 @@ namespace RealTimeKql
                     return -1;
                 }
 
-                if (!outputFileOption.HasValue() && !consoleLogOption.HasValue())
+                if (blobStorageConnectionStringOption.HasValue()) //Blob Storage Upload
                 {
-                    if (blobStorageConnectionStringOption.HasValue()) //Blob Storage Upload
+                    if (!blobStorageContainerOption.HasValue())
                     {
-                        if (!blobStorageContainerOption.HasValue())
-                        {
-                            Console.WriteLine("Missing Blob Storage Container Name");
-                            return -1;
-                        }
+                        Console.WriteLine("Missing Blob Storage Container Name");
+                        return -1;
                     }
-                    else //Kusto Upload
+                }
+
+                if (clusterAddressOption.HasValue() || databaseOption.HasValue() || tableOption.HasValue())
+                {
+                    // Kusto Upload
+                    if (!clusterAddressOption.HasValue())
                     {
-                        if (!clusterAddressOption.HasValue())
-                        {
-                            Console.WriteLine("Missing Cluster Address");
-                            return -1;
-                        }
+                        Console.WriteLine("Missing Cluster Address");
+                        return -1;
+                    }
 
-                        if (!databaseOption.HasValue())
-                        {
-                            Console.WriteLine("Missing Database Name");
-                            return -1;
-                        }
+                    if (!databaseOption.HasValue())
+                    {
+                        Console.WriteLine("Missing Database Name");
+                        return -1;
+                    }
 
-                        if (!tableOption.HasValue())
-                        {
-                            Console.WriteLine("Missing Table Name");
-                            return -1;
-                        }
+                    if (!tableOption.HasValue())
+                    {
+                        Console.WriteLine("Missing Table Name");
+                        return -1;
+                    }
 
-                        string authority = "microsoft.com";
-                        if (adAuthority.HasValue())
-                        {
-                            authority = adAuthority.Value();
-                        }
+                    string authority = "microsoft.com";
+                    if (adAuthority.HasValue())
+                    {
+                        authority = adAuthority.Value();
+                    }
 
-                        if (clusterAddressOption.HasValue() && databaseOption.HasValue())
-                        {
-                            var connectionStrings = GetKustoConnectionStrings(
-                                authority,
-                                clusterAddressOption.Value(),
-                                databaseOption.Value(),
-                                adClientAppId.Value(),
-                                adKey.Value());
+                    if (clusterAddressOption.HasValue() && databaseOption.HasValue())
+                    {
+                        var connectionStrings = GetKustoConnectionStrings(
+                            authority,
+                            clusterAddressOption.Value(),
+                            databaseOption.Value(),
+                            adClientAppId.Value(),
+                            adKey.Value());
 
-                            kscbIngest = connectionStrings.Item1;
-                            kscbAdmin = connectionStrings.Item2;
-                        }
+                        kscbIngest = connectionStrings.Item1;
+                        kscbAdmin = connectionStrings.Item2;
                     }
                 }
 
@@ -185,7 +184,8 @@ namespace RealTimeKql
                     {
                         UploadEvtxFiles(
                             filePatternOption.Value(), 
-                            kqlQueryOption.Value(), 
+                            kqlQueryOption.Value(),
+                            consoleLogOption.Value(),
                             outputFileOption.Value(),
                             blobStorageConnectionStringOption.Value(), 
                             blobStorageContainerOption.Value(),
@@ -201,7 +201,8 @@ namespace RealTimeKql
                             wecFileOption.Value(), 
                             lognameOption.Value(), 
                             kqlQueryOption.Value(), 
-                            readExistingOption.HasValue(), 
+                            readExistingOption.HasValue(),
+                            consoleLogOption.Value(),
                             outputFileOption.Value(),
                             blobStorageConnectionStringOption.Value(),
                             blobStorageContainerOption.Value(),
@@ -231,6 +232,7 @@ namespace RealTimeKql
         private static void UploadEvtxFiles(
             string _filePattern,
             string _queryFile,
+            string consoleLogOption,
             string _outputFileName,
             string blobConnectionString,
             string blobContainerName,
@@ -281,7 +283,7 @@ namespace RealTimeKql
                 {
                     // output to console
                     bool tableFormat = consoleLogOption == "table" ? true : false;
-                    consoleOutput = new ConsoleOutput(tableFormat);
+                    var consoleOutput = new ConsoleOutput(tableFormat);
                     RunConsoleOutput(consoleOutput, etw, _queryFile);
                 }
             }
@@ -292,6 +294,7 @@ namespace RealTimeKql
             string _logName,
             string _queryFile,
             bool _readExisting,
+            string consoleLogOption,
             string _outputFileName,
             string blobConnectionString,
             string blobContainerName,
