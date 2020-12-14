@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using Newtonsoft.Json;
+using System.Text;
 
 namespace RealTimeKql
 {
@@ -30,7 +31,21 @@ namespace RealTimeKql
                 // printing value to console
                 if(_tableFormat)
                 {
-                    Console.WriteLine(string.Join("\t", value.Values));    
+                    StringBuilder sb = new StringBuilder();
+                    foreach(var val in value.Values)
+                    {
+                        if(val.GetType() == typeof(Dictionary<string, object>))
+                        {
+                            // DEBUG
+                            sb.Append("Dictionary\t");
+                        }
+                        else
+                        {
+                            // DEBUG
+                            sb.Append($"{val}\t");
+                        }
+                    }
+                    Console.WriteLine(sb.ToString());
                 }
                 else
                 {
