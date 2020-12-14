@@ -5,22 +5,24 @@ namespace RealTimeKql
 {
     class ConsoleOutput: IObserver<IDictionary<string, object>>
     {
-        private bool running = false;
-        private bool error = false;
-        private bool firstEntry = true;
+        private bool _running = false;
+        private bool _error = false;
+        private bool _firstEntry = true;
+        private bool _tableFormat = false;
 
-        public ConsoleOutput()
+        public ConsoleOutput(bool tableFormat)
         {
-            running = true;
+            _running = true;
+            _tableFormat = tableFormat;
         }
 
         public void OnNext(IDictionary<string, object> value)
         {
-            if(running)
+            if(_running)
             {
-                if(firstEntry)
+                if(_firstEntry)
                 {
-                    firstEntry = false;
+                    _firstEntry = false;
                     Console.WriteLine(string.Join("\t", value.Keys));
                 }
 
@@ -31,13 +33,13 @@ namespace RealTimeKql
 
         public void OnError(Exception error)
         {
-            this.error = true;
+            this._error = true;
         }
 
         public void OnCompleted()
         {
-            running = false;
-            if (error != true)
+            _running = false;
+            if (_error != true)
             {
                 Console.WriteLine("Completed!");
             }
