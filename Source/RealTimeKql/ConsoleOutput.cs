@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using Newtonsoft.Json;
 
 namespace RealTimeKql
 {
@@ -14,23 +15,28 @@ namespace RealTimeKql
         {
             _running = true;
             _tableFormat = tableFormat;
-
-            // DEBUG
-            Console.WriteLine("tableFormat: {0}", tableFormat);
         }
 
         public void OnNext(IDictionary<string, object> value)
         {
             if(_running)
             {
-                if(_firstEntry)
+                if(_firstEntry && _tableFormat)
                 {
                     _firstEntry = false;
-                    Console.WriteLine(string.Join("\t", value.Keys));
+                    Console.WriteLine(string.Join("\t", value.Keys));                    
                 }
 
                 // printing value to console
-                Console.WriteLine(string.Join("\t", value.Values));
+                if(_tableFormat)
+                {
+                    Console.WriteLine(string.Join("\t", value.Values));    
+                }
+                else
+                {
+                    Console.WriteLine(JsonConvert.SerializeObject(value, Formatting.Indented));
+                }
+                
             }
         }
 

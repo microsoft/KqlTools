@@ -1,5 +1,4 @@
-﻿using Kusto.Ingest.Exceptions;
-using Newtonsoft.Json;
+﻿using Newtonsoft.Json;
 using System;
 using System.Collections.Generic;
 using System.IO;
