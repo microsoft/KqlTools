@@ -66,7 +66,7 @@ namespace RealTimeKql
             app.OnExecute(() =>
             {
                 // ShowHint() will display: "Specify --help for a list of available options and commands."
-                app.ShowHint();
+                app.ShowHelp();
                 return 0;
             });
 
@@ -77,9 +77,10 @@ namespace RealTimeKql
             app.Command("Etw", InvokeEtw);
             app.Command("Csv", InvokeCsv);
 #endif
+#if BUILT_FOR_LINUX
             app.Command("Csv", InvokeCsv);
             app.Command("Syslog", InvokeSyslog);
-
+#endif
             try
             {
                 app.Execute(args);
@@ -128,7 +129,7 @@ namespace RealTimeKql
             command.Description = "Realtime processing of Syslog Events";
             command.ExtendedHelpText = Environment.NewLine + "Use this option to listen to Syslog Events." + Environment.NewLine
                 + Environment.NewLine + "Real-time SysLog Events"
-                + Environment.NewLine + "\tRealtimeKql syslog --query=QueryFile.csl --adxcluster=CDOC.kusto.windows.net --adxdatabase=GeorgiTest --adxtable=EvtxOutput --adxquickingest --adxreset" + Environment.NewLine;
+                + Environment.NewLine + "\tRealtimeKql syslog --query=QueryFile.csl --adxcluster=CDOC.kusto.windows.net --adxdatabase=GeorgiTest --adxtable=EvtxOutput --adxdirect --adxreset" + Environment.NewLine;
 
             command.HelpOption("-?|-h|--help");
 
