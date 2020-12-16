@@ -36,12 +36,10 @@ namespace RealTimeKql
                     {
                         if(val.GetType() == typeof(Dictionary<string, object>))
                         {
-                            // DEBUG
                             sb.Append("Dictionary\t");
                         }
                         else
                         {
-                            // DEBUG
                             sb.Append($"{val}\t");
                         }
                     }
