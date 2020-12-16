@@ -57,8 +57,8 @@ namespace RealTimeKql
 
             // output
             var consoleLogOption = command.Option("-oc|--outputconsole",
-                "Log the output to console.",
-                CommandOptionType.NoValue);
+                "Optional: Specify the format for console output. eg, --outputconsole=table. The default format for console output is JSON.",
+                CommandOptionType.SingleValue);
 
             var outputFileOption = command.Option("-oj|--outputjson <value>",
                 "Write output to JSON file. eg, --outputjson=FilterOutput.json",
@@ -115,54 +115,53 @@ namespace RealTimeKql
                     return -1;
                 }
 
-                if (!outputFileOption.HasValue() && !consoleLogOption.HasValue())
+                if (blobStorageConnectionStringOption.HasValue()) //Blob Storage Upload
                 {
-                    if (blobStorageConnectionStringOption.HasValue()) //Blob Storage Upload
+                    if (!blobStorageContainerOption.HasValue())
                     {
-                        if (!blobStorageContainerOption.HasValue())
-                        {
-                            Console.WriteLine("Missing Blob Storage Container Name");
-                            return -1;
-                        }
+                        Console.WriteLine("Missing Blob Storage Container Name");
+                        return -1;
                     }
-                    else //Kusto Upload
+                }
+
+                if (clusterAddressOption.HasValue() || databaseOption.HasValue() || tableOption.HasValue())
+                {
+                    // Kusto Upload
+                    if (!clusterAddressOption.HasValue())
                     {
-                        if (!clusterAddressOption.HasValue())
-                        {
-                            Console.WriteLine("Missing Cluster Address");
-                            return -1;
-                        }
+                        Console.WriteLine("Missing Cluster Address");
+                        return -1;
+                    }
 
-                        if (!databaseOption.HasValue())
-                        {
-                            Console.WriteLine("Missing Database Name");
-                            return -1;
-                        }
+                    if (!databaseOption.HasValue())
+                    {
+                        Console.WriteLine("Missing Database Name");
+                        return -1;
+                    }
 
-                        if (!tableOption.HasValue())
-                        {
-                            Console.WriteLine("Missing Table Name");
-                            return -1;
-                        }
+                    if (!tableOption.HasValue())
+                    {
+                        Console.WriteLine("Missing Table Name");
+                        return -1;
+                    }
 
-                        string authority = "microsoft.com";
-                        if (adAuthority.HasValue())
-                        {
-                            authority = adAuthority.Value();
-                        }
+                    string authority = "microsoft.com";
+                    if (adAuthority.HasValue())
+                    {
+                        authority = adAuthority.Value();
+                    }
 
-                        if (clusterAddressOption.HasValue() && databaseOption.HasValue())
-                        {
-                            var connectionStrings = GetKustoConnectionStrings(
-                                authority,
-                                clusterAddressOption.Value(),
-                                databaseOption.Value(),
-                                adClientAppId.Value(),
-                                adKey.Value());
+                    if (clusterAddressOption.HasValue() && databaseOption.HasValue())
+                    {
+                        var connectionStrings = GetKustoConnectionStrings(
+                            authority,
+                            clusterAddressOption.Value(),
+                            databaseOption.Value(),
+                            adClientAppId.Value(),
+                            adKey.Value());
 
-                            kscbIngest = connectionStrings.Item1;
-                            kscbAdmin = connectionStrings.Item2;
-                        }
+                        kscbIngest = connectionStrings.Item1;
+                        kscbAdmin = connectionStrings.Item2;
                     }
                 }
 
@@ -173,6 +172,7 @@ namespace RealTimeKql
                         UploadEtlFiles(
                             filePatternOption.Value(),
                             kqlQueryOption.Value(),
+                            consoleLogOption.Value(),
                             outputFileOption.Value(),
                             blobStorageConnectionStringOption.Value(),
                             blobStorageContainerOption.Value(),
@@ -187,6 +187,7 @@ namespace RealTimeKql
                         UploadRealTime(
                             sessionOption.Value(),
                             kqlQueryOption.Value(),
+                            consoleLogOption.Value(),
                             outputFileOption.Value(),
                             blobStorageConnectionStringOption.Value(),
                             blobStorageContainerOption.Value(),
@@ -216,6 +217,7 @@ namespace RealTimeKql
         static void UploadEtlFiles(
             string _filePattern,
             string _queryFile,
+            string consoleLogOption,
             string _outputFileName,
             string blobConnectionString,
             string blobContainerName,
@@ -272,7 +274,8 @@ namespace RealTimeKql
                 else
                 {
                     // output to console
-                    var consoleOutput = new ConsoleOutput();
+                    bool tableFormat = consoleLogOption == "table" ? true : false;
+                    var consoleOutput = new ConsoleOutput(tableFormat);
                     RunConsoleOutput(consoleOutput, etw, _queryFile);
                 }
             }
@@ -281,6 +284,7 @@ namespace RealTimeKql
         static void UploadRealTime(
             string _sessionName,
             string _queryFile,
+            string consoleLogOption,
             string _outputFileName,
             string blobConnectionString,
             string blobContainerName,
@@ -317,7 +321,8 @@ namespace RealTimeKql
             else
             {
                 // output to console
-                consoleOutput = new ConsoleOutput();
+                bool tableFormat = consoleLogOption == "table" ? true : false;
+                consoleOutput = new ConsoleOutput(tableFormat);
                 RunConsoleOutput(consoleOutput, etw, _queryFile);
             }
 
