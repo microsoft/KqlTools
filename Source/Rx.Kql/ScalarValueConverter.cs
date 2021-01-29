@@ -21,13 +21,63 @@ namespace System.Reactive.Kql
             var aggregates = node.Aggregates;
             foreach (var aggregate in aggregates)
             {
-                RxKqlScalarValue scalarValue = aggregate.Visit(this) as RxKqlScalarValue;
+                RxKqlScalarValue scalarValue = aggregate.Accept(this) as RxKqlScalarValue;
                 scalarSummarizer.Aggregations.Add(scalarValue.Left, scalarValue.Right as AggregationFunction);
             }
 
-            scalarSummarizer.GroupingElements = node.ByClause.Expressions.Visit(this) as ScalarValueList;
+            scalarSummarizer.GroupingElements = node.ByClause.Expressions.Accept(this) as ScalarValueList;
 
             return scalarSummarizer;
+        }
+
+        public override ScalarValue VisitScanOperator(ScanOperator node)
+        {
+            throw new NotImplementedException();
+        }
+
+        public override ScalarValue VisitScanDeclareClause(ScanDeclareClause node)
+        {
+            throw new NotImplementedException();
+        }
+
+        public override ScalarValue VisitScanOrderByClause(ScanOrderByClause node)
+        {
+            throw new NotImplementedException();
+        }
+
+        public override ScalarValue VisitScanPartitionByClause(ScanPartitionByClause node)
+        {
+            throw new NotImplementedException();
+        }
+
+        public override ScalarValue VisitScanStep(ScanStep node)
+        {
+            throw new NotImplementedException();
+        }
+
+        public override ScalarValue VisitScanComputationClause(ScanComputationClause node)
+        {
+            throw new NotImplementedException();
+        }
+
+        public override ScalarValue VisitScanAssignment(ScanAssignment node)
+        {
+            throw new NotImplementedException();
+        }
+
+        public override ScalarValue VisitUnknownCommand(UnknownCommand node)
+        {
+            throw new NotImplementedException();
+        }
+
+        public override ScalarValue VisitCustomCommand(CustomCommand node)
+        {
+            throw new NotImplementedException();
+        }
+
+        public override ScalarValue VisitCommandBlock(CommandBlock node)
+        {
+            throw new NotImplementedException();
         }
 
         public override ScalarValue VisitList(SyntaxList list)
@@ -38,12 +88,12 @@ namespace System.Reactive.Kql
             {
                 if (list[i] is SeparatedElement separatedElement)
                 {
-                    valueList.List.Add(separatedElement.Visit(this));
+                    valueList.List.Add(separatedElement.Accept(this));
                 }
 
-                if (list[i] is IdentifierNameReference identifierNameReference)
+                if (list[i] is NameReference identifierNameReference)
                 {
-                    valueList.List.Add(identifierNameReference.Visit(this));
+                    valueList.List.Add(identifierNameReference.Accept(this));
                 }
             }
 
@@ -57,12 +107,12 @@ namespace System.Reactive.Kql
 
         public override ScalarValue VisitSummarizeByClause(SummarizeByClause node)
         {
-            return node.Expressions.Visit(this);
+            return node.Expressions.Accept(this);
         }
 
         public override ScalarValue VisitSeparatedElement(SeparatedElement node)
         {
-            Kusto.Language.Syntax.Query query = node.Root as Kusto.Language.Syntax.Query;
+            Kusto.Language.Syntax.QueryBlock query = node.Root as Kusto.Language.Syntax.QueryBlock;
             var statement = query.Statements[0];
             var expressionStatement = statement.Element as ExpressionStatement;
 
@@ -71,13 +121,13 @@ namespace System.Reactive.Kql
                 if (node.Parent.Parent is SummarizeByClause &&
                     node.Element is FunctionCallExpression functionCallExpression)
                 {
-                    return functionCallExpression.Visit(this);
+                    return functionCallExpression.Accept(this);
                 }
 
                 if (node.Parent.Parent is SummarizeByClause &&
-                    node.Element is IdentifierNameReference identifierNameReference)
+                    node.Element is NameReference identifierNameReference)
                 {
-                    return identifierNameReference.Visit(this);
+                    return identifierNameReference.Accept(this);
                 }
 
                 if (node.Element is FunctionCallExpression functionCallExpression1)
@@ -97,7 +147,7 @@ namespace System.Reactive.Kql
                 if (node.Element is SimpleNamedExpression simpleNamedExpression)
                 {
                     AggregationFunction aggregationFunction =
-                        simpleNamedExpression.Expression.Visit(this) as AggregationFunction;
+                        simpleNamedExpression.Expression.Accept(this) as AggregationFunction;
 
                     RxKqlScalarValue retVal = new RxKqlScalarValue
                     {
@@ -110,6 +160,11 @@ namespace System.Reactive.Kql
             }
 
             return base.VisitSeparatedElement(node);
+        }
+
+        public override ScalarValue VisitQueryBlock(QueryBlock node)
+        {
+            throw new NotImplementedException();
         }
 
         public override ScalarValue VisitTypeOfLiteralExpression(TypeOfLiteralExpression node)
@@ -136,15 +191,30 @@ namespace System.Reactive.Kql
             };
         }
 
-        public override ScalarValue VisitIdentifierNameReference(IdentifierNameReference node)
+        public override ScalarValue VisitTokenName(TokenName node)
         {
-            return new ScalarProperty(node.Identifier.Text);
+            throw new NotImplementedException();
+        }
+
+        public override ScalarValue VisitBracedName(BracedName node)
+        {
+            throw new NotImplementedException();
+        }
+
+        public override ScalarValue VisitBracketedWildcardedName(BracketedWildcardedName node)
+        {
+            throw new NotImplementedException();
+        }
+
+        public override ScalarValue VisitNameReference(NameReference node)
+        {
+            return new ScalarProperty(node.Name.SimpleName);
         }
 
         public override ScalarValue VisitBinaryExpression(Kusto.Language.Syntax.BinaryExpression node)
         {
-            var left = node.Left.Visit(this);
-            var right = node.Right.Visit(this);
+            var left = node.Left.Accept(this);
+            var right = node.Right.Accept(this);
             var op = node.Operator.Text;
             return BinaryExpressionFactory.Create(op, left, right);
         }
@@ -152,9 +222,9 @@ namespace System.Reactive.Kql
         public override ScalarValue VisitFunctionCallExpression(FunctionCallExpression node)
         {
             var functionName = node.Name.SimpleName;
-            var args = node.ArgumentList.Expressions.Select(e => e.Element.Visit(this)).ToList();
+            var args = node.ArgumentList.Expressions.Select(e => e.Element.Accept(this)).ToList();
 
-            Kusto.Language.Syntax.Query query = node.Root as Kusto.Language.Syntax.Query;
+            Kusto.Language.Syntax.QueryBlock query = node.Root as Kusto.Language.Syntax.QueryBlock;
             var statement = query.Statements[0];
             var expressionStatement = statement.Element as ExpressionStatement;
 
@@ -173,15 +243,30 @@ namespace System.Reactive.Kql
             }
         }
 
+        public override ScalarValue VisitMaterializedViewCombineExpression(MaterializedViewCombineExpression node)
+        {
+            throw new NotImplementedException();
+        }
+
+        public override ScalarValue VisitMaterializedViewCombineNameClause(MaterializedViewCombineNameClause node)
+        {
+            throw new NotImplementedException();
+        }
+
+        public override ScalarValue VisitMaterializedViewCombineClause(MaterializedViewCombineClause node)
+        {
+            throw new NotImplementedException();
+        }
+
         public override ScalarValue VisitParenthesizedExpression(ParenthesizedExpression node)
         {
-            return node.Expression.Visit(this);
+            return node.Expression.Accept(this);
         }
 
         public override ScalarValue VisitInExpression(Kusto.Language.Syntax.InExpression node)
         {
-            var left = node.Left.Visit(this);
-            var right = node.Right.Expressions.Select(e => e.Element.Visit(this)).ToList();
+            var left = node.Left.Accept(this);
+            var right = node.Right.Expressions.Select(e => e.Element.Accept(this)).ToList();
             if (node.Operator.Text.Contains("!"))
             {
                 return new Expressions.NotInExpression
@@ -199,11 +284,16 @@ namespace System.Reactive.Kql
             };
         }
 
+        public override ScalarValue VisitHasAnyExpression(HasAnyExpression node)
+        {
+            throw new NotImplementedException();
+        }
+
         public override ScalarValue VisitBetweenExpression(Kusto.Language.Syntax.BetweenExpression node)
         {
-            var left = node.Left.Visit(this);
-            var low = node.Right.First.Visit(this);
-            var high = node.Right.Second.Visit(this);
+            var left = node.Left.Accept(this);
+            var low = node.Right.First.Accept(this);
+            var high = node.Right.Second.Accept(this);
             if (node.Operator.Text.Contains("!"))
             {
                 return new NotBetweenExpression
@@ -225,8 +315,8 @@ namespace System.Reactive.Kql
         {
             return new ScalarPath
             {
-                Element = node.Expression.Visit(this),
-                Selector = node.Selector.Visit(this)
+                Element = node.Expression.Accept(this),
+                Selector = node.Selector.Accept(this)
             };
         }
 
@@ -234,19 +324,69 @@ namespace System.Reactive.Kql
         {
             return new ScalarIndexedElement
             {
-                Element = node.Expression.Visit(this),
-                Selector = node.Selector.Visit(this)
+                Element = node.Expression.Accept(this),
+                Selector = node.Selector.Accept(this)
             };
         }
 
-        public override ScalarValue VisitBrackettedExpression(BrackettedExpression node)
+        public override ScalarValue VisitBracketedExpression(BracketedExpression node)
         {
-            return node.Expression.Visit(this);
+            return node.Expression.Accept(this);
         }
 
         public override ScalarValue VisitExpressionStatement(ExpressionStatement node)
         {
-            return node.Expression.Visit(this);
+            return node.Expression.Accept(this);
+        }
+
+        public override ScalarValue VisitMakeSeriesFromClause(MakeSeriesFromClause node)
+        {
+            throw new NotImplementedException();
+        }
+
+        public override ScalarValue VisitMakeSeriesToClause(MakeSeriesToClause node)
+        {
+            throw new NotImplementedException();
+        }
+
+        public override ScalarValue VisitMakeSeriesStepClause(MakeSeriesStepClause node)
+        {
+            throw new NotImplementedException();
+        }
+
+        public override ScalarValue VisitParseWhereOperator(ParseWhereOperator node)
+        {
+            throw new NotImplementedException();
+        }
+
+        public override ScalarValue VisitPartitionQuery(PartitionQuery node)
+        {
+            throw new NotImplementedException();
+        }
+
+        public override ScalarValue VisitPartitionScope(PartitionScope node)
+        {
+            throw new NotImplementedException();
+        }
+
+        public override ScalarValue VisitPartitionSubquery(PartitionSubquery node)
+        {
+            throw new NotImplementedException();
+        }
+
+        public override ScalarValue VisitProjectAwayOperator(Kusto.Language.Syntax.ProjectAwayOperator node)
+        {
+            throw new NotImplementedException();
+        }
+
+        public override ScalarValue VisitProjectKeepOperator(Kusto.Language.Syntax.ProjectKeepOperator node)
+        {
+            throw new NotImplementedException();
+        }
+
+        public override ScalarValue VisitProjectReorderOperator(ProjectReorderOperator node)
+        {
+            throw new NotImplementedException();
         }
     }
 }

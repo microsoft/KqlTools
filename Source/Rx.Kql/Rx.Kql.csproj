@@ -1,12 +1,33 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
-    <TargetFrameworks>netstandard2.0;net462</TargetFrameworks>
+    <TargetFrameworks>netcoreapp3.1;net472</TargetFrameworks>
     <Platforms>AnyCPU</Platforms>
+    <GeneratePackageOnBuild>false</GeneratePackageOnBuild>
+    <RepositoryUrl>https://msazure.visualstudio.com/One/_git/SecEng-Dev-SIEMfx</RepositoryUrl>
+    <Platforms>AnyCPU</Platforms>
+    <Authors>C+E Security Infra SecEng Dev</Authors>
+    <Description>Library for executing Kusto queries on live streams of data</Description>
+    <PackageReleaseNotes>Library for executing Kusto queries on live streams of data</PackageReleaseNotes>
+    <PackageTags>Rx.Kql</PackageTags>
+    <Version>3.4.2</Version>
+    <GenerateAssemblyVersionAttribute>false</GenerateAssemblyVersionAttribute>
+    <GenerateAssemblyFileVersionAttribute>false</GenerateAssemblyFileVersionAttribute>
+    <GenerateAssemblyInformationalVersionAttribute>false</GenerateAssemblyInformationalVersionAttribute>
   </PropertyGroup>
 
+  <PropertyGroup Condition=" '$(CdpxPostSigning)' == 'true' ">
+    <IsCleaning>false</IsCleaning>
+    <CopyRoleFilesDependsOn />
+    <AddRoleContentDependsOn />
+  </PropertyGroup>
+
+  <ItemGroup>
+    <Compile Include="..\..\.version\PipelineAssemblyInfo.cs" Link="Properties\PipelineAssemblyInfo.cs" />
+  </ItemGroup>
+
   <!-- .NET 4.6.2 references, compilation flags and build options -->
-  <ItemGroup Condition=" '$(TargetFramework)' == 'net462' ">
+  <ItemGroup Condition=" '$(TargetFramework)' == 'net472' ">
     <Reference Include="mscorlib" />
     <Reference Include="System" />
     <Reference Include="System.Core" />
@@ -14,10 +35,18 @@
   </ItemGroup>
 
   <ItemGroup>
+    <PackageReference Include="Microsoft.Azure.Kusto.Language" Version="9.0.4" />
+    <PackageReference Include="Microsoft.CSharp" Version="4.7.0" />
     <PackageReference Include="Newtonsoft.Json" Version="10.0.3" />
     <PackageReference Include="System.Reactive.Linq" Version="4.0.0" />
-    <PackageReference Include="Microsoft.Azure.Kusto.Language.NETStandard" Version="6.2.2" />
     <PackageReference Include="System.Runtime.Caching" Version="4.7.0" />
   </ItemGroup>
+
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|AnyCPU'">
+    <SignAssembly>true</SignAssembly>
+    <DelaySign>true</DelaySign>
+    <KeyFile>..\35MSSharedLib1024.snk</KeyFile>
+    <AssemblyOriginatorKeyFile>..\35MSSharedLib1024.snk</AssemblyOriginatorKeyFile>
+  </PropertyGroup>
 
 </Project>

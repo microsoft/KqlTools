@@ -47,8 +47,8 @@ namespace System.Reactive.Kql
         /// </summary>
         /// <param name="observableInput">IObservable<IDictionary<string, object>> - the data that the KQL queries will run against.</param>
         /// <param name="delegateOutput">Action&lt;KqlOutput&gt; - the structure of the query output as a KqlOutput instance.</param>
-        /// <param name="observableName">string - the KQL query as a string.</param>
-        /// <param name="fileList">string[] - one or more paths to the *.csl files.</param>
+        /// <param name="observableName">string - the name of the subscription.</param>
+        /// <param name="kqlQuery">the KQL query to run against the stream</param>
         /// <returns>KqlNodeHub - a KqlNodeHub instance.</returns>
         public static KqlNodeHub FromKqlQuery(
             IObservable<IDictionary<string, object>> observableInput,
@@ -81,7 +81,7 @@ namespace System.Reactive.Kql
             _outputSubscription = _node.Subscribe(delegateOutput);
         }
 
-        private void AddInput(string name, IObservable<IDictionary<string, object>> observableInput)
+        public void AddInput(string name, IObservable<IDictionary<string, object>> observableInput)
         {
             var subscription = observableInput.Subscribe(_node);
             _inputSubscriptions.Add(name, subscription);

@@ -66,7 +66,7 @@ namespace System.Reactive.Kql
             }
 
             var syntax = query.Syntax.GetDescendants<Statement>()[0];
-            return syntax.Visit(new ScalarValueConverter());
+            return syntax.Accept(new ScalarValueConverter());
         }
 
         private void ParseGroupings()

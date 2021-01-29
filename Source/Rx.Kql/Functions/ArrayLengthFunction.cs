@@ -3,30 +3,44 @@
 // *   Copyright (C) Microsoft. All rights reserved.       *
 // *                                                       *
 // ********************************************************/
-#if NETFULL
+
 namespace System.Reactive.Kql
 {
     using System.Collections.Generic;
     using System.ComponentModel;
-    using System.Reactive.Kql.CommonUtilities;
-    using System.Text.RegularExpressions;
 
-    [Description("cpu_usage")]
-    public class CpuUtilization : ScalarFunction
+    [Description("array_length")]
+    public class ArrayLengthFunction : ScalarFunction
     {
         /// <summary>
         ///     Empty constructor supporting Serialization/Deserialization.  DO NOT REMOVE
         /// </summary>
-        public CpuUtilization()
+        public ArrayLengthFunction()
         {
         }
 
         public override object GetValue(IDictionary<string, object> evt)
         {
-            decimal cpuUtilization = (decimal) PerfCounterHelper.GetCurrentCpuCounter();
+            var value = Arguments[0].GetValue(evt);
 
-            return cpuUtilization;
+            if (value.IsArray())
+            {
+                object[] res = value as object[];
+                return res.Length;
+            }
+
+            if (value.IsDynamicObject())
+            {
+                var temp = (IDictionary<string, object>) value;
+                return temp.Keys.Count;
+            }
+
+            if (value.IsGenericCollectionObject())
+            {
+                return 2;
+            }
+
+            return -1;
         }
     }
 }
-#endif

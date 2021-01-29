@@ -8,6 +8,7 @@ namespace System.Reactive.Kql
 {
     using System.Collections.Generic;
     using System.Diagnostics;
+    using System.Dynamic;
     using System.Linq;
     using System.Reactive.Kql.CustomTypes;
     using System.Reactive.Kql.EventTypes;
@@ -20,48 +21,49 @@ namespace System.Reactive.Kql
     public class KqlNode : IObserver<IDictionary<string, object>>, IObservable<KqlOutput>, IDisposable
     {
         /// <summary>
-        /// (Read only) Specifies the type of output the KqlNode should produce.
+        ///     (Read only) Specifies the type of output the KqlNode should produce.
         /// </summary>
         public readonly Subject<KqlOutput> Output = new Subject<KqlOutput>();
 
         /// <summary>
-        /// The List of all KQL queries (as KqlQuery instances) currently loaded in the KqlNode.
+        ///     The List of all KQL queries (as KqlQuery instances) currently loaded in the KqlNode.
         /// </summary>
-        /// <see cref="KqlQuery"/>
+        /// <see cref="KqlQuery" />
         public List<KqlQuery> KqlQueryList { get; private set; }
 
         /// <summary>
-        /// The List of all KQL queries currently loaded in the KqlNode that have failed execution.
+        ///     The List of all KQL queries currently loaded in the KqlNode that have failed execution.
         /// </summary>
-        /// <see cref="KqlQuery"/>
+        /// <see cref="KqlQuery" />
         public List<KqlQuery> FailedKqlQueryList { get; private set; }
 
         private List<IDisposable> SubscriptionReferenceDisposables { get; set; }
 
         /// <summary>
-        /// Enables / Disables whether failed query events are raised by the KqlNode.
-        /// Default is false, do not raise these events.
+        ///     Enables / Disables whether failed query events are raised by the KqlNode.
+        ///     Default is false, do not raise these events.
         /// </summary>
         public bool EnableFailedKqlQueryEvents { get; set; } = false;
 
         /// <summary>
-        /// Enables / Disables whether to dispose of a KQL query if it raises an exception.
-        /// Default is false, do not dispose of a KQL query if it raises an exception.
+        ///     Enables / Disables whether to dispose of a KQL query if it raises an exception.
+        ///     Default is false, do not dispose of a KQL query if it raises an exception.
         /// </summary>
         public bool DisposeKqlQueryOnException { get; set; } = false;
 
         /// <summary>
-        /// Event will be raised on completion of a KqlQuery.
+        ///     Event will be raised on completion of a KqlQuery.
         /// </summary>
         public event EventHandler<KqlQueryCompletedEventArgs> KqlKqlQueryCompleted;
 
         /// <summary>
-        /// Event will be raised on a failure of a KqlQuery, if EnableFailedKqlQueryEvents is set to 'true'.
+        ///     Event will be raised on a failure of a KqlQuery, if EnableFailedKqlQueryEvents is set to 'true'.
         /// </summary>
         public event EventHandler<KqlQueryFailedEventArgs> KqlKqlQueryFailed;
 
         /// <summary>
-        /// Creates an new KqlNode instance and initializes the KqlQueryList, FailedKqlQueryList and SubscriptionReferenceDisposables.
+        ///     Creates an new KqlNode instance and initializes the KqlQueryList, FailedKqlQueryList and
+        ///     SubscriptionReferenceDisposables.
         /// </summary>
         public KqlNode()
         {
@@ -69,10 +71,13 @@ namespace System.Reactive.Kql
         }
 
         /// <summary>
-        /// Adds all the KQL queries defined in the specified *.csl file to the KqlNode.
+        ///     Adds all the KQL queries defined in the specified *.csl file to the KqlNode.
         /// </summary>
         /// <param name="filepath">string - the path to the *.cl file containing one or more KQL queries.</param>
-        /// <param name="stopKqlQuerys">Boolean - If set to 'true', stop and remove all currently-running queries before adding new queries.</param>
+        /// <param name="stopKqlQuerys">
+        ///     Boolean - If set to 'true', stop and remove all currently-running queries before adding new
+        ///     queries.
+        /// </param>
         public void AddCslFile(string filepath, bool stopKqlQuerys = false)
         {
             // Optionally clear out currently executing KqlQuerys, or only add new ones
@@ -88,11 +93,11 @@ namespace System.Reactive.Kql
         }
 
         /// <summary>
-        /// Adds the KQL query defined in the CslParagraph object, to the KqlNode.
-        /// If the KQL query cannot be parsed or added, adds the query to the FailedKqlQueryList.
+        ///     Adds the KQL query defined in the CslParagraph object, to the KqlNode.
+        ///     If the KQL query cannot be parsed or added, adds the query to the FailedKqlQueryList.
         /// </summary>
         /// <param name="para">CslParagraph -- the CslParagraph instance that defined the KQL query and associated metadata.</param>
-        /// <see cref="CslParagraph"/>
+        /// <see cref="CslParagraph" />
         public void AddKqlQuery(CslParagraph para)
         {
             try
@@ -126,13 +131,14 @@ namespace System.Reactive.Kql
         }
 
         /// <summary>
-        /// Attempts to add the KQL query defined in the CslParagraph object, to the KqlNode.
-        /// If the KQL query cannot be parsed or added, adds the query to the FailedKqlQueryList and returns the input Exception.
+        ///     Attempts to add the KQL query defined in the CslParagraph object, to the KqlNode.
+        ///     If the KQL query cannot be parsed or added, adds the query to the FailedKqlQueryList and returns the input
+        ///     Exception.
         /// </summary>
         /// <param name="para">CslParagraph -- the CslParagraph instance that defined the KQL query and associated metadata.</param>
         /// <param name="exception">Exception - an instance of System.Exception.</param>
         /// <returns>Boolean - 'true' is the operation succeed; otherwise 'false'.</returns>
-        /// <see cref="CslParagraph"/>
+        /// <see cref="CslParagraph" />
         public bool TryAddKqlQuery(CslParagraph para, out Exception exception)
         {
             bool result = true;
@@ -141,9 +147,9 @@ namespace System.Reactive.Kql
             this.AddKqlQuery(para);
 
             exception = this.FailedKqlQueryList
-                    .Where(a => string.Equals(a.Query, para.Query, StringComparison.OrdinalIgnoreCase))
-                    .Select(a => a.FailureReason)
-                    .FirstOrDefault();
+                .Where(a => string.Equals(a.Query, para.Query, StringComparison.OrdinalIgnoreCase))
+                .Select(a => a.FailureReason)
+                .FirstOrDefault();
 
             result = exception == null;
 
@@ -151,13 +157,14 @@ namespace System.Reactive.Kql
         }
 
         /// <summary>
-        /// Attempts to add the KQL query defined in the KqlQiery object, to the KqlNode.
-        /// If the KQL query cannot be parsed or added, adds the query to the FailedKqlQueryList and returns the input Exception.
+        ///     Attempts to add the KQL query defined in the KqlQiery object, to the KqlNode.
+        ///     If the KQL query cannot be parsed or added, adds the query to the FailedKqlQueryList and returns the input
+        ///     Exception.
         /// </summary>
         /// <param name="para">KqlQuery -- the KqlQuery instance that defined the KQL query and associated metadata.</param>
         /// <param name="exception">Exception - an instance of System.Exception.</param>
         /// <returns>Boolean - 'true' is the operation succeed; otherwise 'false'.</returns>
-        /// <see cref="KqlQuery"/>
+        /// <see cref="KqlQuery" />
         public bool TryAddKqlQuery(KqlQuery kqlQuery, out Exception exception)
         {
             bool result = true;
@@ -166,9 +173,9 @@ namespace System.Reactive.Kql
             this.AddKqlQuery(kqlQuery);
 
             exception = this.FailedKqlQueryList
-                    .Where(a => string.Equals(a.Query, kqlQuery.Query, StringComparison.OrdinalIgnoreCase))
-                    .Select(a => a.FailureReason)
-                    .FirstOrDefault();
+                .Where(a => string.Equals(a.Query, kqlQuery.Query, StringComparison.OrdinalIgnoreCase))
+                .Select(a => a.FailureReason)
+                .FirstOrDefault();
 
             result = exception == null;
 
@@ -176,9 +183,12 @@ namespace System.Reactive.Kql
         }
 
         /// <summary>
-        /// Adds one or more KQL functions (from the KqlNode) directly from definitions in an input string.
+        ///     Adds one or more KQL functions (from the KqlNode) directly from definitions in an input string.
         /// </summary>
-        /// <param name="kqlFunctionQuery">string - a string with one or more string representations of a CslParagraph, separated by live feeds.</param>
+        /// <param name="kqlFunctionQuery">
+        ///     string - a string with one or more string representations of a CslParagraph, separated
+        ///     by live feeds.
+        /// </param>
         public void AddKqlFunction(string kqlFunctionQuery)
         {
             // Load any functions for use across the node
@@ -186,9 +196,12 @@ namespace System.Reactive.Kql
         }
 
         /// <summary>
-        /// Removes one or more KQL functions (from the KqlNode) directly from definitions in an input string.
+        ///     Removes one or more KQL functions (from the KqlNode) directly from definitions in an input string.
         /// </summary>
-        /// <param name="kqlFunctionQuery">string - a string with one or more string representations of a CslParagraph, separated by live feeds.</param>
+        /// <param name="kqlFunctionQuery">
+        ///     string - a string with one or more string representations of a CslParagraph, separated
+        ///     by live feeds.
+        /// </param>
         public void RemoveKqlFunction(string kqlFunctionName)
         {
             // Load any functions for use across the node
@@ -196,10 +209,10 @@ namespace System.Reactive.Kql
         }
 
         /// <summary>
-        /// Retrieves a KQL function by its function name, from the current list of KQL functions in the KqlNode.
+        ///     Retrieves a KQL function by its function name, from the current list of KQL functions in the KqlNode.
         /// </summary>
         /// <param name="kqlFunctionName">string - the name of the function. </param>
-        /// <see cref="CslFunction"/>
+        /// <see cref="CslFunction" />
         public CslFunction GetKqlFunction(string kqlFunctionName)
         {
             // Retrieve requested function the node
@@ -207,11 +220,14 @@ namespace System.Reactive.Kql
         }
 
         /// <summary>
-        /// Adds a single KqlQuery to the KqlNode from a KqlQuery instance.
+        ///     Adds a single KqlQuery to the KqlNode from a KqlQuery instance.
         /// </summary>
         /// <param name="kqlQuery">The KqlQuery object</param>
-        /// <param name="stopKqlQueries">Optionally clear out currently executing KQL queries if set to 'true', or only add new ones if set to 'false' (default).</param>
-        /// <see cref="KqlQuery"/>
+        /// <param name="stopKqlQueries">
+        ///     Optionally clear out currently executing KQL queries if set to 'true', or only add new
+        ///     ones if set to 'false' (default).
+        /// </param>
+        /// <see cref="KqlQuery" />
         public void AddKqlQuery(KqlQuery kqlQuery, bool stopKqlQueries = false)
         {
             try
@@ -259,11 +275,14 @@ namespace System.Reactive.Kql
         }
 
         /// <summary>
-        /// Adds a list of KqlQuery objects to the KqlNode.
+        ///     Adds a list of KqlQuery objects to the KqlNode.
         /// </summary>
         /// <param name="kqlQuery">List<KqlQuery> - The list of KqlQuery objects</param>
-        /// <param name="stopKqlQueries">Boolean - Optionally clear out currently executing KqlQueries if set to 'true', or only add new ones if set to 'false' (default).</param>
-        /// <see cref="KqlQuery"/>
+        /// <param name="stopKqlQueries">
+        ///     Boolean - Optionally clear out currently executing KqlQueries if set to 'true', or only
+        ///     add new ones if set to 'false' (default).
+        /// </param>
+        /// <see cref="KqlQuery" />
         public void AddKqlQueryList(List<KqlQuery> kqlQueryList, bool stopKqlQuerys = false)
         {
             // Optionally clear out currently executing KqlQuerys, or only add new ones
@@ -279,12 +298,15 @@ namespace System.Reactive.Kql
         }
 
         /// <summary>
-        /// [Left in for legacy purposes only]  
-        /// Use AddKqlQuery instead.
+        ///     [Left in for legacy purposes only]
+        ///     Use AddKqlQuery instead.
         /// </summary>
         /// <param name="kqlQuery">KqlQuery - The KqlQuery object</param>
-        /// <param name="stopKqlQueries">Boolean - Optionally clear out currently executing KqlQueries if set to 'true', or only add new ones if set to 'false' (default).</param>
-        /// <see cref="KqlQuery"/>
+        /// <param name="stopKqlQueries">
+        ///     Boolean - Optionally clear out currently executing KqlQueries if set to 'true', or only
+        ///     add new ones if set to 'false' (default).
+        /// </param>
+        /// <see cref="KqlQuery" />
         public void AddKqlQueryInfo(KqlQuery kqlQuery, bool stopKqlQueries = false)
         {
             if (stopKqlQueries)
@@ -300,7 +322,7 @@ namespace System.Reactive.Kql
         }
 
         /// <summary>
-        /// Makes each KQL query in the KqlNode to execute on the next set of data.
+        ///     Makes each KQL query in the KqlNode to execute on the next set of data.
         /// </summary>
         /// <param name="value">IDictionary<string, object> - the set of data for the KQL queries to operate on.</param>
         public void OnNext(IDictionary<string, object> value)
@@ -363,7 +385,7 @@ namespace System.Reactive.Kql
         }
 
         /// <summary>
-        /// When a KQL query fails execution, raise this event to the hosting process.
+        ///     When a KQL query fails execution, raise this event to the hosting process.
         /// </summary>
         /// <param name="args">KqlQueryFailedEventArgs - the arguments for the KQL query failure.</param>
         private void OnKqlQueryFailed(KqlQueryFailedEventArgs args)
@@ -372,7 +394,7 @@ namespace System.Reactive.Kql
         }
 
         /// <summary>
-        /// When a KQL query completes, raise the event to the hosting process.
+        ///     When a KQL query completes, raise the event to the hosting process.
         /// </summary>
         /// <param name="args">KqlQueryCompletedEventArgs - the arguments for the KQL query completion.</param>
         private void OnKqlQueryCompleted(KqlQueryCompletedEventArgs args)
@@ -381,7 +403,7 @@ namespace System.Reactive.Kql
         }
 
         /// <summary>
-        /// Processes required work when an exception is passed to it.
+        ///     Processes required work when an exception is passed to it.
         /// </summary>
         /// <param name="error">System.Exception - the input exception.</param>
         public void OnError(Exception error)
@@ -391,7 +413,7 @@ namespace System.Reactive.Kql
         }
 
         /// <summary>
-        /// Processes required clean up work, if any, when the KqlNode completes all queries.
+        ///     Processes required clean up work, if any, when the KqlNode completes all queries.
         /// </summary>
         public void OnCompleted()
         {
@@ -405,8 +427,8 @@ namespace System.Reactive.Kql
         }
 
         /// <summary>
-        /// Initializes the KqlQueryList, FailedKqlQueryList and SubscriptionReferenceDisposables.
-        /// This is equivalent to resetting the KqlNode instance. All running queries will immediately stop.
+        ///     Initializes the KqlQueryList, FailedKqlQueryList and SubscriptionReferenceDisposables.
+        ///     This is equivalent to resetting the KqlNode instance. All running queries will immediately stop.
         /// </summary>
         public void InitializeKqlQueryLists()
         {
@@ -417,7 +439,7 @@ namespace System.Reactive.Kql
         }
 
         /// <summary>
-        /// Subscribes an observer to the Subject, in this case Output.
+        ///     Subscribes an observer to the Subject, in this case Output.
         /// </summary>
         /// <param name="observer">IObserver<KqlOutput> - Observer to subscribe to the subject.</param>
         /// <returns>IDisposable - Disposable object that can be used to unsubscribe the observer from the subject.</returns>
@@ -427,7 +449,7 @@ namespace System.Reactive.Kql
         }
 
         /// <summary>
-        /// Performs required clean up work when the KqlNode is disposed of.
+        ///     Performs required clean up work when the KqlNode is disposed of.
         /// </summary>
         public void Dispose()
         {
@@ -444,23 +466,23 @@ namespace System.Reactive.Kql
     }
 
     /// <summary>
-    /// Class <c>KqlQuery</c> container for a KQL query and associated metadata.
+    ///     Class <c>KqlQuery</c> container for a KQL query and associated metadata.
     /// </summary>
     public class KqlQuery : IDisposable
     {
         /// <summary>
-        /// The KqlNode instance that this KqlQuery instance is associated with.
+        ///     The KqlNode instance that this KqlQuery instance is associated with.
         /// </summary>
-        /// <see cref="KqlNode"/>
+        /// <see cref="KqlNode" />
         public KqlNode Node { get; set; }
 
         /// <summary>
-        /// (Read only) Specifies the type of input the KqlNode should consume.
+        ///     (Read only) Specifies the type of input the KqlNode should consume.
         /// </summary>
         public Subject<IDictionary<string, object>> Input { get; } = new Subject<IDictionary<string, object>>();
 
         /// <summary>
-        /// A comment describing the KQL query.
+        ///     A comment describing the KQL query.
         /// </summary>
         public string Comment { get; set; }
 
@@ -515,6 +537,38 @@ namespace System.Reactive.Kql
             Subscription.Dispose();
         }
 
+        /// <summary>
+        /// Evaluate a single query at a time
+        /// </summary>
+        /// <param name="dict">The IDictionary of the data to be evaluated with this KqlQuery</param>
+        /// <returns></returns>
+        public KqlOutput Evaluate(IDictionary<string, object> dict)
+        {
+            KqlOutput result = null;
+            Stopwatch evaluateStopwatch = Stopwatch.StartNew();
+
+            // Pass over the table name, at least one pipe char [|] is required.
+            Input.KustoQuery(Query.Substring(Query.IndexOf('|') + 1).Trim())
+                .Subscribe(e =>
+                {
+                    result = new KqlOutput
+                    {
+                        Output = e,
+                        Comment = Comment,
+                        Query = Query,
+                        KqlQuery = this
+                    };
+                });
+
+
+            // Evaluate the query pipeline
+            Input.OnNext(dict);
+            this.EvaluationCount++;
+            this.EvaluationTimeSpan += evaluateStopwatch.Elapsed;
+
+            return result;
+        }
+
         public void EnableSubscription(string query)
         {
             int pipeIndex = query.IndexOf('|');
@@ -558,7 +612,7 @@ namespace System.Reactive.Kql
         }
 
         /// <summary>
-        /// KqlQuery Efficiency in AverageMicroseconds
+        ///     KqlQuery Efficiency in AverageMicroseconds
         /// </summary>
         public double AverageMicroseconds
         {

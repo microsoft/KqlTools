@@ -11,11 +11,6 @@ namespace System.Reactive.Kql
 
     abstract class KqlSyntaxVisitor<T> : SyntaxVisitor<T>
     {
-        public override T VisitAdminCommand(AdminCommand node)
-        {
-            throw new NotImplementedException();
-        }
-
         public override T VisitAliasStatement(AliasStatement node)
         {
             throw new NotImplementedException();
@@ -51,27 +46,12 @@ namespace System.Reactive.Kql
             throw new NotImplementedException();
         }
 
-        public override T VisitBrackettedExpression(BrackettedExpression node)
+        public override T VisitBracketedExpression(BracketedExpression node)
         {
             throw new NotImplementedException();
         }
 
-        public override T VisitBrackettedNameDeclaration(BrackettedNameDeclaration node)
-        {
-            throw new NotImplementedException();
-        }
-
-        public override T VisitBrackettedNameReference(BrackettedNameReference node)
-        {
-            throw new NotImplementedException();
-        }
-
-        public override T VisitClientParameterReference(ClientParameterReference node)
-        {
-            throw new NotImplementedException();
-        }
-
-        public override T VisitCommandInputExpression(CommandInputExpression node)
+        public override T VisitBracketedName(BracketedName node)
         {
             throw new NotImplementedException();
         }
@@ -96,11 +76,6 @@ namespace System.Reactive.Kql
             throw new NotImplementedException();
         }
 
-        public override T VisitConditionedExpression(ConditionedExpression node)
-        {
-            throw new NotImplementedException();
-        }
-
         public override T VisitConsumeOperator(ConsumeOperator node)
         {
             throw new NotImplementedException();
@@ -112,11 +87,6 @@ namespace System.Reactive.Kql
         }
 
         public override T VisitCountOperator(CountOperator node)
-        {
-            throw new NotImplementedException();
-        }
-
-        public override T VisitCreateFunctionCommand(CreateFunctionCommand node)
         {
             throw new NotImplementedException();
         }
@@ -151,7 +121,7 @@ namespace System.Reactive.Kql
             throw new NotImplementedException();
         }
 
-        public override T VisitDirective(Directive node)
+        public override T VisitDirectiveBlock(DirectiveBlock node)
         {
             throw new NotImplementedException();
         }
@@ -281,22 +251,17 @@ namespace System.Reactive.Kql
             throw new NotImplementedException();
         }
 
-        public override T VisitGeneralCommand(GeneralCommand node)
-        {
-            throw new NotImplementedException();
-        }
-
         public override T VisitGetSchemaOperator(GetSchemaOperator node)
         {
             throw new NotImplementedException();
         }
 
-        public override T VisitIdentifierNameDeclaration(IdentifierNameDeclaration node)
+        public override T VisitNameDeclaration(NameDeclaration node)
         {
             throw new NotImplementedException();
         }
 
-        public override T VisitIdentifierNameReference(IdentifierNameReference node)
+        public override T VisitNameReference(NameReference node)
         {
             throw new NotImplementedException();
         }
@@ -315,28 +280,13 @@ namespace System.Reactive.Kql
         {
             throw new NotImplementedException();
         }
-
-        public override T VisitJoinOnSegmentsClause(JoinOnSegmentsClause node)
-        {
-            throw new NotImplementedException();
-        }
-
+        
         public override T VisitJoinOperator(JoinOperator node)
         {
             throw new NotImplementedException();
         }
 
         public override T VisitJoinWhereClause(JoinWhereClause node)
-        {
-            throw new NotImplementedException();
-        }
-
-        public override T VisitJoinWithWildcardsClause(JoinWithWildcardsClause node)
-        {
-            throw new NotImplementedException();
-        }
-
-        public override T VisitJoinWithWildcardsExpression(JoinWithWildcardsExpression node)
         {
             throw new NotImplementedException();
         }
@@ -501,17 +451,7 @@ namespace System.Reactive.Kql
             throw new NotImplementedException();
         }
 
-        public override T VisitPartitionExpression(PartitionExpression node)
-        {
-            throw new NotImplementedException();
-        }
-
         public override T VisitPartitionOperator(PartitionOperator node)
-        {
-            throw new NotImplementedException();
-        }
-
-        public override T VisitPathExpression(PathExpression node)
         {
             throw new NotImplementedException();
         }
@@ -561,22 +501,12 @@ namespace System.Reactive.Kql
             throw new NotImplementedException();
         }
 
-        public override T VisitProjectAwayOperator(ProjectAwayOperator node)
-        {
-            throw new NotImplementedException();
-        }
-
         public override T VisitProjectOperator(Kusto.Language.Syntax.ProjectOperator node)
         {
             throw new NotImplementedException();
         }
 
         public override T VisitProjectRenameOperator(ProjectRenameOperator node)
-        {
-            throw new NotImplementedException();
-        }
-
-        public override T VisitQuery(Kusto.Language.Syntax.Query node)
         {
             throw new NotImplementedException();
         }
@@ -691,11 +621,6 @@ namespace System.Reactive.Kql
             throw new NotImplementedException();
         }
 
-        public override T VisitTableSetCommand(TableSetCommand node)
-        {
-            throw new NotImplementedException();
-        }
-
         public override T VisitTakeOperator(TakeOperator node)
         {
             throw new NotImplementedException();
@@ -761,7 +686,7 @@ namespace System.Reactive.Kql
             throw new NotImplementedException();
         }
 
-        public override T VisitWildcardedNameReference(WildcardedNameReference node)
+        public override T VisitWildcardedName(WildcardedName node)
         {
             throw new NotImplementedException();
         }
