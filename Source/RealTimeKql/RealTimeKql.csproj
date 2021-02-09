@@ -2,7 +2,7 @@
 
   <PropertyGroup>
     <OutputType>Exe</OutputType>
-	<TargetFrameworks>net462;netcoreapp3.1</TargetFrameworks>
+	<TargetFrameworks>net472;netcoreapp3.1</TargetFrameworks>
 	<RuntimeFrameworkVersion>3.0.0</RuntimeFrameworkVersion>
 	<RuntimeIdentifiers>linux-x64;win-x64</RuntimeIdentifiers>
 	<Platforms>AnyCPU;x64</Platforms>
@@ -12,8 +12,8 @@
 	<DefineConstants Condition="'$(RuntimeIdentifier)' == 'linux-x64'">$(DefineConstants);BUILT_FOR_LINUX</DefineConstants>
   </PropertyGroup>
 
-	<!--NET 462 references, compilation flags and build options -->
-  <ItemGroup Condition="'$(TargetFramework)' == 'net462' ">
+	<!--NET 472 references, compilation flags and build options -->
+  <ItemGroup Condition="'$(TargetFramework)' == 'net472' ">
     <Reference Include="mscorlib" />
     <Reference Include="System" />
     <Reference Include="System.Core" />
@@ -24,7 +24,7 @@
     <PackageReference Include="Microsoft.Azure.Kusto.Ingest.NETStandard" Version="6.2.2" />
   </ItemGroup>
 
-  <ItemGroup Condition="'$(TargetFramework)' == 'net462' ">
+  <ItemGroup Condition="'$(TargetFramework)' == 'net472' ">
 	  <PackageReference Include="Microsoft.Azure.Kusto.Ingest" Version="8.1.5" />
   </ItemGroup>
 
