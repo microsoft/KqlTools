@@ -158,7 +158,13 @@ namespace System.Reactive.Kql
         public static bool IsGenericList(this object o)
         {
             var oType = o.GetType();
-            return oType.IsGenericType && (oType.GetGenericTypeDefinition() == typeof(List<>)) || oType.IsArray ;
+            return oType.IsGenericType && (oType.GetGenericTypeDefinition() == typeof(List<>)) || oType.IsArray;
+        }
+
+        public static bool IsArray(this object o)
+        {
+            var oType = o.GetType();
+            return oType.IsArray;
         }
 
         public static bool IsGenericObject(this object o)

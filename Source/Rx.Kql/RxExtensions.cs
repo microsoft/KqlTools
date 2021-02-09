@@ -34,7 +34,7 @@ namespace System.Reactive.Kql
                 var queryStatement = statementList.FirstOrDefault(x => x.Kind == SyntaxKind.ExpressionStatement);
             }
 
-            var lexicalTokens = KustoLexer.GetTokens(query, alwaysProduceEOF: true);
+            var lexicalTokens = LexicalGrammar.GetTokens(query, alwaysProduceEndToken: true);
             string[] pipeline = SplitExpressions(lexicalTokens).ToArray();
             var result = source;
 
@@ -57,6 +57,14 @@ namespace System.Reactive.Kql
 
                     case "project":
                         result = result.ProjectExpressions(args);
+                        break;
+
+                    case "project-away":
+                        result = result.ProjectAwayExpressions(args);
+                        break;
+
+                    case "project-keep":
+                        result = result.ProjectKeepExpressions(args);
                         break;
 
                     case "evaluate":
@@ -110,6 +118,44 @@ namespace System.Reactive.Kql
                     try
                     {
                         var r = project.Project(e);
+                        observer.OnNext(r);
+                    }
+                    catch (Exception ex)
+                    {
+                        RxKqlEventSource.Log.LogException(ex.ToString());
+                        observer.OnError(ex);
+                    }
+                }));
+        }
+
+        public static IObservable<IDictionary<string, object>> ProjectAwayExpressions(this IObservable<IDictionary<string, object>> source, string expression)
+        {
+            var projectAway = new ProjectAwayOperator(expression);
+            return Observable.Create<IDictionary<string, object>>(
+                observer => source.Subscribe(e =>
+                {
+                    try
+                    {
+                        var r = projectAway.ProjectAway(e);
+                        observer.OnNext(r);
+                    }
+                    catch (Exception ex)
+                    {
+                        RxKqlEventSource.Log.LogException(ex.ToString());
+                        observer.OnError(ex);
+                    }
+                }));
+        }
+
+        public static IObservable<IDictionary<string, object>> ProjectKeepExpressions(this IObservable<IDictionary<string, object>> source, string expression)
+        {
+            var projectKeep = new ProjectKeepOperator(expression);
+            return Observable.Create<IDictionary<string, object>>(
+                observer => source.Subscribe(e =>
+                {
+                    try
+                    {
+                        var r = projectKeep.ProjectKeep(e);
                         observer.OnNext(r);
                     }
                     catch (Exception ex)

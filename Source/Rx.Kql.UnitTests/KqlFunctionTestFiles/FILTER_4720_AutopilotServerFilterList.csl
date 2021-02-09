@@ -1,5 +1,0 @@
-// FILTER_4720_AutopilotServerFilterList
-.create-or-alter function FILTER_4720_AutopilotServerFilterList(AttackerUserName:string, TargetDomainName:string )
-{
-    not(AttackerUserName contains "$" and TargetDomainName startswith "EAP")
-} 

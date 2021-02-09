@@ -170,7 +170,7 @@ namespace System.Reactive.Kql
             }
 
             var syntax = query.Syntax.GetDescendants<Statement>()[0];
-            return syntax.Visit(new ScalarValueConverter());
+            return syntax.Accept(new ScalarValueConverter());
         }
 
         public bool Evaluate(IDictionary<string, object> evt)
@@ -195,18 +195,18 @@ namespace System.Reactive.Kql
             Expressions = new List<RxKqlScalarValue>();
         }
 
-        private List<RxKqlScalarValue> ParseExpressionKusto(string extend)
+        private List<RxKqlScalarValue> ParseExpressionKusto(string project)
         {
-            extend = extend.Trim();
-            if (!extend.StartsWith("project "))
+            project = project.Trim();
+            if (!project.StartsWith("project "))
             {
-                extend = "project " + extend;
+                project = "project " + project;
             }
 
             KustoCode query;
             lock (parserLock)
             {
-                query = KustoCode.Parse(extend);
+                query = KustoCode.Parse(project);
             }
 
             var diagnostics = query.GetSyntaxDiagnostics()
@@ -215,11 +215,11 @@ namespace System.Reactive.Kql
             if (diagnostics.Any())
             {
                 var errors = string.Join("\n", diagnostics);
-                throw new QueryParsingException($"Error parsing expression {extend}: {errors}");
+                throw new QueryParsingException($"Error parsing expression {project}: {errors}");
             }
 
             var syntax = query.Syntax.GetDescendants<Statement>()[0];
-            return syntax.Visit(new ListRxKqlScalarValueConverter());
+            return syntax.Accept(new ListRxKqlScalarValueConverter());
         }
 
         public ProjectOperator(string args)
@@ -230,7 +230,6 @@ namespace System.Reactive.Kql
         public dynamic Project(IDictionary<string, object> instance)
         {
             var result = new ExpandoObject();
-            var inst = instance;
 
             foreach (var exp in Expressions)
             {
@@ -256,11 +255,194 @@ namespace System.Reactive.Kql
         {
             string prefix = string.Empty;
             StringBuilder sb = new StringBuilder("project ");
-            foreach (var f in Fields)
+            foreach (var f in Expressions)
             {
-                sb.Append(prefix);
-                prefix = ", ";
-                sb.Append(f);
+                if (f.Left.Equals(f.Right.ToString()))
+                {
+                    sb.Append(f.Left);
+                }
+                else
+                {
+                    sb.Append(f.Left);
+                    sb.Append($" {f.Operator} ");
+                    sb.Append(f.Right);
+                }
+
+                if (f != Expressions.Last())
+                {
+                    sb.Append(", ");
+                }
+            }
+
+            return sb.ToString();
+        }
+    }
+
+    public class ProjectAwayOperator : TableOperator
+    {
+        public string[] Fields { get; set; }
+
+        public List<RxKqlScalarValue> Expressions;
+
+        public ProjectAwayOperator()
+        {
+            Expressions = new List<RxKqlScalarValue>();
+        }
+
+        private List<RxKqlScalarValue> ParseExpressionKusto(string projectaway)
+        {
+            projectaway = projectaway.Trim();
+            if (!projectaway.StartsWith("project-away "))
+            {
+                projectaway = "project-away " + projectaway;
+            }
+
+            KustoCode query;
+            lock (parserLock)
+            {
+                query = KustoCode.Parse(projectaway);
+            }
+
+            var diagnostics = query.GetSyntaxDiagnostics()
+                .Select(d => $"({d.Start}..{d.Start + d.Length}): {d.Message}");
+
+            if (diagnostics.Any())
+            {
+                var errors = string.Join("\n", diagnostics);
+                throw new QueryParsingException($"Error parsing expression {projectaway}: {errors}");
+            }
+
+            var syntax = query.Syntax.GetDescendants<Statement>()[0];
+            return syntax.Accept(new ListRxKqlScalarValueConverter());
+        }
+
+        public ProjectAwayOperator(string args)
+        {
+            Expressions = ParseExpressionKusto(args);
+        }
+
+        public dynamic ProjectAway(IDictionary<string, object> instance)
+        {
+            var result = new ExpandoObject();
+
+            foreach (var exp in Expressions)
+            {
+                string name = exp.Left;
+
+                // Remove the undesired value from the dictionary
+                if (instance.ContainsKey(name))
+                {
+                    instance.Remove(name);
+                }
+            }
+
+            return instance;
+        }
+
+        public override string ToString()
+        {
+            string prefix = string.Empty;
+            StringBuilder sb = new StringBuilder("project-away ");
+            foreach (var f in Expressions)
+            {
+                if (f.Left.Equals(f.Right.ToString()))
+                {
+                    sb.Append(f.Left);
+                }
+                else
+                {
+                    sb.Append(f.Left);
+                    sb.Append($" {f.Operator} ");
+                    sb.Append(f.Right);
+                }
+
+                if (f != Expressions.Last())
+                {
+                    sb.Append(", ");
+                }
+            }
+
+            return sb.ToString();
+        }
+    }
+
+    public class ProjectKeepOperator : TableOperator
+    {
+        public string[] Fields { get; set; }
+
+        public List<RxKqlScalarValue> Expressions;
+
+        public ProjectKeepOperator()
+        {
+            Expressions = new List<RxKqlScalarValue>();
+        }
+
+        private List<RxKqlScalarValue> ParseExpressionKusto(string projectkeep)
+        {
+            projectkeep = projectkeep.Trim();
+            if (!projectkeep.StartsWith("project-keep "))
+            {
+                projectkeep = "project-keep " + projectkeep;
+            }
+
+            KustoCode query;
+            lock (parserLock)
+            {
+                query = KustoCode.Parse(projectkeep);
+            }
+
+            var diagnostics = query.GetSyntaxDiagnostics()
+                .Select(d => $"({d.Start}..{d.Start + d.Length}): {d.Message}");
+
+            if (diagnostics.Any())
+            {
+                var errors = string.Join("\n", diagnostics);
+                throw new QueryParsingException($"Error parsing expression {projectkeep}: {errors}");
+            }
+
+            var syntax = query.Syntax.GetDescendants<Statement>()[0];
+            return syntax.Accept(new ListRxKqlScalarValueConverter());
+        }
+
+        public ProjectKeepOperator(string args)
+        {
+            Expressions = ParseExpressionKusto(args);
+        }
+
+        public dynamic ProjectKeep(IDictionary<string, object> instance)
+        {
+            var result = new ExpandoObject();
+
+            // Retrieve the list of expressions to keep, then LINQ them to the result
+            var fieldsToKeep = Expressions.Select(n => n.Left);
+            instance = instance
+                .Where(p => !fieldsToKeep.Contains(p.Key))
+                .ToDictionary(p => p.Key, p => p.Value);
+
+            return instance;
+        }
+
+        public override string ToString()
+        {
+            string prefix = string.Empty;
+            StringBuilder sb = new StringBuilder("project-keep ");
+            foreach (var f in Expressions)
+            {
+                if (f.Left.Equals(f.Right.ToString()))
+                {
+                    sb.Append(f.Left);
+                }
+                else
+                {
+                    sb.Append(f.Left);
+                    sb.Append($" {f.Operator} ");
+                    sb.Append(f.Right);
+                }
+
+                if (f != Expressions.Last())
+                {
+                    sb.Append(", ");
+                }
             }
 
             return sb.ToString();
@@ -294,7 +476,7 @@ namespace System.Reactive.Kql
             }
 
             var syntax = query.Syntax.GetDescendants<Statement>()[0];
-            Expression = syntax.Visit(new ScalarValueConverter()) as ScalarFunction;
+            Expression = syntax.Accept(new ScalarValueConverter()) as ScalarFunction;
         }
 
         public override string ToString()
@@ -356,7 +538,7 @@ namespace System.Reactive.Kql
             }
 
             var syntax = query.Syntax.GetDescendants<Statement>()[0];
-            return syntax.Visit(new ListRxKqlScalarValueConverter());
+            return syntax.Accept(new ListRxKqlScalarValueConverter());
         }
 
         public ExtendOperator(string args)
