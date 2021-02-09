@@ -22,10 +22,6 @@
     <AddRoleContentDependsOn />
   </PropertyGroup>
 
-  <ItemGroup>
-    <Compile Include="..\..\.version\PipelineAssemblyInfo.cs" Link="Properties\PipelineAssemblyInfo.cs" />
-  </ItemGroup>
-
   <!-- .NET 4.6.2 references, compilation flags and build options -->
   <ItemGroup Condition=" '$(TargetFramework)' == 'net472' ">
     <Reference Include="mscorlib" />
