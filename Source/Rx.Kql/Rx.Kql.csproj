@@ -16,12 +16,6 @@
     <GenerateAssemblyInformationalVersionAttribute>false</GenerateAssemblyInformationalVersionAttribute>
   </PropertyGroup>
 
-  <PropertyGroup Condition=" '$(CdpxPostSigning)' == 'true' ">
-    <IsCleaning>false</IsCleaning>
-    <CopyRoleFilesDependsOn />
-    <AddRoleContentDependsOn />
-  </PropertyGroup>
-
   <!-- .NET 4.6.2 references, compilation flags and build options -->
   <ItemGroup Condition=" '$(TargetFramework)' == 'net472' ">
     <Reference Include="mscorlib" />
@@ -37,12 +31,5 @@
     <PackageReference Include="System.Reactive.Linq" Version="4.0.0" />
     <PackageReference Include="System.Runtime.Caching" Version="4.7.0" />
   </ItemGroup>
-
-  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|AnyCPU'">
-    <SignAssembly>true</SignAssembly>
-    <DelaySign>true</DelaySign>
-    <KeyFile>..\35MSSharedLib1024.snk</KeyFile>
-    <AssemblyOriginatorKeyFile>..\35MSSharedLib1024.snk</AssemblyOriginatorKeyFile>
-  </PropertyGroup>
 
 </Project>
