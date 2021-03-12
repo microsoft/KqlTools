@@ -1,4 +1,0 @@
-﻿EtwTcp 
-| where EventId == 11
-| extend daddr = EventData.daddr
-| summarize c = count() by daddr, bin(TimeCreated, 1s)
