@@ -23,13 +23,6 @@ namespace RealTimeKqlLibrary
             _counter = 0;
         }
 
-        public void Stop()
-        {
-            _running = false;
-            Console.WriteLine("\nCompleted!");
-            Console.WriteLine("Thank you for using RealTimeKql!");
-        }
-
         public void KqlOutputAction(KqlOutput obj)
         {
             OutputAction(obj.Output);
@@ -60,6 +53,18 @@ namespace RealTimeKqlLibrary
         {
             _running = false;
             Console.WriteLine(ex);
+        }
+
+        public void OutputCompleted()
+        {
+            _running = false;
+            Console.WriteLine("\nCompleted!");
+            Console.WriteLine("Thank you for using RealTimeKql!");
+        }
+
+        public void Stop()
+        {
+            System.Environment.Exit(0);
         }
 
         private void CalculateColumnWidths(IDictionary<string, object> obj)

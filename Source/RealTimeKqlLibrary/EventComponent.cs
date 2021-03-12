@@ -56,7 +56,7 @@ namespace RealTimeKqlLibrary
             if (_queries == null || _queries.Length == 0 || string.IsNullOrEmpty(_queries[0]))
             {
                 // Input stream goes straight to output
-                _outputSubscription = _eventStream.Subscribe(_output.OutputAction, _output.OutputError, _output.OutputCompleted);
+                _outputSubscription = _eventStream.Subscribe(_output.OutputAction, _output.OutputError, Stop);
             }
             else
             {

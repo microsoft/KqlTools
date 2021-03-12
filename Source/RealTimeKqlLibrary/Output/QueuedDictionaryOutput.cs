@@ -50,9 +50,14 @@ namespace RealTimeKqlLibrary
             Error = ex;
         }
 
-        public void Stop()
+        public void OutputCompleted()
         {
             _running = false;
+        }
+
+        public void Stop()
+        {
+            // can add code to exit process here if needed
         }
     }
 }

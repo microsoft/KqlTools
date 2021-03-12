@@ -60,11 +60,11 @@ namespace RealTimeKqlLibrary
             Console.WriteLine(ex.Message);
         }
 
-        public void Stop()
+        public void OutputCompleted()
         {
             _running = false;
 
-            if(!_error)
+            if (!_error)
             {
                 _outputWriter.Write("]");
                 _outputWriter.Dispose();
@@ -73,6 +73,11 @@ namespace RealTimeKqlLibrary
 
             Console.WriteLine("\nCompleted!");
             Console.WriteLine("Thank you for using RealTimeKql!");
+        }
+
+        public void Stop()
+        {
+            System.Environment.Exit(0);
         }
 
         private void PrettyPrintEntryCount()
