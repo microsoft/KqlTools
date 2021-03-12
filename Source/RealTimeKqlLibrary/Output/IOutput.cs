@@ -15,6 +15,9 @@ namespace RealTimeKqlLibrary
         // output action for directly handling errors  (when Rx.Kql is not used)
         void OutputError(Exception ex);
 
+        // ouptut action for directly handling completion (when Rx.Kql is not used)
+        void OutputCompleted();
+
         // called when user terminates program 
         void Stop();
     }
