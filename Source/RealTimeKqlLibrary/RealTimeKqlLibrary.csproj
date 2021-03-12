@@ -1,0 +1,30 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <TargetFrameworks>netcoreapp3.1;net472</TargetFrameworks>
+    <OutputType>Library</OutputType>
+  </PropertyGroup>
+
+  <ItemGroup Condition="'$(TargetFramework)' == 'netcoreapp3.1' ">
+    <PackageReference Include="Microsoft.Azure.Kusto.Ingest.NETStandard" Version="6.2.2" />
+  </ItemGroup>
+
+  <ItemGroup Condition="'$(TargetFramework)' == 'net472' ">
+    <PackageReference Include="Microsoft.Azure.Kusto.Ingest" Version="8.1.5" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <PackageReference Include="Azure.Storage.Blobs" Version="12.8.0" />
+    <PackageReference Include="Microsoft.Azure.Kusto.Ingest" Version="9.0.9" />
+    <PackageReference Include="Newtonsoft.Json" Version="12.0.3" />
+    <PackageReference Include="System.Runtime.Caching" Version="4.7.0" />
+    <PackageReference Include="Tx.Windows" Version="3.0.6" />
+    <PackageReference Include="Tx.Windows.Logs" Version="3.0.3" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\Microsoft.Syslog\Microsoft.Syslog.csproj" />
+    <ProjectReference Include="..\Rx.Kql\Rx.Kql.csproj" />
+  </ItemGroup>
+
+</Project>

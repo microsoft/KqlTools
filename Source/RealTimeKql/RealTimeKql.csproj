@@ -17,7 +17,6 @@
     <Reference Include="mscorlib" />
     <Reference Include="System" />
     <Reference Include="System.Core" />
-    <Reference Include="Microsoft.CSharp" />
   </ItemGroup>
 
   <ItemGroup Condition="'$(TargetFramework)' == 'netcoreapp3.1' ">
@@ -31,7 +30,6 @@
   <ItemGroup>
     <PackageReference Include="Azure.Storage.Blobs" Version="12.6.0" />
     <PackageReference Include="Microsoft.Extensions.CommandLineUtils" Version="1.1.1" />
-    <PackageReference Include="Newtonsoft.Json" Version="12.0.3" />
 	<!-- The following two references are needed only when we are building for Windows. For linux exclude these Windows specific references -->  
 	<PackageReference Include="Tx.Windows" Version="3.0.6" Condition="'$(RuntimeIdentifier)'=='win-x64'" />
     <PackageReference Include="Tx.Windows.Logs" Version="3.0.3" Condition="'$(RuntimeIdentifier)'=='win-x64'" />
