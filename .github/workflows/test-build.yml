@@ -24,7 +24,9 @@ jobs:
 
     # Clean solution
     - name: Clean solution
-      run: dotnet clean $env:Solution_Path
+      run: |
+        dotnet clean $env:Solution_Path
+        dotnet nuget locals all --clear
 
     # Build project
     - name: Build project
