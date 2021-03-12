@@ -1,0 +1,18 @@
+name: 'Create Release'
+description: 'Create a release based off a tag'
+inputs:
+  token:
+    description: 'Authentication token for updating release'
+    required: true
+  tag_name:
+    description: "Tag to base release on"
+    required: true
+  release_name:
+    description: "Name to give new release"
+    required: true
+  directory:
+    description: "Directory with assets to upload to the release after creation"
+    required: false
+runs:
+  using: 'node12'
+  main: 'dist/index.js'
