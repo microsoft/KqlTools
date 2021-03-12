@@ -1,0 +1,7 @@
+EtwTcp 
+| where EventId in (10, 11)
+| extend ProcessName = getprocessname(EventData.PID)
+| extend SourceIpAddress = strcat(EventData.saddr, ":", ntohs(EventData.sport))
+| extend DestinationIpAddress = strcat(EventData.daddr, ":", ntohs(EventData.dport))
+| summarize _count = count() by ProcessName, Opcode, SourceIpAddress, DestinationIpAddress, bin(TimeCreated, 30s)
+| project _count, SourceIpAddress, DestinationIpAddress, Opcode, ProcessName

@@ -1,0 +1,6 @@
+Login
+| extend Activity = extract("((Failed|Accepted)\\s\\w*)\\sfor\\s(\\w*)", 1, Payload)
+| where isnotnull(Activity) and isnotempty(Activity)
+| extend User = extract("((Failed|Accepted)\\s\\w*)\\sfor\\s(\\w*)", 3, Payload)
+| where isnotnull(Activity) and isnotempty(Activity)
+| project User, Activity
