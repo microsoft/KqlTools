@@ -64,6 +64,9 @@ namespace RealTimeKqlLibrary
             {
                 ParseRow(row);
             }
+
+            // Finished reading the file
+            _eventStream.BroadcastOnCompleted();
         }
 
         private void ParseRow(string row)

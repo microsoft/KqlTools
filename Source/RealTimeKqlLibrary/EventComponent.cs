@@ -56,7 +56,7 @@ namespace RealTimeKqlLibrary
             if (_queries == null || _queries.Length == 0 || string.IsNullOrEmpty(_queries[0]))
             {
                 // Input stream goes straight to output
-                _outputSubscription = _eventStream.Subscribe(_output.OutputAction, _output.OutputError);
+                _outputSubscription = _eventStream.Subscribe(_output.OutputAction, _output.OutputError, Stop);
             }
             else
             {
@@ -76,9 +76,7 @@ namespace RealTimeKqlLibrary
         public void Stop()
         {
             _running = false;
-
-            // Stopping output
-            _output.Stop();
+            _output.OutputCompleted();
 
             // Disposing subscriptions
             if (_outputSubscription != null)
@@ -90,11 +88,8 @@ namespace RealTimeKqlLibrary
                 _eventProcessor.Stop();
             }
 
-            // Resetting main class members
-            _outputSubscription = null;
-            _eventProcessor = null;
-            _output = null;
-            _eventStream = null;
+            // Stopping output
+            _output.Stop();
         }
     }
 }

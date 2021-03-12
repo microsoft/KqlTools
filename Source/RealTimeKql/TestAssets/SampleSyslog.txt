@@ -1,0 +1,6 @@
+﻿Sep 29 17:27:54 Namita-PC rsyslogd: set SO_TIMESTAMP failed on '/dev/log': Invalid argument [v8.2001.0]
+Sep 29 17:27:54 Namita-PC rsyslogd: imklog: cannot open kernel log (/proc/kmsg): No such file or directory.
+Sep 29 17:27:54 Namita-PC rsyslogd: activation of module imklog failed [v8.2001.0 try https://www.rsyslog.com/e/2145 ]
+Sep 29 17:27:54 Namita-PC rsyslogd: rsyslogd's groupid changed to 110
+Sep 29 17:27:54 Namita-PC rsyslogd: rsyslogd's userid changed to 104
+Sep 29 17:27:54 Namita-PC rsyslogd: [origin software="rsyslogd" swVersion="8.2001.0" x-pid="388" x-info="https://www.rsyslog.com"] start

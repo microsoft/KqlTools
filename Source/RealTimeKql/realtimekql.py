@@ -44,7 +44,10 @@ class PythonOutput(IOutput):
     def OutputError(self,error):
         self.running = False 
         print(error)
+    
+    def OutputCompleted(self):
+        self.running = False
 
     def Stop(self):
-        self.running = False
-        print('Completed!')
+        print('\nCompleted!')
+        print('\nThank you for using Real-time KQL!')

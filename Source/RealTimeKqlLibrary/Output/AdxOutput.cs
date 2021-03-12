@@ -128,16 +128,22 @@ namespace RealTimeKqlLibrary
             Console.WriteLine(ex.Message);
         }
 
-        public void Stop()
+        public void OutputCompleted()
         {
-            if(!_error)
+            if (!_error)
             {
                 UploadBatch();
             }
 
+            Completed.Set();
             Console.WriteLine("\nCompleted!");
             Console.WriteLine("Thank you for using RealTimeKql!");
-            Completed.Set();
+        }
+
+        public void Stop()
+        {
+            Completed.WaitOne();
+            System.Environment.Exit(0);
         }
 
         private void UploadBatch()
