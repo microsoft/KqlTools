@@ -1,0 +1,6 @@
+EtwDns
+| extend QueryResults = extract("(\\d+\\.\\d+\\.\\d+\\.\\d+)", 1, EventData.QueryResults)
+| where isnotnull(QueryResults) and isnotempty(QueryResults)
+| where isnotnull(EventData.QueryName) and isnotempty(EventData.QueryName)
+| extend QueryName = EventData.QueryName
+| project TimeCreated, QueryResults, QueryName

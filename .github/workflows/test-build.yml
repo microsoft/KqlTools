@@ -22,6 +22,12 @@ jobs:
     - name: Checkout
       uses: actions/checkout@v2
 
+    # Clean solution
+    - name: Clean solution
+      run: |
+        dotnet clean $env:Solution_Path
+        dotnet nuget locals all --clear
+
     # Build project
     - name: Build project
       run: dotnet build $env:Project_Path

@@ -2,68 +2,38 @@
 
   <PropertyGroup>
     <OutputType>Exe</OutputType>
-	<TargetFrameworks>net472;netcoreapp3.1</TargetFrameworks>
-	<RuntimeFrameworkVersion>3.0.0</RuntimeFrameworkVersion>
-	<RuntimeIdentifiers>linux-x64;win-x64</RuntimeIdentifiers>
-	<Platforms>AnyCPU;x64</Platforms>
-	<HighEntropyVA>true</HighEntropyVA>
-	<LangVersion>8.0</LangVersion>
-	<DefineConstants Condition="'$(RuntimeIdentifier)' == 'win-x64'">$(DefineConstants);BUILT_FOR_WINDOWS</DefineConstants>
-	<DefineConstants Condition="'$(RuntimeIdentifier)' == 'linux-x64'">$(DefineConstants);BUILT_FOR_LINUX</DefineConstants>
+    <TargetFrameworks>netcoreapp3.1;net472</TargetFrameworks>
+    <RuntimeIdentifiers>linux-x64;win-x64</RuntimeIdentifiers>
+    <Platform>AnyCPU</Platform>
+    <DebugType>embedded</DebugType>
   </PropertyGroup>
 
-	<!--NET 472 references, compilation flags and build options -->
-  <ItemGroup Condition="'$(TargetFramework)' == 'net472' ">
-    <Reference Include="mscorlib" />
-    <Reference Include="System" />
-    <Reference Include="System.Core" />
-    <Reference Include="Microsoft.CSharp" />
-  </ItemGroup>
-
-  <ItemGroup Condition="'$(TargetFramework)' == 'netcoreapp3.1' ">
-    <PackageReference Include="Microsoft.Azure.Kusto.Ingest.NETStandard" Version="6.2.2" />
-  </ItemGroup>
-
-  <ItemGroup Condition="'$(TargetFramework)' == 'net472' ">
-	  <PackageReference Include="Microsoft.Azure.Kusto.Ingest" Version="8.1.5" />
-  </ItemGroup>
-
   <ItemGroup>
-    <PackageReference Include="Azure.Storage.Blobs" Version="12.6.0" />
-    <PackageReference Include="Microsoft.Extensions.CommandLineUtils" Version="1.1.1" />
-    <PackageReference Include="Newtonsoft.Json" Version="12.0.3" />
-	<!-- The following two references are needed only when we are building for Windows. For linux exclude these Windows specific references -->  
-	<PackageReference Include="Tx.Windows" Version="3.0.6" Condition="'$(RuntimeIdentifier)'=='win-x64'" />
-    <PackageReference Include="Tx.Windows.Logs" Version="3.0.3" Condition="'$(RuntimeIdentifier)'=='win-x64'" />
+    <ProjectReference Include="..\RealTimeKqlLibrary\RealTimeKqlLibrary.csproj" />
   </ItemGroup>
 
-  <ItemGroup>
-    <None Update="filter.json">
+  <ItemGroup>    
+    <None Update="KqlPowerShell.psd1">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>    
+    <None Update="realtimekql.py">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>    
+    <None Update="Samples\EtwDns.kql">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
-    <None Update="ProcessCreation.csl">
+    <None Update="Samples\PassThrough.kql">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
-    <None Update="SecurityEvents.evtx">
-      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-    </None>
-    <None Update="SummarizeQuery.csl">
+    <None Update="Samples\SimplifyEtwTcp.kql">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
-    <None Update="TraficByIP.csl">
+    <None Update="Samples\SummarizeEtwTcp.kql">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
-    <None Update="WecFilter.xml">
+    <None Update="Samples\SyslogSamples.txt">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
-  </ItemGroup>
-
-  <ItemGroup>
-	<!-- The following reference is needed only when we are building for Windows. For linux exclude these Windows specific references -->
-	<ProjectReference Include="..\EvtxEventXmlScrubber\EvtxEventXmlScrubber.csproj" Condition="'$(RuntimeIdentifier)'=='win-x64'" />
-    <ProjectReference Include="..\Microsoft.Syslog\Microsoft.Syslog.csproj" />
-    <ProjectReference Include="..\Rx.Kql\Rx.Kql.csproj" />
-    <ProjectReference Include="..\SimpleCsvReader\SimpleCsvReader.csproj" />
   </ItemGroup>
 
 </Project>

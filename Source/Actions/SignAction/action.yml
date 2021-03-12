@@ -1,0 +1,15 @@
+name: 'Signtool Action'
+description: 'Sign code using signtool'
+inputs:
+  certificate:
+    description: 'Base64-encoded certificate'
+    required: true
+  key:
+    description: 'Key for certificate'
+    required: true
+  directory:
+    description: 'Directory with binaries to sign'
+    required: true
+runs:
+  using: 'node12'
+  main: 'dist/index.js'

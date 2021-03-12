@@ -1,53 +1,58 @@
 # Real-Time KQL
 
-![.NET Core Desktop](https://github.com/microsoft/KqlTools/workflows/.NET%20Core%20Desktop/badge.svg?branch=master&event=push)
-
-In order to view event logs today, users generally have to rely on tools that will first upload their data to storage **and then** query it. With Real-Time KQL, this is no longer necessary. Event processing happens **as events arrive, in real-time**.
+To process data with Kusto Query Language (KQL) queries today, users generally have to upload their data to storage first and then query it. The Kql Tools eliminate this need by processing event streams with KQL queries **as events arrive, in real-time.**
 
 
 
-![Doc/StandingQuery.jpg](Doc/StandingQuery.jpg)
+## Contents
+
+* [List of tools](#Tools)
+* [Supported event sources](#Inputs)
+* [Supported event destinations](#Outputs)
+* [About](#About)
+* [Contributing](#Contributing)
 
 
 
-[**Get started**](Doc/GettingStarted.md) right away with using Real-Time KQL or learn [**how it works**](Doc/Readme.md).
+## <a id="Tools">List of Tools
+
+|             **Command Line Tool**             |             **Python Script**              |
+| :-------------------------------------------: | :----------------------------------------: |
+|    [Documentation](Doc/CommandLineTool.md)     |    [Documentation](Doc/PythonScript.md)    |
+| [Downloads](Doc/CommandLineTool.md#Downloads) | [Downloads](Doc/PythonScript.md#Downloads) |
+|             Demo (*coming soon*)              |            Demo (*coming soon*)            |
 
 
 
-<div align="center">
-    <a href="https://github.com/microsoft/KqlTools/releases/download/v1.0.0/RealTimeKql.v1.0.0.zip"><img src="DownloadWindowsButton.png" width="40%"/></a>&nbsp;&nbsp;&nbsp;&nbsp;<a href="https://github.com/microsoft/KqlTools/releases/download/v1.0.0/RealTimeKql.v1.0.0.tar.gz"><img src="DownloadLinuxButton.png" width="40%"/></a>
-</div>
+## <a id="Inputs">Supported Event Sources
+
+In addition to processing **CSV files**, the KQL tools support the following input sources:
+
+|                         |                          Windows                          |                            Linux                             |
+| :---------------------: | :-------------------------------------------------------: | :----------------------------------------------------------: |
+|       **OS Logs**       | **WinLog** - logs seen in EventVwr or log file(s) on disk |                   **Syslog** - the OS log                    |
+| **High-Volume Tracing** |            **Etw** - Event Tracing for Windows            | **EBPF** - dynamic interception of kernel and user mode functions (*Coming soon*) |
 
 
 
+## <a id="Outputs">Supported Event Destinations
 
-
-### Demos and Documentation
-
-|                         |                           Windows                            |                            Linux                             |
-| :---------------------: | :----------------------------------------------------------: | :----------------------------------------------------------: |
-|       **OS Logs**       | **WinLog** - logs seen in EventVwr or log file(s) on disk<br />[Doc](Doc/Winlog.md) / [Demo](https://youtu.be/GoTSuWPrkig) | **Syslog** - the OS log<br />[Doc](Doc/Syslog.md) / [Demo](https://youtu.be/kw6bSGolnpU) |
-| **High-Volume Tracing** | **Etw** - Event Tracing for Windows<br />[Doc](Doc/Etw.md) / [Demo](https://youtu.be/1UOL1Sg7puQ) | **EBPF** - dynamic interception of kernel and user mode functions<br />*Coming soon* |
-
-You can input pre-recorded [Csv files](Doc/Csv.md) to Real-Time KQL.
-
-### Query Files
-
-Check out the [query writing guide](Doc/QueryGuide.md) for some best practices on coming up with queries for Real-Time KQL.
+|                       Real-Time Output                       |                       File Output                       |                  Upload Output                   |
+| :----------------------------------------------------------: | :-----------------------------------------------------: | :----------------------------------------------: |
+| **json**- Results printed to standard output in JSON format  |  **jsonfile** - Results written to file in JSON format  | **adx** - Upload to Kusto (Azure Data Explorer)  |
+| **table** - Results printed to standard output in table format | **tablefile** - Results written to file in table format | **blob** - Upload as JSON objects to BlobStorage |
 
 
 
-### Output Options
+## <a id="About">About
 
-|                       Real-Time Output                       |                         File Output                          |                        Upload Output                         |
-| :----------------------------------------------------------: | :----------------------------------------------------------: | :----------------------------------------------------------: |
-| [consoleOutput](Doc/RealTimeOutput.md#ConsoleOutput) - Results printed to standard output | [jsonOutput](Doc/FileOutput.md#JSONOutput) - Each event is a JSON dictionary | [adxOutput](Doc/UploadOutput.md#ADXOutput) - Upload to Kusto (Azure Data Explorer) |
-| **webEvents** - Real-Time KQL acts as real-time server for events. | **csvOutput** - Each event is a row in Comma Separated Value table | [blobStorage](Doc/UploadOutput.md#BlobStorage) - Upload as JSON objects to BlobStorage |
-|                                                              | **htmlOutput** - Each event formatted as human-readable DIV element |                                                              |
+The Kql Tools allow users to examine activity on their machine by directly viewing and querying real-time event streams.
+
+![StandingQuery.jpg](StandingQuery.jpg)
 
 
 
-## Contributing
+## <a id="Contributing">Contributing
 
 This project welcomes contributions and suggestions.  Most contributions require you to agree to a
 Contributor License Agreement (CLA) declaring that you have the right to, and actually do, grant us
@@ -60,3 +65,4 @@ provided by the bot. You will only need to do this once across all repos using o
 This project has adopted the [Microsoft Open Source Code of Conduct](https://opensource.microsoft.com/codeofconduct/).
 For more information see the [Code of Conduct FAQ](https://opensource.microsoft.com/codeofconduct/faq/) or
 contact [opencode@microsoft.com](mailto:opencode@microsoft.com) with any additional questions or comments.
+
