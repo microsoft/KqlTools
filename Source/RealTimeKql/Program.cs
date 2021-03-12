@@ -9,6 +9,8 @@ namespace RealTimeKql
     {
         static void Main(string[] args)
         {
+            Console.WriteLine("Welcome to Real-Time KQL!");
+
             // Parsing command line arguments
             var commandLineParser = new CommandLineParser(args);
             if (!commandLineParser.Parse())
