@@ -180,17 +180,17 @@ namespace RealTimeKql
                 usage += $"<input> [<arg>] [--options] {scmd.Name} {argsStr}{optionsStr}[--query=<path>]";
             }
 
-            Console.WriteLine(usage);
+            Console.WriteLine($"\n{usage}");
 
             if(!string.IsNullOrEmpty(argsStr))
             {
-                Console.WriteLine($"{scmd.Name} arg");
+                Console.WriteLine($"\n{scmd.Name} arg(s)");
                 Console.WriteLine($"\t{scmd.Argument.FriendlyName}\t{scmd.Argument.HelpText}");
             }
 
             if(!string.IsNullOrEmpty(optionsStr))
             {
-                Console.WriteLine($"{scmd.Name} option(s)");
+                Console.WriteLine($"\n{scmd.Name} option(s)");
                 foreach(var opt in scmd.Options)
                 {
                     string valTag = "";

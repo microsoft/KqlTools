@@ -51,7 +51,7 @@ namespace RealTimeKql
 
             // Setting up event component
             EventComponent eventComponent = null;
-            var arg = commandLineParser.InputSubcommand.Argument.Value;
+            var arg = commandLineParser.InputSubcommand.Argument?.Value;
             var options = commandLineParser.InputSubcommand.Options;
             var query = commandLineParser.Query.Value;
             switch (commandLineParser.InputSubcommand.Name)
@@ -62,7 +62,7 @@ namespace RealTimeKql
                 case "etl":
                     eventComponent = new EtlFileReader(arg, output, query);
                     break;
-                case "log":
+                case "winlog":
                     eventComponent = new WinlogRealTime(arg, output, query);
                     break;
                 case "evtx":
