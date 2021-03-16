@@ -139,5 +139,14 @@ namespace RealTimeKqlTests
             var actual = c.Parse();
             Assert.False(actual);
         }
+
+        [Fact]
+        public void Parse_OptAfterScmbWithOpts_ReturnTrue()
+        {
+            var args = new string[] { "etw", "tcp", "adx", "--adxcluster=cluster", "--adxdatabase=db", "--adxtable=tb", "--query=test.kql" };
+            var c = new CommandLineParser(args);
+            var actual = c.Parse();
+            Assert.True(actual);
+        }
     }
 }
