@@ -62,7 +62,7 @@ namespace RealTimeKqlLibrary
                     kscbIngest = new KustoConnectionStringBuilder($"https://ingest-{cluster}", database).WithAadApplicationKeyAuthentication(appclientId, appKey, authority);
                     kscbAdmin = new KustoConnectionStringBuilder($"https://{cluster}", database).WithAadApplicationKeyAuthentication(appclientId, appKey, authority);
                 }
-#if NET462
+#if NET472
                 else
                 {
                     kscbIngest = new KustoConnectionStringBuilder($"https://ingest-{cluster}", database).WithAadUserPromptAuthentication(authority);

@@ -305,12 +305,14 @@ namespace RealTimeKql
                 if (_args[_currentIndex].StartsWith("-"))
                 {
                     // User specified an option
+                    var isSubOption = false;
                     foreach (var opt in subcommand.Options)
                     {
                         var optName = _args[_currentIndex].Trim('-').Split('=')[0];
                         if (optName == opt.LongName || optName == opt.ShortName)
                         {
                             // Found the option user specified
+                            isSubOption = true;
                             if(!opt.IsFlag && ParseValueOption(out var val))
                             {
                                 opt.Value = val;
@@ -328,6 +330,20 @@ namespace RealTimeKql
 
                             if (opt.IsRequired) requiredItemsRemaining--;
                             break;
+                        }
+                    }
+
+                    if(!isSubOption)
+                    {
+                        // option specified is not part of this subcommand
+                        if(requiredItemsRemaining > 0)
+                        {
+                            Console.WriteLine($"ERROR! Missing required options for {subcommand.Name}");
+                            return false;
+                        }
+                        else
+                        {
+                            return true;
                         }
                     }
                 }
