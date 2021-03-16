@@ -1,6 +1,7 @@
 ﻿// /********************************************************
 // *                                                       *
 // *   Copyright (C) Microsoft. All rights reserved.       *
+// *   Licensed under the MIT license.                     *
 // *                                                       *
 // ********************************************************/
 
@@ -8,11 +9,11 @@ namespace System.Reactive.Kql
 {
     using System.Collections.Generic;
     using System.Diagnostics;
-    using System.Dynamic;
     using System.Linq;
     using System.Reactive.Kql.CustomTypes;
     using System.Reactive.Kql.EventTypes;
     using System.Reactive.Subjects;
+    using System.Threading;
 
     /// <summary>
     ///     Class <c>KqlNode</c>  Helper class for managing multiple standing queries defined in KQL
@@ -338,8 +339,10 @@ namespace System.Reactive.Kql
                     kqlQueryStopwatch.Restart();
                     d.Input.OnNext(value);
                     kqlQueryStopwatch.Stop();
-                    d.EvaluationCount++;
-                    d.EvaluationTimeSpan += kqlQueryStopwatch.Elapsed;
+
+                    // Track metrics per KqlQuery
+                    d.IncrementEvaluationCount();
+                    d.IncrementEvaluationTotalMilliseconds(kqlQueryStopwatch.Elapsed.TotalMilliseconds);
                 }
                 catch (Exception ex)
                 {
@@ -507,9 +510,23 @@ namespace System.Reactive.Kql
 
         public string QueryDescription { get; set; }
 
-        public long EvaluationCount { get; set; } = 0;
+        private long evaluationCount;
 
-        public TimeSpan EvaluationTimeSpan { get; set; }
+        public long EvaluationCount => evaluationCount;
+
+        public long IncrementEvaluationCount()
+        {
+            return Interlocked.Increment(ref evaluationCount);
+        }
+
+        private long evaluationTotalMilliseconds;
+
+        public long EvaluationTotalMilliseconds => evaluationTotalMilliseconds;
+
+        public long IncrementEvaluationTotalMilliseconds(double milliseconds)
+        {
+            return Interlocked.Add(ref evaluationTotalMilliseconds, (long)milliseconds);
+        }
 
         public KqlQuery()
         {
@@ -538,7 +555,7 @@ namespace System.Reactive.Kql
         }
 
         /// <summary>
-        /// Evaluate a single query at a time
+        ///     Evaluate a single query at a time
         /// </summary>
         /// <param name="dict">The IDictionary of the data to be evaluated with this KqlQuery</param>
         /// <returns></returns>
@@ -560,11 +577,10 @@ namespace System.Reactive.Kql
                     };
                 });
 
-
             // Evaluate the query pipeline
             Input.OnNext(dict);
-            this.EvaluationCount++;
-            this.EvaluationTimeSpan += evaluateStopwatch.Elapsed;
+            IncrementEvaluationCount();
+            IncrementEvaluationTotalMilliseconds(evaluateStopwatch.Elapsed.TotalMilliseconds);
 
             return result;
         }
@@ -620,7 +636,8 @@ namespace System.Reactive.Kql
             {
                 if (EvaluationCount > 0)
                 {
-                    return EvaluationTimeSpan.TotalMilliseconds * 1000 / EvaluationCount;
+                    // ReSharper disable PossibleLossOfFraction
+                    return EvaluationTotalMilliseconds * 1000 / EvaluationCount;
                 }
 
                 return 0;
