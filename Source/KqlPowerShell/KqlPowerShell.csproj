@@ -1,4 +1,4 @@
-<Project Sdk="Microsoft.NET.Sdk">
+﻿<Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
     <TargetFramework>netstandard2.0</TargetFramework>
@@ -13,6 +13,7 @@
 
   <ItemGroup>
     <ProjectReference Include="..\RealTimeKqlLibrary\RealTimeKqlLibrary.csproj" />
+    <ProjectReference Include="..\Rx.Kql\Rx.Kql.csproj" />
   </ItemGroup>
 
   <ItemGroup>

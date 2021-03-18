@@ -65,7 +65,7 @@ namespace RealTimeKqlLibrary
 
         public void Stop()
         {
-            if(_kqlNodeHub != null)
+            if(_kqlNodeHub != null && _kqlNodeHub._outputSubscription != null)
             {
                 _kqlNodeHub._outputSubscription.Dispose();
             }
