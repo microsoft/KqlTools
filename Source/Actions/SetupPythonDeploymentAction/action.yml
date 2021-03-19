@@ -5,7 +5,7 @@ inputs:
     description: 'Tag that triggered this release'
     required: true
   directory:
-    description: 'Parent directory to put deployment directories in'
+    description: 'Directory to put __init__.py and setup.py in'
     required: true
 runs:
   using: 'node12'
