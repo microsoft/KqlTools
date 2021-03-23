@@ -18,7 +18,8 @@ namespace RealTimeKqlLibrary
         private int _syslogEntryCount;
         private readonly int _defaultPriority = 134;
 
-        public SyslogFileReader(string fileName, IOutput output, params string[] queries) : base(output, queries)
+        public SyslogFileReader(string fileName, IOutput output, params string[] queries) 
+            : base(output, queries)
         {
             _fileName = fileName;
             _eventStream = new Observable<IDictionary<string, object>>();
