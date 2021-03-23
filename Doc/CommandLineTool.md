@@ -6,18 +6,9 @@ A command line tool to explore and process real-time streams of events.
 
 ## Contents
 
-* [Downloads](#Downloads)
 * [Usage](#Usage)
 * [Tracing ETW Tcp Events](#Etw)
 * [Tracing Local Syslog Events](#Syslog)
-
-
-
-## <a id="Downloads">Downloads
-
-| Windows |  Linux  |
-| :-----: | :-----: |
-| [x64]() | [x64]() |
 
 
 

@@ -16,11 +16,11 @@ To process data with Kusto Query Language (KQL) queries today, users generally h
 
 ## <a id="Tools">List of Tools
 
-|             **Command Line Tool**             |             **Python Script**              |
-| :-------------------------------------------: | :----------------------------------------: |
-|    [Documentation](Doc/CommandLineTool.md)     |    [Documentation](Doc/PythonScript.md)    |
-| [Downloads](Doc/CommandLineTool.md#Downloads) | [Downloads](Doc/PythonScript.md#Downloads) |
-|             Demo (*coming soon*)              |            Demo (*coming soon*)            |
+|                    **Command Line Tool**                     |                      **Python Script**                       |
+| :----------------------------------------------------------: | :----------------------------------------------------------: |
+|           [Documentation](Doc/CommandLineTool.md)            |             [Documentation](Doc/PythonScript.md)             |
+| [Downloads](https://github.com/microsoft/KqlTools/releases/) | [Downloads](https://github.com/microsoft/KqlTools/releases/) |
+|                     Demo (*coming soon*)                     |                     Demo (*coming soon*)                     |
 
 
 
