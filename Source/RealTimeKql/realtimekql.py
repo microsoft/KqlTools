@@ -28,16 +28,36 @@ def printEvents(event):
     print(event)
 
 class PythonOutput(IOutput):
+    """
+    An output component that prints events to console in JSON
+    
+    ...
+
+    Attributes
+    ----------
+    action : function
+        Function to pass events to (function should take a single dict as a parameter).
+        Optional. If no function is specified, events will be printed to console in JSON.
+    """
     __namespace__ = "KqlPython"
 
     def __init__(self,action=printEvents):
+        """
+        Parameters
+        ----------
+        action: function
+            Function to pass events to (function should take a single dict as a parameter).
+            Optional. If no function is specified, events will be printed to console in JSON.
+        """
         self.running = True
         self.action = action
 
     def KqlOutputAction(self,kqlOutput: KqlOutput):
+        """Outputs events that have been processed by a KQL query"""
         self.OutputAction(kqlOutput.Output)
 
     def OutputAction(self,dictOutput: Dictionary):
+        """Outputs events either to console or to custom function"""
         try:
             if self.running:
                 txt = JsonConvert.SerializeObject(dictOutput)
@@ -48,20 +68,63 @@ class PythonOutput(IOutput):
             print(traceback.print_exc())
 
     def OutputError(self,error):
+        """Outputs errors to console"""
         self.running = False 
         print(error)
     
     def OutputCompleted(self):
+        """Signals the end of the input event stream"""
         self.running = False
 
     def Stop(self):
+        """Signals end of program"""
         print('\nCompleted!')
         print('\nThank you for using Real-time KQL!')
 
 class PythonAdxOutput(IOutput):
+    """
+    An output component that ingests events to Azure Data Explorer (ADX) using queued ingestion.
+    
+    ...
+
+    Attributes
+    ----------
+    cluster : str
+        Azure Data Explorer (ADX) cluster address. eg, 'CDOC.kusto.windows.net'
+    database : str
+        Azure Data Explorer (ADX) database name. eg, 'TestDb'
+    table : str
+        Azure Data Explorer (ADX) table name. eg, 'OutputTable'
+    clientId : str
+        Azure Data Explorer (ADX) client Id that has permissions to access ADX.
+    clientSecret : str
+        Azure Data Explorer (ADX) access key. Used along with client Id.
+    authority : str
+        Azure Data Explorer (ADX) authority. Optional. When not specified, 'microsoft.com' is used.
+    resetTable : bool
+        Default is False. If True, the existing data in the destination table is dropped before new data is logged.
+    """
     __namespace__ = "KqlPython"
 
     def __init__(self, cluster, database, table, clientId, clientSecret, authority="microsoft.com", resetTable=False):
+        """
+        Parameters
+        ----------
+        cluster : str
+            Azure Data Explorer (ADX) cluster address. eg, 'CDOC.kusto.windows.net'
+        database : str
+            Azure Data Explorer (ADX) database name. eg, 'TestDb'
+        table : str
+            Azure Data Explorer (ADX) table name. eg, 'OutputTable'
+        clientId : str
+            Azure Data Explorer (ADX) client Id that has permissions to access ADX.
+        clientSecret : str
+            Azure Data Explorer (ADX) access key. Used along with client Id.
+        authority : str
+            Azure Data Explorer (ADX) authority. Optional. When not specified, 'microsoft.com' is used.
+        resetTable : bool
+            Default is False. If True, the existing data in the destination table is dropped before new data is logged.
+        """
         self.running = True
         self.batchSize = 10000
         self.flushDuration = timedelta(milliseconds = 1000)
@@ -81,9 +144,11 @@ class PythonAdxOutput(IOutput):
         self.ingestionProps = IngestionProperties(database=database, table=table,)
 
     def KqlOutputAction(self,kqlOutput: KqlOutput):
+        """Outputs events that have been processed by a KQL query"""
         self.OutputAction(kqlOutput.Output)
 
     def OutputAction(self,dictOutput: Dictionary):
+        """Outputs events either to console or to custom function"""
         try:
             if self.running:
                 # Convert C# Dictionary to Python dict
@@ -106,19 +171,23 @@ class PythonAdxOutput(IOutput):
             print(traceback.print_exc())
 
     def OutputError(self,error):
+        """Outputs errors to console"""
         self.running = False 
         print(error)
     
     def OutputCompleted(self):
+        """Signals the end of the input event stream"""
         if self.running:
             self.UploadBatch()
         self.running = False
 
     def Stop(self):
+        """Signals end of program"""
         print('\nCompleted!')
         print('\nThank you for using Real-time KQL!')
 
     def UploadBatch(self):
+        """Ingests batch of events to Kusto using queued ingestion"""
         self.lock.acquire()
         try:
             if self.currentBatch != None:
@@ -142,6 +211,7 @@ class PythonAdxOutput(IOutput):
             self.lock.release()
     
     def CreateOrResetTable(self,data):
+        """Creates or resets ADX table"""
         if self.resetTable:
             # Dropping table
             self.dataClient.execute(self.database, f".drop table {self.table} ifexists")
@@ -155,6 +225,7 @@ class PythonAdxOutput(IOutput):
         self.dataClient.execute(self.database, createMergeTableCommand)
 
     def GetColumnType(self,item):
+        """Returns Kusto data type string equivalent of python object"""
         if isinstance(item, str):
             return "string"
         elif isinstance(item, bool):
