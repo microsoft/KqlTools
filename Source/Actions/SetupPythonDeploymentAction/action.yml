@@ -1,0 +1,12 @@
+name: 'Setup Python Deployment Action'
+description: 'Set up directory for python script deployment'
+inputs:
+  tag:
+    description: 'Tag that triggered this release'
+    required: true
+  directory:
+    description: 'Directory to put __init__.py and setup.py in'
+    required: true
+runs:
+  using: 'node12'
+  main: 'dist/index.js'
