@@ -6,10 +6,8 @@ import json
 import clr
 
 # Adding reference C# DLL References
-#REAL_TIME_KQL_LIBRARY = os.path.join(os.path.dirname(__file__), 'lib', 'RealTimeKqlLibrary.dll')
-#NEWTON_SOFT = os.path.join(os.path.dirname(__file__), 'lib', 'Newtonsoft.Json.dll')
-REAL_TIME_KQL_LIBRARY = 'C:\\Namita\\Repos\\SimpleKqlTools\\Source\\RealTimeKqlLibrary\\bin\\Debug\\net472\\RealTimeKqlLibrary.dll'
-NEWTON_SOFT = 'C:\\Namita\\Repos\\SimpleKqlTools\\Source\\RealTimeKqlLibrary\\bin\\Debug\\net472\\Newtonsoft.Json.dll'
+REAL_TIME_KQL_LIBRARY = os.path.join(os.path.dirname(__file__), 'lib', 'RealTimeKqlLibrary.dll')
+NEWTON_SOFT = os.path.join(os.path.dirname(__file__), 'lib', 'Newtonsoft.Json.dll')
 clr.AddReference(REAL_TIME_KQL_LIBRARY)
 clr.AddReference(NEWTON_SOFT)
 
