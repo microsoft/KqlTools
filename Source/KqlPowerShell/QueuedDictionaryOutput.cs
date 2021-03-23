@@ -2,21 +2,21 @@
 using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Reactive.Kql.CustomTypes;
+using RealTimeKqlLibrary;
 
-namespace RealTimeKqlLibrary
+namespace KqlPowerShell
 {
     public class QueuedDictionaryOutput : IOutput
     {
         public ConcurrentQueue<IDictionary<string, object>> KqlOutput;
-        public Exception Error;
-
-        private bool _running;
+        public Exception Error { get; private set; }
+        public bool Running { get; private set; }
         private const int MAX_EVENTS = 1000000;
 
         public QueuedDictionaryOutput()
         {
             KqlOutput = new ConcurrentQueue<IDictionary<string, object>>();
-            _running = true;
+            Running = true;
         }
 
         public void KqlOutputAction(KqlOutput obj)
@@ -26,7 +26,7 @@ namespace RealTimeKqlLibrary
 
         public void OutputAction(IDictionary<string, object> obj)
         {
-            if(_running)
+            if(Running)
             {
                 if(KqlOutput.Count > MAX_EVENTS)
                 {
@@ -46,13 +46,15 @@ namespace RealTimeKqlLibrary
 
         public void OutputError(Exception ex)
         {
-            _running = false;
+            // Stop enqueueing new events
+            Running = false;
             Error = ex;
         }
 
         public void OutputCompleted()
         {
-            _running = false;
+            // Stop enqueueing new events
+            Running = false;
         }
 
         public void Stop()

@@ -13,9 +13,9 @@ namespace KqlPowerShell
             ValueFromPipelineByPropertyName = true)]
         public string FilePath;
 
-        protected override void SetupProcessing()
+        protected override EventComponent SetupEventComponent()
         {
-            _eventComponent = new CsvFileReader(FilePath, this, Query);
+            return new CsvFileReader(FilePath, _output, Query);
         }
     }
 
@@ -29,9 +29,9 @@ namespace KqlPowerShell
             ValueFromPipelineByPropertyName = true)]
         public string SessionName;
 
-        protected override void SetupProcessing()
+        protected override EventComponent SetupEventComponent()
         {
-            _eventComponent = new EtwSession(SessionName, this, Query);
+            return new EtwSession(SessionName, _output, Query);
         }
     }
 
@@ -45,9 +45,9 @@ namespace KqlPowerShell
             ValueFromPipelineByPropertyName = true)]
         public string FilePath;
 
-        protected override void SetupProcessing()
+        protected override EventComponent SetupEventComponent()
         {
-            _eventComponent = new EtlFileReader(FilePath, this, Query);
+            return new EtlFileReader(FilePath, _output, Query);
         }
     }
 
@@ -61,9 +61,9 @@ namespace KqlPowerShell
             ValueFromPipelineByPropertyName = true)]
         public string LogName;
 
-        protected override void SetupProcessing()
+        protected override EventComponent SetupEventComponent()
         {
-            _eventComponent = new WinlogRealTime(LogName, this, Query);
+            return new WinlogRealTime(LogName, _output, Query);
         }
     }
 
@@ -77,9 +77,9 @@ namespace KqlPowerShell
             ValueFromPipelineByPropertyName = true)]
         public string FilePath;
 
-        protected override void SetupProcessing()
+        protected override EventComponent SetupEventComponent()
         {
-            _eventComponent = new EvtxFileReader(FilePath, this, Query);
+            return new EvtxFileReader(FilePath, _output, Query);
         }
     }
 
@@ -93,9 +93,9 @@ namespace KqlPowerShell
             ValueFromPipelineByPropertyName = true)]
         public string FilePath;
 
-        protected override void SetupProcessing()
+        protected override EventComponent SetupEventComponent()
         {
-            _eventComponent = new SyslogFileReader(FilePath, this, Query);
+            return new SyslogFileReader(FilePath, _output, Query);
         }
     }
 
@@ -114,9 +114,9 @@ namespace KqlPowerShell
             ValueFromPipelineByPropertyName = true)]
         public int UdpPort = 514;
 
-        protected override void SetupProcessing()
+        protected override EventComponent SetupEventComponent()
         {
-            _eventComponent = new SyslogServer(NetworkAdapterName, UdpPort, this, Query);
+            return new SyslogServer(NetworkAdapterName, UdpPort, _output, Query);
         }
     }
 }
