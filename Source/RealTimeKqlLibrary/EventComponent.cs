@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Reactive.Subjects;
 
 namespace RealTimeKqlLibrary
 {
@@ -17,6 +18,9 @@ namespace RealTimeKqlLibrary
         private IOutput _output;
         private IDisposable _outputSubscription;
 
+        // Special cases
+        private IDisposable _intermediateSubscription;
+
         // Clean up
         private bool _running;
         private readonly ConsoleCancelEventHandler _cancelEventHandler;
@@ -30,6 +34,7 @@ namespace RealTimeKqlLibrary
             _eventStream = null;
             _eventProcessor = null;
             _outputSubscription = null;
+            _intermediateSubscription = null;
 
             // Setting up clean-up code for exit
             _cancelEventHandler = delegate (object sender, ConsoleCancelEventArgs eventArgs) {
@@ -48,19 +53,32 @@ namespace RealTimeKqlLibrary
         // Used to start the event pipeline and can be called directly by the user
         public abstract bool Start();
 
-        protected bool Start(IObservable<IDictionary<string, object>> eventStream, string eventStreamName, bool realTimeMode)
+        // Called by derived classes to set up event pipeline subscriptions
+        protected bool Start(
+            IObservable<IDictionary<string, object>> eventStream,
+            string eventStreamName,
+            bool realTimeMode,
+            ISubject<IDictionary<string, object>> subject=null)
         {
             _eventStream = eventStream;
 
             // Sending event stream to next stage in event pipeline
-            if (_queries == null || _queries.Length == 0 || string.IsNullOrEmpty(_queries[0]))
+            if(subject != null)
+            {
+                // Input stream goes to custom actions
+                _intermediateSubscription = _eventStream.Subscribe(subject.OnNext, subject.OnError, subject.OnCompleted);
+
+                // Custom actions go to output
+                _outputSubscription = subject.Subscribe(_output.OutputAction, _output.OutputError, Stop);
+            }
+            else if (_queries == null || _queries.Length == 0 || string.IsNullOrEmpty(_queries[0]))
             {
                 // Input stream goes straight to output
                 _outputSubscription = _eventStream.Subscribe(_output.OutputAction, _output.OutputError, Stop);
             }
             else
             {
-                // Instantiating KqlNodeHub for live-stream event processing
+                // Input stream goes through Rx.Kql before hitting output
                 _eventProcessor = new EventProcessor(
                     _eventStream, eventStreamName, 
                     _output.KqlOutputAction, 
