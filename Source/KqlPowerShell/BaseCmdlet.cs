@@ -46,7 +46,12 @@ namespace KqlPowerShell
                 int eventsPrinted = 0;
                 if (_output.KqlOutput.TryDequeue(out IDictionary<string, object> eventOutput))
                 {
-                    WriteObject(eventOutput, true);
+                    PSObject row = new PSObject();
+                    foreach (var pair in eventOutput)
+                    {
+                        row.Properties.Add(new PSNoteProperty(pair.Key, pair.Value));
+                    }
+                    WriteObject(row);
                     Interlocked.Increment(ref eventsPrinted);
                 }
 
