@@ -1,7 +1,11 @@
 EtwTcp 
-| where EventId in (10, 11)
+| where Provider == 'Microsoft-Windows-Kernel-Network' and EventId in (10, 11) 
 | extend ProcessName = getprocessname(EventData.PID)
-| extend SourceIpAddress = strcat(EventData.saddr, ":", ntohs(EventData.sport))
-| extend DestinationIpAddress = strcat(EventData.daddr, ":", ntohs(EventData.dport))
-| summarize _count = count() by ProcessName, Opcode, SourceIpAddress, DestinationIpAddress, bin(TimeCreated, 30s)
-| project _count, SourceIpAddress, DestinationIpAddress, Opcode, ProcessName
+| extend SourceIpAddress = EventData.saddr, SourcePort = ntohs(EventData.sport) 
+| extend DestinationIpAddress = EventData.daddr, DestinationPort = ntohs(EventData.dport) 
+| extend Size = EventData.size 
+| extend ProcessId = EventData.PID 
+| summarize Count = count(), Bytes = sum(Size) by bin(TimeCreated, 10s), SourceIpAddress, SourcePort, DestinationIpAddress, DestinationPort, EventId, ProcessId, ProcessName
+
+
+
