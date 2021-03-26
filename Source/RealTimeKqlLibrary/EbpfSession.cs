@@ -38,16 +38,16 @@ namespace RealTimeKqlLibrary
             while(_running)
             {
                 //var thisEvent = DequeuePerfEvent();
-                var txt = JsonConvert.SerializeObject(thisEvent);
-                var eventDict = JsonConvert.DeserializeObject<Dictionary<string, object>>(txt);
+                //var txt = JsonConvert.SerializeObject(thisEvent);
+                //var eventDict = JsonConvert.DeserializeObject<Dictionary<string, object>>(txt);
 
-                // converting event time to DateTime object
-                if (eventDict.TryGetValue("EventTime", out var nanoSeconds))
-                {
-                    eventDict["EventTime"] = DateTime.UnixEpoch + new TimeSpan(Convert.ToInt64(nanoSeconds) / 100);
-                }
+                //// converting event time to DateTime object
+                //if (eventDict.TryGetValue("EventTime", out var nanoSeconds))
+                //{
+                //    eventDict["EventTime"] = DateTime.UnixEpoch + new TimeSpan(Convert.ToInt64(nanoSeconds) / 100);
+                //}
 
-                _eventStream.Broadcast(eventDict);
+                //_eventStream.Broadcast(eventDict);
             }
         }
     }

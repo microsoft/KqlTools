@@ -13,8 +13,6 @@ namespace RealTimeKqlLibrary
         private Observable<IDictionary<string, object>> _eventStream;
 
         private Thread _thread;
-        private bool _running = false;
-
         private List<string> _headers;
         private IDictionary<string, object> _temp;
         private int _cellNum;
@@ -40,7 +38,6 @@ namespace RealTimeKqlLibrary
             if (!Start(_eventStream, eventStreamName[0], true)) return false;
 
             // Starting reader loop
-            _running = true;
             _thread = new Thread(RunReaderLoop)
             {
                 Priority = ThreadPriority.Highest

@@ -22,7 +22,7 @@ namespace RealTimeKqlLibrary
         private IDisposable _intermediateSubscription;
 
         // Clean up
-        private bool _running;
+        protected bool _running;
         private readonly ConsoleCancelEventHandler _cancelEventHandler;
 
         protected EventComponent(IOutput output, params string[] queries)
