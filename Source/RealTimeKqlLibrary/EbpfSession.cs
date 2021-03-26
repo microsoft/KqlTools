@@ -7,8 +7,9 @@ using System.Threading;
 
 namespace RealTimeKqlLibrary
 {
+
     /* TCP Event looks like this:
-	#pragma pack(push, 1)
+#pragma pack(push, 1)
 	struct tcp_event_t { // event towards the consumer.
 	    uint64_t EventTime;
 	    uint32_t pid;
@@ -24,7 +25,7 @@ namespace RealTimeKqlLibrary
 	    char SADDR[128];
 	    char DADDR[128];
 	};
-	#pragma pack(pop)
+#pragma pack(pop)
 */
     [Serializable]
     [StructLayout(LayoutKind.Sequential, Pack = 1, CharSet = CharSet.Ansi)]
@@ -47,6 +48,9 @@ namespace RealTimeKqlLibrary
 
     public class EbpfSession: EventComponent
     {
+        private readonly Observable<IDictionary<string, object>> _eventStream;
+        private Thread _thread;
+
         // setupBPF
         [DllImport("event")]
         static extern int setupBPF(char[] ourQueryCharArray);
@@ -55,19 +59,11 @@ namespace RealTimeKqlLibrary
         [DllImport("event")]
         static extern tcpEvent DequeuePerfEvent();
 
-        private readonly string _source;
-        private readonly Observable<IDictionary<string, object>> _eventStream;
-        private Thread _thread;
-
-        public EbpfSession(IOutput output, params string[] queries) : base(output, queries)
-        {
-            _eventStream = new Observable<IDictionary<string, object>>();
-            _source =
-@"
-#include <uapi/linux/ptrace.h>
-#include <linux/tcp.h>
-#include <net/sock.h> 
-#include <bcc/proto.h>
+        private readonly string _source = @"
+# include <uapi/linux/ptrace.h>
+# include <linux/tcp.h>
+# include <net/sock.h> 
+# include <bcc/proto.h>
 BPF_HASH(birth, struct sock *, u64); 
 #pragma pack(push, 1)
 struct event_t {
@@ -194,7 +190,10 @@ int kprobe__tcp_set_state(struct pt_regs *ctx, struct sock *sk, int state) {
     }
     return 0;
 }
-";
+";      
+        public EbpfSession(IOutput output, params string[] queries) : base(output, queries)
+        {
+            _eventStream = new Observable<IDictionary<string, object>>();
         }
 
         public override bool Start()
@@ -225,12 +224,13 @@ int kprobe__tcp_set_state(struct pt_regs *ctx, struct sock *sk, int state) {
                 var txt = JsonConvert.SerializeObject(thisEvent);
                 var eventDict = JsonConvert.DeserializeObject<Dictionary<string, object>>(txt);
 
+#if NETCOREAPP3_1
                 // converting event time to DateTime object
                 if (eventDict.TryGetValue("EventTime", out var nanoSeconds))
                 {
                     eventDict["EventTime"] = DateTime.UnixEpoch + new TimeSpan(Convert.ToInt64(nanoSeconds) / 100);
                 }
-
+#endif
                 _eventStream.Broadcast(eventDict);
             }
         }

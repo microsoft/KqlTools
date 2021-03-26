@@ -27,4 +27,10 @@
     <ProjectReference Include="..\Rx.Kql\Rx.Kql.csproj" />
   </ItemGroup>
 
+  <ItemGroup>
+    <None Update="ObjectFiles\event.so">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+  </ItemGroup>
+
 </Project>
