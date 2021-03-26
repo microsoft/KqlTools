@@ -57,6 +57,7 @@ namespace RealTimeKqlLibrary
 
         public void OutputCompleted()
         {
+            if (!_running) return;
             _running = false;
             Console.WriteLine("\nCompleted!");
             Console.WriteLine("Thank you for using RealTimeKql!");

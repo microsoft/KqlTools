@@ -130,6 +130,8 @@ namespace RealTimeKqlLibrary
 
         public void OutputCompleted()
         {
+            if (Completed.Set()) return;
+
             if (!_error)
             {
                 UploadBatch();

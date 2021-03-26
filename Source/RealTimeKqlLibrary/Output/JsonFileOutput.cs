@@ -62,6 +62,7 @@ namespace RealTimeKqlLibrary
 
         public void OutputCompleted()
         {
+            if (!_running) return;
             _running = false;
 
             if (!_error)
