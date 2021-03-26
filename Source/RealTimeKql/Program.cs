@@ -77,6 +77,9 @@ namespace RealTimeKql
                 case "syslogserver":
                     eventComponent = GetSyslogServer(options, output, query);
                     break;
+                case "ebpf":
+                    eventComponent = new EbpfSession(output, query);
+                    break;
                 default:
                     Console.WriteLine($"Problem recognizing input method specified: {commandLineParser.InputSubcommand.Name}. Terminating program...");
                     return;

@@ -427,6 +427,11 @@ namespace RealTimeKql
             _allInputSubcommands.Add(syslog);
             _allSubcommandNames.Add("syslog");
 
+            // ebpf
+            var ebpf = new Subcommand("ebpf", "Listen to real-time ebpf session.");
+            _allInputSubcommands.Add(ebpf);
+            _allSubcommandNames.Add("ebpf");
+
             // syslog server
             var syslogServerOptions = new List<Option>()
             {
