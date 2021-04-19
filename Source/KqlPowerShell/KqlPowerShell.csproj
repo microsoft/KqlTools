@@ -1,7 +1,7 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
-    <TargetFramework>netstandard2.0</TargetFramework>
+    <TargetFramework>net472</TargetFramework>
     <AssemblyName>KqlPowerShell</AssemblyName>
   </PropertyGroup>
 
@@ -14,12 +14,6 @@
   <ItemGroup>
     <ProjectReference Include="..\RealTimeKqlLibrary\RealTimeKqlLibrary.csproj" />
     <ProjectReference Include="..\Rx.Kql\Rx.Kql.csproj" />
-  </ItemGroup>
-
-  <ItemGroup>
-    <Compile Update="InvokeKqlPowerShell.cs">
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-    </Compile>
   </ItemGroup>
 
   <ItemGroup>

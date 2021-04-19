@@ -1,0 +1,139 @@
+# Workflow to deploy a new command line tool release when a new tag is pushed
+name: Deploy Command Line Tool and Python Module
+
+on:
+  push:
+    tags:
+      - '*'
+
+jobs:
+  setup:
+    runs-on: windows-latest
+
+    defaults:
+      run:
+        shell: powershell
+
+    outputs:
+      tag_name: ${{ steps.getnames.outputs.tag }}
+      release_name: ${{ steps.getnames.outputs.release }}
+
+    steps:
+    - name: Checkout
+      uses: actions/checkout@v2
+
+    # Get tag name for new release
+    - name: Get Tag and Release Names
+      id: getnames
+      run: |
+        $tmp = '${{ github.ref }}'.split('/')
+        $tag = $tmp[$tmp.length-1]
+        $release = 'RealTimeKql ' + $tag
+        echo "::set-output name=tag::$tag"
+        echo "::set-output name=release::$release"
+
+  commandlinetool:
+    needs: setup
+
+    runs-on: windows-latest
+
+    defaults:
+      run:
+        shell: powershell
+
+    steps:
+    - name: Checkout
+      uses: actions/checkout@v2
+
+    # Run dotnet publish for all necessary binaries
+    - name: Publish Binaries
+      run: |
+        dotnet clean Source/KqlTools.sln
+        dotnet nuget locals all --clear
+        dotnet publish Source/RealTimeKql/RealTimeKql.csproj -r win-x64 -f netcoreapp3.1 -c Release -p:PublishSingleFile=true -o ${{ runner.temp }}\win-x64
+        dotnet publish Source/RealTimeKql/RealTimeKql.csproj -r linux-x64 -f netcoreapp3.1 -c Release -p:PublishSingleFile=true -o ${{ runner.temp }}\linux-x64
+    
+    # Sign Windows executable with signtool
+    - name: Sign Binaries
+      uses: ./Source/Actions/SignAction
+      with:
+        certificate: '${{ secrets.BASE64_ENCODED_PFX }}'
+        key: '${{ secrets.PFX_KEY }}'
+        directory: '${{ runner.temp }}\win-x64'
+
+    # Compress release packages for win-x64
+    - name: Compress Binaries Windows
+      run: |
+        mkdir ${{ github.workspace }}\ReleaseAssets
+        copy Doc/Queries/Windows/* ${{ runner.temp }}\win-x64
+        Compress-Archive -Path ${{ runner.temp }}\win-x64\* -DestinationPath "${{ github.workspace }}\ReleaseAssets\RealTimeKql.${{ env.TAG_NAME }}.zip"
+        
+    # Compress release packages for linux-x64
+    - name: Compress Binaries Linux
+      run: |
+        copy Doc/Queries/Linux/* ${{ runner.temp }}\linux-x64
+        cd ReleaseAssets
+        tar -czvf "RealTimeKql.${{ env.TAG_NAME }}.tar.gz" ${{ runner.temp }}\linux-x64\*
+
+    # Upload compressed binaries to latest release
+    - name: Create Release Step
+      uses: ./Source/Actions/CreateReleaseAction
+      with:
+        token: ${{ secrets.GITHUB_TOKEN }}
+        tag_name: ${{ needs.setup.outputs.tag_name }}
+        release_name: ${{ needs.setup.outputs.release_name }}
+        directory: '${{ github.workspace }}\ReleaseAssets'
+
+  pythonmodule:
+    needs: setup
+
+    runs-on: windows-latest
+
+    defaults:
+      run:
+        shell: powershell
+
+    env:
+      Identity_Mapper: "namita-prakash:${{ secrets.NAPRAKAS_PYPI_KEY }};" # Add mapping from github username to pypi api key secret
+
+    steps:
+    - name: Checkout
+      uses: actions/checkout@v2
+
+    # Get PyPi API key for current user
+    - name: Set API key
+      run: |
+        $ids = $env:Identity_Mapper -split ";"
+        $mapper = New-Object System.Collections.Generic.Dictionary"[String,String]"
+        foreach ($id in $ids) { $pair = $id -split ":"; $mapper.Add($pair[0],$pair[1]) }
+        $key = $mapper["${{ github.actor }}"]
+        echo "PYPI_API_KEY=$key" | Out-File -FilePath $env:GITHUB_ENV -Encoding utf8 -Append
+
+    # Run dotnet publish for all necessary binaries
+    - name: Generate published dependencies
+      run: |
+        dotnet clean Source/KqlTools.sln
+        dotnet nuget locals all --clear
+        dotnet publish Source/RealTimeKqlLibrary/RealTimeKqlLibrary.csproj -r win-x64 -f net472 -c Release -o ${{ runner.temp }}\python\realtimekql\lib
+
+    # Set up python build directory
+    - name: Set up python build directory step
+      run: |
+        copy Source/KqlPython/* ${{ runner.temp }}\python\realtimekql
+        copy README.md ${{ runner.temp }}\python\realtimekql
+        cd ${{ runner.temp }}\python\realtimekql
+        "${{ needs.setup.outputs.tag_name }}" | Out-File -FilePath VERSION.txt -Encoding ASCII -NoNewline
+
+    # Build python wheel
+    - name: Build Python Wheel Step
+      run: |
+        cd ${{ runner.temp }}\python\realtimekql 
+        python -m pip install -U pip wheel setuptools build
+        python -m build
+
+    # Deploy python module
+    - name: Deploy Python Module
+      run: |
+        cd ${{ runner.temp }}\python\realtimekql\
+        python -m pip install --user --upgrade twine
+        python -m twine upload --repository testpypi dist\* -u __token__ -p $env:PYPI_API_KEY
