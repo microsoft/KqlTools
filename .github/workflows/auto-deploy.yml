@@ -136,4 +136,4 @@ jobs:
       run: |
         cd ${{ runner.temp }}\python\realtimekql\
         python -m pip install --user --upgrade twine
-        python -m twine upload --repository testpypi dist\* -u __token__ -p $env:PYPI_API_KEY
+        python -m twine upload dist\* -u __token__ -p $env:PYPI_API_KEY
