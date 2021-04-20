@@ -100,6 +100,10 @@ namespace RealTimeKqlTests
         [Theory]
         [InlineData("etw", "tcp", "--query", "Assets\\test.kql")]
         [InlineData("etw", "tcp", "--query=Assets\\test.kql")]
+        [InlineData("etw", "tcp", "--query", "Assets\\test.kql", "Assets\\test2.kql")]
+        [InlineData("etw", "tcp", "-q", "Assets\\test.kql", "Assets\\test2.kql", "third.kql")]
+        [InlineData("etw", "tcp", "--query=Assets\\test.kql", "Assets\\test2.kql")]
+        [InlineData("etw", "tcp", "--query=Assets\\test.kql", "Assets\\test2.kql", "third.kql")]
         public void Parse_ValidQuery_ReturnTrue(params string[] args)
         {
             var c = new CommandLineParser(args);
