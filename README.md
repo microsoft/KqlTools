@@ -2,25 +2,24 @@
 
 To process data with Kusto Query Language (KQL) queries today, users generally have to upload their data to storage first and then query it. The Kql Tools eliminate this need by processing event streams with KQL queries **as events arrive, in real-time.**
 
-
+![StandingQuery.jpg](StandingQuery.jpg)
 
 ## Contents
 
 * [List of tools](#Tools)
 * [Supported event sources](#Inputs)
 * [Supported event destinations](#Outputs)
-* [About](#About)
 * [Contributing](#Contributing)
 
 
 
 ## <a id="Tools">List of Tools
 
-|                    **Command Line Tool**                     |                      **Python Script**                       |
+|                    **Command Line Tool**                     |                      **Python Module**                       |
 | :----------------------------------------------------------: | :----------------------------------------------------------: |
 |           [Documentation](Doc/CommandLineTool.md)            |             [Documentation](Doc/PythonScript.md)             |
 | [Downloads](https://github.com/microsoft/KqlTools/releases/) | [Downloads](https://github.com/microsoft/KqlTools/releases/) |
-|                     Demo (*coming soon*)                     |                     Demo (*coming soon*)                     |
+|                     [Demo] (https://youtu.be/utlsqlrAQgA)                     |                     [Demo] (https://youtu.be/5LLpxkpm580)                     |
 
 
 
@@ -41,14 +40,6 @@ In addition to processing **CSV files**, the KQL tools support the following inp
 | :----------------------------------------------------------: | :-----------------------------------------------------: | :----------------------------------------------: |
 | **json**- Results printed to standard output in JSON format  |  **jsonfile** - Results written to file in JSON format  | **adx** - Upload to Kusto (Azure Data Explorer)  |
 | **table** - Results printed to standard output in table format | **tablefile** - Results written to file in table format | **blob** - Upload as JSON objects to BlobStorage |
-
-
-
-## <a id="About">About
-
-The Kql Tools allow users to examine activity on their machine by directly viewing and querying real-time event streams.
-
-![StandingQuery.jpg](StandingQuery.jpg)
 
 
 
