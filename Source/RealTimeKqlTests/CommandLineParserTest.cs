@@ -77,6 +77,20 @@ namespace RealTimeKqlTests
         }
 
         [Theory]
+        [InlineData("etw", "tcp", "json", "file.json")]
+        [InlineData("etw", "tcp", "json", "file.json", "--query=test.kql")]
+        [InlineData("etw", "tcp", "json", "file.json", "--query=test.kql", "test2.kql")]
+        public void Parse_ValidOutputs_CheckValue(params string[] args)
+        {
+            var c = new CommandLineParser(args);
+            var expected = "file.json";
+
+            c.Parse();
+            var actual = c.OutputSubcommand.Argument.Value;
+            Assert.Equal(expected, actual);
+        }
+
+        [Theory]
         [InlineData("etw", "tcp", "adx", "--adxdatabase=database")]
         [InlineData("etw", "tcp", "blob", "--blobcontainername=value")]
         public void Parse_OutputsMissingRequirements_ReturnFalse(params string[] args)
