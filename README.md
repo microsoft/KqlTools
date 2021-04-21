@@ -19,7 +19,7 @@ To process data with Kusto Query Language (KQL) queries today, users generally h
 | :----------------------------------------------------------: | :----------------------------------------------------------: |
 |           [Documentation](Doc/CommandLineTool.md)            |             [Documentation](Doc/PythonScript.md)             |
 | [Downloads](https://github.com/microsoft/KqlTools/releases/) | [Downloads](https://github.com/microsoft/KqlTools/releases/) |
-|                     [Demo] (https://youtu.be/utlsqlrAQgA)                     |                     [Demo] (https://youtu.be/5LLpxkpm580)                     |
+|                     [Demo](https://youtu.be/utlsqlrAQgA)                     |                     [Demo](https://youtu.be/5LLpxkpm580)                     |
 
 
 
