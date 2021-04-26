@@ -15,9 +15,7 @@
 
 ## <a id="Setup">Download & Setup
 
-To download Real-Time KQL for Python, download the .zip file from the latest release. The .zip file contains a .whl file that will help you install Real-Time KQL for Python. You can optionally setup and activate a virtual environment before installing Real-Time KQL to keep all your python packages isolated. To install Real-Time KQL, navigate to the folder where your .whl file is and run `pip install realtimekql-*-.whl`.
-
-
+In an Administrator Command Prompt, Anaconda Prompt, or any elevated terminal window of your choosing, run `pip install realtimekql`. Using a virutal environment of some sort is recommended.
 
 ## <a id="Usage">Usage
 
