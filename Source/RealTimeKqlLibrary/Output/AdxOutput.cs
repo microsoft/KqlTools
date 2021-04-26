@@ -119,6 +119,17 @@ namespace RealTimeKqlLibrary
                 UploadBatch();
             }
 
+            // Convert all System.Dynamic.ExpandoObject items into Dictionary<string, object> types
+            foreach(var pair in obj)
+            {
+                if(typeof(System.Dynamic.ExpandoObject) == pair.Value.GetType())
+                {
+                    var dict = ((IDictionary<string, object>)(pair.Value)).ToDictionary(
+                        kvp => kvp.Key, kvp => kvp.Value);
+                    obj[pair.Key] = dict;
+                }
+            }
+            
             _nextBatch.Add(obj);
         }
 
@@ -226,7 +237,8 @@ namespace RealTimeKqlLibrary
             { typeof(IDictionary<string, object>), typeof(JToken).ToString() },
             { typeof(JToken), typeof(JToken).ToString() },
             { typeof(JObject), typeof(JToken).ToString() },
-            { typeof(object), typeof(JToken).ToString() }
+            { typeof(object), typeof(JToken).ToString() },
+            { typeof(System.Dynamic.ExpandoObject), typeof(JToken).ToString() }
         };
     }
 }

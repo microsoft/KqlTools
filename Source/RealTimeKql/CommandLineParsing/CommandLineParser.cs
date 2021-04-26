@@ -8,19 +8,23 @@ namespace RealTimeKql
     {
         public Subcommand InputSubcommand { get; private set; }
         public Subcommand OutputSubcommand { get; private set; }
-        public Option Query { get; private set; }
-
+        public List<string> Queries { get; private set; }
+        
         private readonly List<Subcommand> _allInputSubcommands;
         private readonly List<Subcommand> _allOutputSubcommands;
         private readonly List<string> _allSubcommandNames;
+        private readonly Option _query;
         private readonly string[] _args;
         private int _currentIndex;
 
         public CommandLineParser(string[] args)
         {
+            Queries = new List<string>();
             _allInputSubcommands = new List<Subcommand>();
             _allOutputSubcommands = new List<Subcommand>();
             _allSubcommandNames = new List<string>();
+            _query = new Option("query", "q",
+                "Optional, apply this KQL query to the input stream. If omitted, the stream is propagated without processing to the output. eg, --query=file.kql");
             _args = args;
             _currentIndex = 0;
 
@@ -49,19 +53,7 @@ namespace RealTimeKql
             if (CheckIndexOutOfBounds()) return true; // Parsing has finished
 
             // Parsing for output
-            if (_allOutputSubcommands.Where(x => x.Name == _args[_currentIndex]).Count() == 0)
-            {
-                if(_args[_currentIndex].StartsWith("-"))
-                {
-                    if (!ParseQueryOption()) return false;
-                }
-                else
-                {
-                    Console.WriteLine($"ERROR! Output source {_args[_currentIndex]} not recognized.");
-                    return false;
-                }
-            }
-            else
+            if (_allOutputSubcommands.Where(x => x.Name == _args[_currentIndex]).Count() > 0)
             {
                 var output = _allOutputSubcommands.Find(x => x.Name == _args[_currentIndex]);
                 if (ParseSubcommand(output)) OutputSubcommand = output;
@@ -71,20 +63,21 @@ namespace RealTimeKql
                 // Parsing for optional query
                 if (_args[_currentIndex].StartsWith("-"))
                 {
-                    if (!ParseQueryOption()) return false;
+                    if (!ParseQueries()) return false;
                 }
             }
-
-            if(_currentIndex < _args.Length)
+            else
             {
-                Console.WriteLine($"ERROR! These options were either not specified correctly or not recognized:");
-                while(_currentIndex < _args.Length)
+                // No output specified, parsing query file(s)
+                if (_args[_currentIndex].StartsWith("-"))
                 {
-                    Console.Write($"{_args[_currentIndex]}\t");
-                    _currentIndex++;
+                    if (!ParseQueries()) return false;
                 }
-                Console.WriteLine();
-                return false;
+                else
+                {
+                    Console.WriteLine($"ERROR! Output source {_args[_currentIndex]} not recognized.");
+                    return false;
+                }
             }
 
             return true;
@@ -163,7 +156,7 @@ namespace RealTimeKql
 
             Console.WriteLine("\nquery file");
             string valTag = " <file.kql> ";
-            Console.WriteLine($"\t-{Query.ShortName}|--{Query.LongName}{valTag}\t{Query.HelpText}");
+            Console.WriteLine($"\t-{_query.ShortName}|--{_query.LongName}{valTag}\t{_query.HelpText}");
 
             Console.WriteLine("\nUse \"RealTimeKql [command] -h|--help\" for more information about a command.");
         }
@@ -369,7 +362,7 @@ namespace RealTimeKql
             return false;
         }
 
-        private bool ParseQueryOption()
+        private bool ParseQueries()
         {
             if(!(_args[_currentIndex].StartsWith("--query") || _args[_currentIndex].StartsWith("-q")))
             {
@@ -378,7 +371,25 @@ namespace RealTimeKql
             }
             if (ParseValueOption(out var query))
             {
-                Query.Value = query;
+                if(!query.Contains(".kql"))
+                {
+                    Console.WriteLine($"ERROR! This item was passed in as a query file but doesn't appear to be a .kql file: {query}");
+                    return false;
+                }
+                Queries.Add(query);
+
+                while (_currentIndex < _args.Length)
+                {
+                    if (!_args[_currentIndex].Contains(".kql"))
+                    {
+                        Console.WriteLine($"ERROR! This item was passed in as a query file but doesn't appear to be a .kql file: {query}");
+                        return false;
+                    }
+
+                    Queries.Add(_args[_currentIndex]);
+                    _currentIndex++;
+                }
+
                 return true;
             }
             else
@@ -495,10 +506,6 @@ namespace RealTimeKql
             var blob = new Subcommand("blob", "Ingest output to Azure Blob Storage", null, blobOptions);
             _allOutputSubcommands.Add(blob);
             _allSubcommandNames.Add("blob");
-
-            // query
-            Query = new Option("query", "q",
-                "Optional, apply this KQL query to the input stream. If omitted, the stream is propagated without processing to the output. eg, --query=file.kql");
         }
     }
 

@@ -53,29 +53,29 @@ namespace RealTimeKql
             EventComponent eventComponent = null;
             var arg = commandLineParser.InputSubcommand.Argument?.Value;
             var options = commandLineParser.InputSubcommand.Options;
-            var query = commandLineParser.Query.Value;
+            var queries = commandLineParser.Queries.ToArray();
             switch (commandLineParser.InputSubcommand.Name)
             {
                 case "etw":
-                    eventComponent = new EtwSession(arg, output, query);
+                    eventComponent = new EtwSession(arg, output, queries);
                     break;
                 case "etl":
-                    eventComponent = new EtlFileReader(arg, output, query);
+                    eventComponent = new EtlFileReader(arg, output, queries);
                     break;
                 case "winlog":
-                    eventComponent = new WinlogRealTime(arg, output, query);
+                    eventComponent = new WinlogRealTime(arg, output, queries);
                     break;
                 case "evtx":
-                    eventComponent = new EvtxFileReader(arg, output, query);
+                    eventComponent = new EvtxFileReader(arg, output, queries);
                     break;
                 case "csv":
-                    eventComponent = new CsvFileReader(arg, output, query);
+                    eventComponent = new CsvFileReader(arg, output, queries);
                     break;
                 case "syslog":
-                    eventComponent = new SyslogFileReader(arg, output, query);
+                    eventComponent = new SyslogFileReader(arg, output, queries);
                     break;
                 case "syslogserver":
-                    eventComponent = GetSyslogServer(options, output, query);
+                    eventComponent = GetSyslogServer(options, output, queries);
                     break;
                 default:
                     Console.WriteLine($"Problem recognizing input method specified: {commandLineParser.InputSubcommand.Name}. Terminating program...");
@@ -182,7 +182,7 @@ namespace RealTimeKql
             return new BlobOutput(connectionString, containerName);
         }
 
-        static SyslogServer GetSyslogServer(List<Option> opts, IOutput output, string query)
+        static SyslogServer GetSyslogServer(List<Option> opts, IOutput output, string[] queries)
         {
             string networkAdapter = "";
             string udpport = "";
@@ -204,7 +204,7 @@ namespace RealTimeKql
             {
                 port = 514;
             }
-            return new SyslogServer(networkAdapter, port, output, query);
+            return new SyslogServer(networkAdapter, port, output, queries);
         }
     }
 }
