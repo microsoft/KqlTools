@@ -173,8 +173,8 @@ jobs:
     # Generate module manifest & publish module
     - name: Generate module manifest & publish module
       run: |
-        cd ${{ runner.temp }}\powershell\KqlPowerShell
-        New-ModuleManifest KqlPowerShell.psd1 -ModuleVersion ${{ needs.setup.outputs.tag_name }} -CompanyName Microsoft -Description "A module to explore real-time streams of events" -ProjectUri "https://github.com/microsoft/kqltools" -Copyright "(c) Microsoft. All rights reserved."
-        Test-ModuleManifest KqlPowerShell.psd1
-        cd ${{ runner.temp }}\powershell
-        Publish-Module -Path ${{ runner.temp }}\powershell\KqlPowerShell -NuGetApiKey $env:POWERSHELL_API_KEY
+        copy Source/KqlPowerShell/RealTimeKql.psd1 ${{ runner.temp }}\powershell\RealTimeKql
+        cd ${{ runner.temp }}\powershell\RealTimeKql
+        Update-ModuleManifest RealTimeKql.psd1 -ModuleVersion ${{ needs.setup.outputs.tag_name }}
+        Test-ModuleManifest RealTimeKql.psd1
+        Publish-Module -Path ${{ runner.temp }}\powershell\RealTimeKql -NuGetApiKey $env:POWERSHELL_API_KEY
