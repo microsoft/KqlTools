@@ -1,21 +1,8 @@
 # Real-Time KQL for Python
 
-## Contents
-
-* [Download & Setup](#Setup)
-* [Usage](#Usage)
-* [Using Real-Time KQL in Interactive Mode](#InteractiveMode)
-  * [Etw TCP Event Tracing](#Etw)
-  * [Local Syslog Event Tracing](#Syslog)
-* [Other Uses of Real-Time KQL for Python](#OtherUses)
-  * [Command line tool](#CommandLineTool)
-  * [Direct component use](#DirectComponentUse)
+To process data with Kusto Query Language (KQL) queries today, users generally have to upload their data to storage first and then query it. The Kql Tools eliminate this need by processing event streams with KQL queries **as events arrive, in real-time.**
 
 
-
-## <a id="Setup">Download & Setup
-
-In an Administrator Command Prompt, Anaconda Prompt, or any elevated terminal window of your choosing, run `pip install realtimekql`. Using a virutal environment of some sort is recommended.
 
 ## <a id="Usage">Usage
 
@@ -78,6 +65,4 @@ CsvFileReader(filePath, o, q)
 ```
 
 The variables `o` and `q` represent the output part and the query part respectively. The query part is optional and can be left out.
-
-
 

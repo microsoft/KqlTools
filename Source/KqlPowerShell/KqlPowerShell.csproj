@@ -17,8 +17,8 @@
   </ItemGroup>
 
   <ItemGroup>
-    <None Update="DeployModule.cmd">
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    <None Update="RealTimeKql.psd1">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
   </ItemGroup>
 

@@ -11,7 +11,7 @@ namespace KqlPowerShell
             Mandatory = false,
             ValueFromPipeline = true,
             ValueFromPipelineByPropertyName = true)]
-        public string Query;
+        public string[] Queries;
 
         protected EventComponent _eventComponent;
         protected QueuedDictionaryOutput _output;

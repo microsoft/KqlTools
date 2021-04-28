@@ -15,11 +15,11 @@ To process data with Kusto Query Language (KQL) queries today, users generally h
 
 ## <a id="Tools">List of Tools
 
-|                    **Command Line Tool**                     |                      **Python Module**                       |
-| :----------------------------------------------------------: | :----------------------------------------------------------: |
-|           [Documentation](Doc/CommandLineTool.md)            |             [Documentation](Doc/PythonScript.md)             |
-| [Downloads](https://github.com/microsoft/KqlTools/releases/) | [Downloads](https://github.com/microsoft/KqlTools/releases/) |
-|                     [Demo](https://youtu.be/utlsqlrAQgA)                     |                     [Demo](https://youtu.be/5LLpxkpm580)                     |
+|                    **Command Line Tool**                     |                 **Python Module**                  |                      PowerShell Module                       |
+| :----------------------------------------------------------: | :------------------------------------------------: | :----------------------------------------------------------: |
+|           [Documentation](Doc/CommandLineTool.md)            |        [Documentation](Doc/PythonModule.md)        |           [Documentation](Doc/PowerShellModule.md)           |
+| [Downloads](https://github.com/microsoft/KqlTools/releases/) | [Downloads](https://pypi.org/project/realtimekql/) | [Downloads](https://www.powershellgallery.com/packages/RealTimeKql/) |
+|             [Demo](https://youtu.be/utlsqlrAQgA)             |        [Demo](https://youtu.be/5LLpxkpm580)        |                     Demo (*coming soon*)                     |
 
 
 
@@ -36,10 +36,10 @@ In addition to processing **CSV files**, the KQL tools support the following inp
 
 ## <a id="Outputs">Supported Event Destinations
 
-|                       Real-Time Output                       |                       File Output                       |                  Upload Output                   |
-| :----------------------------------------------------------: | :-----------------------------------------------------: | :----------------------------------------------: |
-| **json**- Results printed to standard output in JSON format  |  **jsonfile** - Results written to file in JSON format  | **adx** - Upload to Kusto (Azure Data Explorer)  |
-| **table** - Results printed to standard output in table format | **tablefile** - Results written to file in table format | **blob** - Upload as JSON objects to BlobStorage |
+|                       Real-Time Output                       |                      File Output                       |                  Upload Output                   |
+| :----------------------------------------------------------: | :----------------------------------------------------: | :----------------------------------------------: |
+| **json**- Results printed to standard output in JSON format  | **json file** - Results written to file in JSON format | **adx** - Upload to Kusto (Azure Data Explorer)  |
+| **table** - Results printed to standard output in table format |                                                        | **blob** - Upload as JSON objects to BlobStorage |
 
 
 

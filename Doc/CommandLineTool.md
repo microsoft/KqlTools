@@ -6,9 +6,16 @@ A command line tool to explore and process real-time streams of events.
 
 ## Contents
 
+* [Download & Setup](#Setup)
 * [Usage](#Usage)
 * [Tracing ETW Tcp Events](#Etw)
 * [Tracing Local Syslog Events](#Syslog)
+
+
+
+## <a id="Setup">Download & Setup
+
+Download the latest release from the [Releases](https://github.com/microsoft/KqlTools/releases/) page. For Windows, download RealTimeKql.zip. For Linux, download RealTimeKql.tar.gz. The zip files include an executable for Real-Time KQL as well as some sample queries.
 
 
 
@@ -42,7 +49,7 @@ Use "RealTimeKql [command] -h|--help" for more information about a command.
 
 ## <a id="Etw">Tracing ETW TCP Events
 
-This walkthrough demonstrates how to use RealTimeKql to explore tcp events emitted by an Event Tracing for Windows (ETW) provider.
+This walkthrough demonstrates how to use RealTimeKql to explore TCP events emitted by an Event Tracing for Windows (ETW) provider.
 
 ### Start an ETW Trace:
 
