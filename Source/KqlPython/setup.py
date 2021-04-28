@@ -17,7 +17,7 @@ setup(
 	description='A module for exploring real-time streams of events',
 	long_description=long_description,
 	long_description_content_type='text/markdown',
-	install_requires=['pythonnet'],
+	install_requires=['pythonnet', 'pandas', 'azure.kusto.data', 'azure.kusto.ingest'],
 	packages=['.'],
 	data_files=[('lib', glob.glob(os.path.join('lib', '*')))],
 	include_package_data=True,
