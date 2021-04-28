@@ -120,7 +120,7 @@ namespace RealTimeKqlLibrary
             // Convert all System.Dynamic.ExpandoObject items into Dictionary<string, object> types
             foreach(var pair in obj)
             {
-                if(typeof(System.Dynamic.ExpandoObject) == pair.Value.GetType())
+                if(pair.Value != null && typeof(System.Dynamic.ExpandoObject) == pair.Value.GetType())
                 {
                     var dict = ((IDictionary<string, object>)(pair.Value)).ToDictionary(
                         kvp => kvp.Key, kvp => kvp.Value);
