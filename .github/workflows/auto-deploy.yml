@@ -137,3 +137,44 @@ jobs:
         cd ${{ runner.temp }}\python\realtimekql\
         python -m pip install --user --upgrade twine
         python -m twine upload dist\* -u __token__ -p $env:PYPI_API_KEY
+
+  powershellmodule:
+    needs: setup
+
+    runs-on: windows-latest
+
+    defaults:
+      run:
+        shell: powershell
+
+    env:
+      Identity_Mapper: "namita-prakash:${{ secrets.NAPRAKAS_POWERSHELL_API_KEY }};" # Add mapping from github username to powershell gallery api key secret
+
+    steps:
+    - name: Checkout
+      uses: actions/checkout@v2
+
+    # Get PyPi API key for current user
+    - name: Set API key
+      run: |
+        $ids = $env:Identity_Mapper -split ";"
+        $mapper = New-Object System.Collections.Generic.Dictionary"[String,String]"
+        foreach ($id in $ids) { $pair = $id -split ":"; $mapper.Add($pair[0],$pair[1]) }
+        $key = $mapper["${{ github.actor }}"]
+        echo "POWERSHELL_API_KEY=$key" | Out-File -FilePath $env:GITHUB_ENV -Encoding utf8 -Append
+
+    # Run dotnet publish for all necessary binaries
+    - name: Generate published dependencies
+      run: |
+        dotnet clean Source/KqlTools.sln
+        dotnet nuget locals all --clear
+        dotnet publish Source/KqlPowerShell/KqlPowerShell.csproj -c Release -o ${{ runner.temp }}\powershell\KqlPowerShell
+
+    # Generate module manifest & publish module
+    - name: Generate module manifest & publish module
+      run: |
+        cd ${{ runner.temp }}\powershell\KqlPowerShell
+        New-ModuleManifest KqlPowerShell.psd1 -ModuleVersion ${{ needs.setup.outputs.tag_name }} -CompanyName Microsoft -Description "A module to explore real-time streams of events" -ProjectUri "https://github.com/microsoft/kqltools" -Copyright "(c) Microsoft. All rights reserved."
+        Test-ModuleManifest KqlPowerShell.psd1
+        cd ${{ runner.temp }}\powershell
+        Publish-Module -Path ${{ runner.temp }}\powershell\KqlPowerShell -NuGetApiKey $env:POWERSHELL_API_KEY
