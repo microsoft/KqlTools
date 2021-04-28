@@ -15,7 +15,7 @@ namespace KqlPowerShell
 
         protected override EventComponent SetupEventComponent()
         {
-            return new CsvFileReader(FilePath, _output, Query);
+            return new CsvFileReader(FilePath, _output, Queries);
         }
     }
 
@@ -31,7 +31,7 @@ namespace KqlPowerShell
 
         protected override EventComponent SetupEventComponent()
         {
-            return new EtwSession(SessionName, _output, Query);
+            return new EtwSession(SessionName, _output, Queries);
         }
     }
 
@@ -47,7 +47,7 @@ namespace KqlPowerShell
 
         protected override EventComponent SetupEventComponent()
         {
-            return new EtlFileReader(FilePath, _output, Query);
+            return new EtlFileReader(FilePath, _output, Queries);
         }
     }
 
@@ -63,7 +63,7 @@ namespace KqlPowerShell
 
         protected override EventComponent SetupEventComponent()
         {
-            return new WinlogRealTime(LogName, _output, Query);
+            return new WinlogRealTime(LogName, _output, Queries);
         }
     }
 
@@ -79,7 +79,7 @@ namespace KqlPowerShell
 
         protected override EventComponent SetupEventComponent()
         {
-            return new EvtxFileReader(FilePath, _output, Query);
+            return new EvtxFileReader(FilePath, _output, Queries);
         }
     }
 
@@ -95,7 +95,7 @@ namespace KqlPowerShell
 
         protected override EventComponent SetupEventComponent()
         {
-            return new SyslogFileReader(FilePath, _output, Query);
+            return new SyslogFileReader(FilePath, _output, Queries);
         }
     }
 
@@ -116,7 +116,7 @@ namespace KqlPowerShell
 
         protected override EventComponent SetupEventComponent()
         {
-            return new SyslogServer(NetworkAdapterName, UdpPort, _output, Query);
+            return new SyslogServer(NetworkAdapterName, UdpPort, _output, Queries);
         }
     }
 }
