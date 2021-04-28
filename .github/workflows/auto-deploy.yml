@@ -167,7 +167,7 @@ jobs:
       run: |
         dotnet clean Source/KqlTools.sln
         dotnet nuget locals all --clear
-        dotnet publish Source/KqlPowerShell/KqlPowerShell.csproj -c Release -o ${{ runner.temp }}\powershell\KqlPowerShell
+        dotnet publish Source/KqlPowerShell/KqlPowerShell.csproj -c Release -o ${{ runner.temp }}\powershell\RealTimeKql
 
     # Generate module manifest & publish module
     - name: Generate module manifest & publish module
