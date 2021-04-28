@@ -4,18 +4,16 @@
 
 * [Download & Setup](#Setup)
 * [Usage](#Usage)
-* [Using Real-Time KQL in Interactive Mode](#InteractiveMode)
-  * [Etw TCP Event Tracing](#Etw)
-  * [Local Syslog Event Tracing](#Syslog)
-* [Other Uses of Real-Time KQL for Python](#OtherUses)
-  * [Command line tool](#CommandLineTool)
-  * [Direct component use](#DirectComponentUse)
-
-
 
 ## <a id="Setup">Download & Setup
 
-In an Administrator Command Prompt, Anaconda Prompt, or any elevated terminal window of your choosing, run `pip install realtimekql`. Using a virutal environment of some sort is recommended.
+In an Administrator Command Prompt, Anaconda Prompt, or any elevated terminal window of your choosing, run:
+
+```
+pip install realtimekql
+```
+
+Using a virtual environment of some sort is not required, but is recommended.
 
 ## <a id="Usage">Usage
 

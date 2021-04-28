@@ -42,7 +42,7 @@ Use "RealTimeKql [command] -h|--help" for more information about a command.
 
 ## <a id="Etw">Tracing ETW TCP Events
 
-This walkthrough demonstrates how to use RealTimeKql to explore tcp events emitted by an Event Tracing for Windows (ETW) provider.
+This walkthrough demonstrates how to use RealTimeKql to explore TCP events emitted by an Event Tracing for Windows (ETW) provider.
 
 ### Start an ETW Trace:
 
