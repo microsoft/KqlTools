@@ -16,7 +16,7 @@ namespace RealTimeKqlLibrary
         public AutoResetEvent Completed { get; private set; }
 
         private readonly string _table;
-        private readonly bool _resetTable;
+        private readonly bool _createOrResetTable;
 
         private readonly KustoConnectionStringBuilder kscbAdmin;
         private readonly KustoConnectionStringBuilder kscbIngest;
@@ -40,11 +40,11 @@ namespace RealTimeKqlLibrary
             string cluster,
             string database,
             string table,
-            bool resetTable=false,
+            bool createOrResetTable=false,
             bool directIngest=false)
         {
             _table = table;
-            _resetTable = resetTable;
+            _createOrResetTable = createOrResetTable;
 
             _batchSize = 10000;
             _flushDuration = TimeSpan.FromMilliseconds(5);
@@ -104,7 +104,7 @@ namespace RealTimeKqlLibrary
                 _fields = obj.Keys.ToArray();
             }
 
-            if (kscbAdmin != null && _initializeTable == false)
+            if (kscbAdmin != null && _initializeTable == false && _createOrResetTable == true)
             {
                 CreateOrResetTable(obj);
                 _initializeTable = true;
@@ -196,12 +196,8 @@ namespace RealTimeKqlLibrary
         {
             using (var admin = KustoClientFactory.CreateCslAdminProvider(kscbAdmin))
             {
-                if (_resetTable)
-                {
-                    string dropTable = CslCommandGenerator.GenerateTableDropCommand(_table, true);
-                    admin.ExecuteControlCommand(dropTable);
-                }
-
+                string dropTable = CslCommandGenerator.GenerateTableDropCommand(_table, true);
+                admin.ExecuteControlCommand(dropTable);
                 CreateMergeKustoTable(admin, value);
             }
         }
