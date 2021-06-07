@@ -486,10 +486,10 @@ namespace RealTimeKql
                 "Azure Data Explorer (ADX) database name. eg, --adxdatabase=TestDb", true),
                 new Option("adxtable", "atb",
                 "Azure Data Explorer (ADX) table name. eg, --adxtable=OutputTable", true),
-                new Option("adxresettable", "art",
-                "The existing data in the destination table is dropped before new data is logged.", false, true),
+                new Option("adxcreatereset", "acr",
+                "If table doesn't exist, it is created. If table exists, data in table is dropped before new data is logged. eg, --adxcreatereset", false, true),
                 new Option("adxdirectingest", "adi",
-                "Default upload to ADX is using queued ingest. Use this option to do a direct ingest to ADX.", false, true)
+                "Default upload to ADX is using queued ingest. Use this option to do a direct ingest to ADX. eg, --adxdirectingest", false, true)
             };
 
             var adx = new Subcommand("adx", "Ingest output to Azure Data Explorer", null, adxOptions);

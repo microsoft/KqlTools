@@ -68,7 +68,7 @@ namespace RealTimeKqlTests
 
         [Theory]
         [InlineData("etw", "tcp", "json", "file.json")]
-        [InlineData("etw", "tcp", "adx", "-ad=test.com", "-aclid=val", "-akey=val", "-acl=cluster", "-adb=database", "-atb=table", "-art", "-adi")]
+        [InlineData("etw", "tcp", "adx", "-ad=test.com", "-aclid=val", "-akey=val", "-acl=cluster", "-adb=database", "-atb=table", "-acr", "-adi")]
         public void Parse_ValidOutputsWithOptions_ReturnTrue(params string[] args)
         {
             var c = new CommandLineParser(args);

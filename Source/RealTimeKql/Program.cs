@@ -116,7 +116,7 @@ namespace RealTimeKql
             string cluster = "";
             string database = "";
             string table = "";
-            bool resetTable = false;
+            bool createOrResetTable = false;
             bool directIngest = false;
 
             foreach(var opt in opts)
@@ -144,8 +144,8 @@ namespace RealTimeKql
                     case "adxdirectingest":
                         directIngest = opt.WasSet;
                         break;
-                    case "adxresettable":
-                        resetTable = opt.WasSet;
+                    case "adxcreatereset":
+                        createOrResetTable = opt.WasSet;
                         break;
                 }
             }
@@ -157,7 +157,7 @@ namespace RealTimeKql
                 cluster,
                 database,
                 table,
-                resetTable,
+                createOrResetTable,
                 directIngest);
         }
 
