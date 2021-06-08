@@ -19,7 +19,7 @@ To process data with Kusto Query Language (KQL) queries today, users generally h
 | :----------------------------------------------------------: | :------------------------------------------------: | :----------------------------------------------------------: |
 |           [Documentation](Doc/CommandLineTool.md)            |        [Documentation](Doc/PythonModule.md)        |           [Documentation](Doc/PowerShellModule.md)           |
 | [Downloads](https://github.com/microsoft/KqlTools/releases/) | [Downloads](https://pypi.org/project/realtimekql/) | [Downloads](https://www.powershellgallery.com/packages/RealTimeKql/) |
-|             [Demo](https://youtu.be/utlsqlrAQgA)             |        [Demo](https://youtu.be/5LLpxkpm580)        |                     Demo (https://youtu.be/a_p_Fm-fycE)                     |
+|             [Demo](https://youtu.be/utlsqlrAQgA)             |        [Demo](https://youtu.be/5LLpxkpm580)        |                     [Demo](https://youtu.be/a_p_Fm-fycE)                     |
 
 
 
