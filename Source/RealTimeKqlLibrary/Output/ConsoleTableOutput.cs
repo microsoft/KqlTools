@@ -10,7 +10,6 @@ namespace RealTimeKqlLibrary
         private bool _firstEntry;
         private readonly IDictionary<string, int> _columnWidths;
         private int _totalWidth;
-        private readonly int _padding;
         private int _counter;
 
         public ConsoleTableOutput()
@@ -19,7 +18,6 @@ namespace RealTimeKqlLibrary
             _firstEntry = true;
             _columnWidths = new Dictionary<string, int>();
             _totalWidth = 0;
-            _padding = 4;
             _counter = 0;
         }
 
@@ -74,8 +72,8 @@ namespace RealTimeKqlLibrary
                 var key = pair.Key;
                 var valueAsString = pair.Value == null ? "null" : pair.Value.ToString();
                 var biggerLen = key.Length > valueAsString.Length ? key.Length : valueAsString.Length;
-                _columnWidths[key] = biggerLen;
-                _totalWidth += biggerLen + _padding;
+                _columnWidths[key] = biggerLen + biggerLen/2;
+                _totalWidth += biggerLen + biggerLen/2;
             }
         }
 
@@ -85,7 +83,7 @@ namespace RealTimeKqlLibrary
             foreach (var key in obj.Keys)
             {
                 var len = GetLength(key);
-                Console.Write($"{key.PadRight(len + _padding)}");
+                Console.Write($"{key.PadRight(len)}");
             }
             Console.WriteLine();
             Console.WriteLine($"{"".PadRight(_totalWidth, '-')}");
@@ -101,7 +99,7 @@ namespace RealTimeKqlLibrary
                     valueAsString = "Dictionary";
                 }
                 var len = GetLength(pair.Key);
-                Console.Write($"{valueAsString.Truncate(len).PadRight(len + _padding)}");
+                Console.Write($"{valueAsString.Truncate(len).PadRight(len)}");
             }
             Console.WriteLine();
         }
