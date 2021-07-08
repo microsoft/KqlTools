@@ -33,8 +33,10 @@ namespace RealTimeKql
 
         public bool Parse()
         {
-            if(_args.Length < 1 
-                || _args.Length >=2 && (_args[1] == "--help" || _args[1] == "-h"))
+            // See if help output needs to be printed
+            if(_args.Length < 1
+                || _args.Length == 1 && (_args[0] == "--help" || _args[0] == "-h")
+                || _args.Length ==2 && (_args[1] == "--help" || _args[1] == "-h"))
             {
                 PrintHelp();
                 return true;
