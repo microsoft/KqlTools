@@ -1,6 +1,5 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Reactive.Kql.CustomTypes;
 using System.Reactive.Kql;
 using System.IO;
 
@@ -10,7 +9,7 @@ namespace RealTimeKqlLibrary
     {
         private readonly IObservable<IDictionary<string, object>> _inputStream;
         private readonly string _inputName;
-        private readonly Action<KqlOutput> _output;
+        private readonly IOutput _output;
         private readonly bool _realTimeMode;
         private readonly string[] _queries;
         private KqlNodeHub _kqlNodeHub;
@@ -18,7 +17,7 @@ namespace RealTimeKqlLibrary
         public EventProcessor(
             IObservable<IDictionary<string, object>> inputStream,
             string inputName,
-            Action<KqlOutput> output,
+            IOutput output,
             bool realTimeMode,
             params string[] queries)
         {
@@ -58,7 +57,16 @@ namespace RealTimeKqlLibrary
             ScalarFunctionFactory.AddFunctions(typeof(CustomScalarFunctions));
 
             // instantiating KqlNodeHub with input stream, output action, and query files
-            _kqlNodeHub = KqlNodeHub.FromFiles(_inputStream, _output, _inputName, queriesFullPath.ToArray());
+            _kqlNodeHub = KqlNodeHub.FromFiles(_inputStream, _output.KqlOutputAction, _inputName, queriesFullPath.ToArray());
+
+            // checking if any queries failed
+            foreach(var query in _kqlNodeHub._node.FailedKqlQueryList)
+            {
+                _output.OutputError(query.FailureReason);
+            }
+
+            // return false if any queries failed
+            if (_kqlNodeHub._node.FailedKqlQueryList.Count > 0) return false;
 
             return true;
         }

@@ -81,7 +81,7 @@ namespace RealTimeKqlLibrary
                 // Input stream goes through Rx.Kql before hitting output
                 _eventProcessor = new EventProcessor(
                     _eventStream, eventStreamName, 
-                    _output.KqlOutputAction, 
+                    _output, 
                     realTimeMode, 
                     _queries);
                 return _eventProcessor.ApplyRxKql();
