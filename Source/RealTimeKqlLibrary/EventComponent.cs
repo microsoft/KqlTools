@@ -15,7 +15,7 @@ namespace RealTimeKqlLibrary
         private readonly string[] _queries;
 
         // Output
-        private IOutput _output;
+        protected IOutput _output;
         private IDisposable _outputSubscription;
 
         // Special cases

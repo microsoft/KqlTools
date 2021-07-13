@@ -34,7 +34,7 @@ namespace RealTimeKqlLibrary
         {
             if(!File.Exists(_fileName))
             {
-                Console.WriteLine($"ERROR! {_fileName} does not seem to exist.");
+                _output.OutputError(new Exception($"ERROR! {_fileName} does not seem to exist."));
                 return false;
             }
 

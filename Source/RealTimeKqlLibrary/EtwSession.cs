@@ -1,5 +1,4 @@
-﻿using Kusto.Cloud.Platform.Security;
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.Security.Principal;
 
@@ -29,7 +28,7 @@ namespace RealTimeKqlLibrary
             var principal = new WindowsPrincipal(WindowsIdentity.GetCurrent());
             if (!principal.IsInRole(WindowsBuiltInRole.Administrator))
             {
-                Console.WriteLine("ERROR! To attach to a real-time ETW session, you must be Administrator.");
+                _output.OutputError(new Exception("ERROR! To attach to a real-time ETW session, you must be Administrator."));
                 return false;
             }
 

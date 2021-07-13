@@ -90,7 +90,7 @@ namespace RealTimeKqlLibrary
         private void Listener_Error(object sender, SyslogErrorEventArgs e)
         {
             Stop();
-            Console.WriteLine(e.Error.ToString());
+            _output.OutputError(e.Error);
         }
 
         private void Listener_EntryReceived(object sender, SyslogEntryEventArgs e)
@@ -100,7 +100,7 @@ namespace RealTimeKqlLibrary
             {
                 Stop();
                 var strErrors = "Parser errors encountered: " + string.Join(Environment.NewLine, parseErrors);
-                Console.WriteLine(strErrors);
+                _output.OutputError(new Exception(strErrors));
             }
         }
 

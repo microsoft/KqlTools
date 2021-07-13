@@ -39,7 +39,7 @@ namespace RealTimeKqlLibrary
                     var queryFullPath = Path.GetFullPath(query);
                     if (!File.Exists(queryFullPath))
                     {
-                        Console.WriteLine($"ERROR! Query file {queryFullPath} does not seem to exist.");
+                        _output.OutputError(new Exception($"ERROR! Query file {queryFullPath} does not seem to exist."));
                         return false;
                     }
                     else
