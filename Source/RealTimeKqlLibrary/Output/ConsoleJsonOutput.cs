@@ -8,9 +8,12 @@ namespace RealTimeKqlLibrary
     public class ConsoleJsonOutput : IOutput
     {
         private bool _running;
-        public ConsoleJsonOutput()
+        private readonly BaseLogger _logger;
+        
+        public ConsoleJsonOutput(BaseLogger logger)
         {
             _running = true;
+            _logger = logger;
         }
 
         public void KqlOutputAction(KqlOutput obj)
@@ -22,29 +25,35 @@ namespace RealTimeKqlLibrary
         {
             if (_running)
             {
-                Console.WriteLine(JsonConvert.SerializeObject(obj, Formatting.Indented, new JsonSerializerSettings
+                try
                 {
-                    ReferenceLoopHandling = ReferenceLoopHandling.Ignore
-                }));
+                    Console.WriteLine(JsonConvert.SerializeObject(obj, Formatting.Indented, new JsonSerializerSettings
+                    {
+                        ReferenceLoopHandling = ReferenceLoopHandling.Ignore
+                    }));
+                }
+                catch(Exception ex)
+                {
+                    OutputError(ex);
+                }
             }
         }
 
         public void OutputError(Exception ex)
         {
             _running = false;
-            Console.WriteLine(ex);
+            _logger.Log(LogLevel.ERROR, ex);
         }
 
         public void OutputCompleted()
         {
             _running = false;
-            Console.WriteLine("\nCompleted!");
-            Console.WriteLine("Thank you for using RealTimeKql!");
+            _logger.Log(LogLevel.INFORMATION, "Stopping RealTimeKql...");
         }
 
         public void Stop()
         {
-            System.Environment.Exit(0);
+            _logger.Log(LogLevel.INFORMATION, $"\nCompleted!\nThank you for using RealTimeKql!");
         }
     }
 }

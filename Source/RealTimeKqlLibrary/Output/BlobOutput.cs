@@ -27,8 +27,12 @@ namespace RealTimeKqlLibrary
         private readonly TimeSpan _flushDuration;
         private readonly int _batchSize;
 
-        public BlobOutput(string connectionString, string containerName)
+        private readonly BaseLogger _logger;
+
+        public BlobOutput(BaseLogger logger, string connectionString, string containerName)
         {
+            _logger = logger;
+
             _batchSize = 10000;
             _flushDuration = TimeSpan.FromMilliseconds(5);
             _lastUploadTime = DateTime.UtcNow;
@@ -44,7 +48,7 @@ namespace RealTimeKqlLibrary
             }
             else
             {
-                Console.WriteLine($"ERROR setting up connection to Blob. Please double check the information provided.");
+                _logger.Log(LogLevel.ERROR, $"ERROR setting up connection to Blob. Please double check the information provided.");
                 _error = true;
             }
         }
@@ -58,44 +62,51 @@ namespace RealTimeKqlLibrary
         {
             if (_error) return;
 
-            if (_fields == null)
+            try
             {
-                // discover fields on first event
-                _fields = obj.Keys.ToArray();
-            }
+                if (_fields == null)
+                {
+                    // discover fields on first event
+                    _fields = obj.Keys.ToArray();
+                }
 
-            DateTime now = DateTime.UtcNow;
-            if (_nextBatch.Count >= _batchSize
-                || (_flushDuration != TimeSpan.MaxValue && now > _lastUploadTime + _flushDuration))
+                DateTime now = DateTime.UtcNow;
+                if (_nextBatch.Count >= _batchSize
+                    || (_flushDuration != TimeSpan.MaxValue && now > _lastUploadTime + _flushDuration))
+                {
+                    UploadBatch();
+                }
+
+                _nextBatch.Add(obj);
+            }
+            catch(Exception ex)
             {
-                UploadBatch();
+                OutputError(ex);
             }
-
-            _nextBatch.Add(obj);
         }
 
         public void OutputError(Exception ex)
         {
             _error = true;
-            Console.WriteLine(ex.Message);
+            _logger.Log(LogLevel.ERROR, ex);
         }
 
         public void OutputCompleted()
         {
+            _logger.Log(LogLevel.INFORMATION, "Stopping RealTimeKql...");
+
             if (!_error)
             {
                 UploadBatch();
             }
 
             Completed.Set();
-            Console.WriteLine("\nCompleted!");
-            Console.WriteLine("Thank you for using RealTimeKql!");
         }
 
         public void Stop()
         {
             Completed.WaitOne();
-            System.Environment.Exit(0);
+            _logger.Log(LogLevel.INFORMATION, $"\nCompleted!\nThank you for using RealTimeKql!");
         }
 
         private void UploadBatch()
@@ -104,7 +115,9 @@ namespace RealTimeKqlLibrary
             {
                 if(_currentBatch != null)
                 {
-                    throw new Exception("Upload must not be called before the batch currently being uploaded is complete");
+                    _error = true;
+                    _logger.Log(LogLevel.ERROR, new Exception("Upload must not be called before the batch currently being uploaded is complete"));
+                    return;
                 }
 
                 _currentBatch = _nextBatch;
@@ -123,9 +136,9 @@ namespace RealTimeKqlLibrary
                     _currentBatch = null;
                     _lastUploadTime = DateTime.UtcNow;
                 }
-                catch (Exception e)
+                catch (Exception ex)
                 {
-                    Console.WriteLine(e);
+                    OutputError(ex);
                 }
             }
         }

@@ -3,19 +3,24 @@ using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Reactive.Kql.CustomTypes;
+using System.Threading;
 
 namespace RealTimeKqlLibrary
 {
     public class JsonFileOutput: IOutput
     {
+        public AutoResetEvent Completed { get; private set; }
         private StreamWriter _outputWriter;
         private bool _firstEntry = true;
         private bool _running = false;
         private bool _error = false;
         private int numEntries = 0;
+        private readonly BaseLogger _logger;
 
-        public JsonFileOutput(string fileName)
+        public JsonFileOutput(BaseLogger logger, string fileName)
         {
+            _logger = logger;
+            Completed = new AutoResetEvent(false);
             _outputWriter = new StreamWriter(fileName);
             _outputWriter.Write($"[");
             _running = true;
@@ -30,19 +35,19 @@ namespace RealTimeKqlLibrary
         {
             if (_error || !_running) return;
 
-            string content;
-            if(_firstEntry)
-            {
-                _firstEntry = false;
-                content = $"{JsonConvert.SerializeObject(obj)}";
-            }
-            else
-            {
-                content = $",{JsonConvert.SerializeObject(obj)}";
-            }
-
             try
             {
+                string content;
+                if (_firstEntry)
+                {
+                    _firstEntry = false;
+                    content = $"{JsonConvert.SerializeObject(obj)}";
+                }
+                else
+                {
+                    content = $",{JsonConvert.SerializeObject(obj)}";
+                }
+
                 _outputWriter.Write(content);
                 _outputWriter.Flush();
                 PrettyPrintEntryCount();
@@ -57,12 +62,13 @@ namespace RealTimeKqlLibrary
         {
             _error = true;
             _running = false;
-            Console.WriteLine(ex.Message);
+            _logger.Log(LogLevel.ERROR, ex);
         }
 
         public void OutputCompleted()
         {
             _running = false;
+            _logger.Log(LogLevel.INFORMATION, "\nStopping RealTimeKql...");
 
             if (!_error)
             {
@@ -71,13 +77,13 @@ namespace RealTimeKqlLibrary
                 _outputWriter = null;
             }
 
-            Console.WriteLine("\nCompleted!");
-            Console.WriteLine("Thank you for using RealTimeKql!");
+            Completed.Set();
         }
 
         public void Stop()
         {
-            System.Environment.Exit(0);
+            Completed.WaitOne();
+            _logger.Log(LogLevel.INFORMATION, $"\nCompleted!\nThank you for using RealTimeKql!");
         }
 
         private void PrettyPrintEntryCount()

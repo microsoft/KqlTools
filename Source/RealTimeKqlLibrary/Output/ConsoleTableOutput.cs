@@ -11,9 +11,11 @@ namespace RealTimeKqlLibrary
         private readonly IDictionary<string, int> _columnWidths;
         private int _totalWidth;
         private int _counter;
-
-        public ConsoleTableOutput()
+        private readonly BaseLogger _logger;
+        
+        public ConsoleTableOutput(BaseLogger logger)
         {
+            _logger = logger;
             _running = true;
             _firstEntry = true;
             _columnWidths = new Dictionary<string, int>();
@@ -30,39 +32,45 @@ namespace RealTimeKqlLibrary
         {
             if(_running)
             {
-                if (_firstEntry)
+                try
                 {
-                    _firstEntry = false;
-                    CalculateColumnWidths(obj);
-                }
+                    if (_firstEntry)
+                    {
+                        _firstEntry = false;
+                        CalculateColumnWidths(obj);
+                    }
 
-                if (_counter % 10 == 0)
+                    if (_counter % 10 == 0)
+                    {
+                        _counter = 0;
+                        PrintHeaders(obj);
+                    }
+
+                    PrintValues(obj);
+                    _counter++;
+                }
+                catch(Exception ex)
                 {
-                    _counter = 0;
-                    PrintHeaders(obj);
+                    OutputError(ex);
                 }
-
-                PrintValues(obj);
-                _counter++;
             }
         }
 
         public void OutputError(Exception ex)
         {
             _running = false;
-            Console.WriteLine(ex);
+            _logger.Log(LogLevel.ERROR, ex);
         }
 
         public void OutputCompleted()
         {
             _running = false;
-            Console.WriteLine("\nCompleted!");
-            Console.WriteLine("Thank you for using RealTimeKql!");
+            _logger.Log(LogLevel.INFORMATION, "Stopping RealTimeKql...");
         }
 
         public void Stop()
         {
-            System.Environment.Exit(0);
+            _logger.Log(LogLevel.INFORMATION, $"\nCompleted!\nThank you for using RealTimeKql!");
         }
 
         private void CalculateColumnWidths(IDictionary<string, object> obj)

@@ -36,21 +36,21 @@ namespace RealTimeKql
             IOutput output = null;
             if(commandLineParser.OutputSubcommand == null)
             {
-                output = new ConsoleJsonOutput();
+                output = new ConsoleJsonOutput(logger);
             }
             switch (commandLineParser.OutputSubcommand.Name)
             {
                 case "json":
-                    output = GetJsonOutput(commandLineParser.OutputSubcommand);
+                    output = GetJsonOutput(logger, commandLineParser.OutputSubcommand);
                     break;
                 case "table":
-                    output = new ConsoleTableOutput();
+                    output = new ConsoleTableOutput(logger);
                     break;
                 case "adx":
                     output = GetAdxOutput(logger, commandLineParser.OutputSubcommand.Options);
                     break;
                 case "blob":
-                    output = GetBlobOutput(commandLineParser.OutputSubcommand.Options);
+                    output = GetBlobOutput(logger, commandLineParser.OutputSubcommand.Options);
                     break;
                 default:
                     logger.Log(LogLevel.ERROR, $"ERROR! Problem recognizing output method specified: {commandLineParser.OutputSubcommand.Name}");
@@ -105,14 +105,14 @@ namespace RealTimeKql
             exitEvent.WaitOne();
         }
 
-        static IOutput GetJsonOutput(Subcommand subcommand)
+        static IOutput GetJsonOutput(BaseLogger logger, Subcommand subcommand)
         {
             if(subcommand.Argument.Value != null)
             {
-                return new JsonFileOutput(subcommand.Argument.Value);
+                return new JsonFileOutput(logger, subcommand.Argument.Value);
             }
 
-            return new ConsoleJsonOutput();
+            return new ConsoleJsonOutput(logger);
         }
 
         // Generates adx output object based off passed in options
@@ -170,7 +170,7 @@ namespace RealTimeKql
                 directIngest);
         }
 
-        static BlobOutput GetBlobOutput(List<Option> opts)
+        static BlobOutput GetBlobOutput(BaseLogger logger, List<Option> opts)
         {
             string connectionString = "";
             string containerName = "";
@@ -188,7 +188,7 @@ namespace RealTimeKql
                 }
             }
 
-            return new BlobOutput(connectionString, containerName);
+            return new BlobOutput(logger, connectionString, containerName);
         }
 
         static SyslogServer GetSyslogServer(List<Option> opts, IOutput output, string[] queries)

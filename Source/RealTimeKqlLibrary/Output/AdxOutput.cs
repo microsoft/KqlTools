@@ -142,8 +142,7 @@ namespace RealTimeKqlLibrary
             }
             catch(Exception ex)
             {
-                _error = true;
-                _logger.Log(LogLevel.ERROR, ex);
+                OutputError(ex);
             }
         }
 
@@ -200,10 +199,9 @@ namespace RealTimeKqlLibrary
                     _currentBatch = null;
                     _lastUploadTime = DateTime.UtcNow;
                 }
-                catch (Exception e)
+                catch (Exception ex)
                 {
-                    _error = true;
-                    _logger.Log(LogLevel.ERROR, e);
+                    OutputError(ex);
                 }
             }
         }
