@@ -1,4 +1,5 @@
 using RealTimeKql;
+using RealTimeKqlLibrary;
 using System;
 using Xunit;
 
@@ -16,7 +17,8 @@ namespace RealTimeKqlTests
         [InlineData("syslogserver")]
         public void Parse_ValidInputs_ReturnTrue(params string[] args)
         {
-            var c = new CommandLineParser(args);
+            var logger = new ConsoleLogger();
+            var c = new CommandLineParser(logger, args);
             var actual = c.Parse();
             Assert.True(actual);
         }
@@ -25,7 +27,8 @@ namespace RealTimeKqlTests
         [InlineData("syslogserver", "--udpport=514", "--networkadapter=value")]
         public void Parse_ValidInputWithOptions_ReturnTrue(params string[] args)
         {
-            var c = new CommandLineParser(args);
+            var logger = new ConsoleLogger();
+            var c = new CommandLineParser(logger, args);
             var actual = c.Parse();
             Assert.True(actual);
         }
@@ -38,7 +41,8 @@ namespace RealTimeKqlTests
         [InlineData("csv")]
         public void Parse_InputsMissingRequirements_ReturnFalse(params string[] args)
         {
-            var c = new CommandLineParser(args);
+            var logger = new ConsoleLogger();
+            var c = new CommandLineParser(logger, args);
             var actual = c.Parse();
             Assert.False(actual);
         }
@@ -49,7 +53,8 @@ namespace RealTimeKqlTests
         [InlineData("fake")]
         public void Parse_FakeInputs_ReturnFalse(params string[] args)
         {
-            var c = new CommandLineParser(args);
+            var logger = new ConsoleLogger();
+            var c = new CommandLineParser(logger, args);
             var actual = c.Parse();
             Assert.False(actual);
         }
@@ -61,7 +66,8 @@ namespace RealTimeKqlTests
         [InlineData("etw", "tcp", "blob", "--blobconnectionstring=value", "--blobcontainername=value")]
         public void Parse_ValidOutputs_ReturnTrue(params string[] args)
         {
-            var c = new CommandLineParser(args);
+            var logger = new ConsoleLogger();
+            var c = new CommandLineParser(logger, args);
             var actual = c.Parse();
             Assert.True(actual);
         }
@@ -71,7 +77,8 @@ namespace RealTimeKqlTests
         [InlineData("etw", "tcp", "adx", "-ad=test.com", "-aclid=val", "-akey=val", "-acl=cluster", "-adb=database", "-atb=table", "-acr", "-adi")]
         public void Parse_ValidOutputsWithOptions_ReturnTrue(params string[] args)
         {
-            var c = new CommandLineParser(args);
+            var logger = new ConsoleLogger();
+            var c = new CommandLineParser(logger, args);
             var actual = c.Parse();
             Assert.True(actual);
         }
@@ -82,7 +89,8 @@ namespace RealTimeKqlTests
         [InlineData("etw", "tcp", "json", "file.json", "--query=test.kql", "test2.kql")]
         public void Parse_ValidOutputs_CheckValue(params string[] args)
         {
-            var c = new CommandLineParser(args);
+            var logger = new ConsoleLogger();
+            var c = new CommandLineParser(logger, args);
             var expected = "file.json";
 
             c.Parse();
@@ -95,7 +103,8 @@ namespace RealTimeKqlTests
         [InlineData("etw", "tcp", "blob", "--blobcontainername=value")]
         public void Parse_OutputsMissingRequirements_ReturnFalse(params string[] args)
         {
-            var c = new CommandLineParser(args);
+            var logger = new ConsoleLogger();
+            var c = new CommandLineParser(logger, args);
             var actual = c.Parse();
             Assert.False(actual);
         }
@@ -106,7 +115,8 @@ namespace RealTimeKqlTests
         [InlineData("etw", "tcp", "fake", "--blobconnectionstring=value", "--blobcontainername=value")]
         public void Parse_FakeOutputs_ReturnFalse(params string[] args)
         {
-            var c = new CommandLineParser(args);
+            var logger = new ConsoleLogger();
+            var c = new CommandLineParser(logger, args);
             var actual = c.Parse();
             Assert.False(actual);
         }
@@ -120,7 +130,8 @@ namespace RealTimeKqlTests
         [InlineData("etw", "tcp", "--query=Assets\\test.kql", "Assets\\test2.kql", "third.kql")]
         public void Parse_ValidQuery_ReturnTrue(params string[] args)
         {
-            var c = new CommandLineParser(args);
+            var logger = new ConsoleLogger();
+            var c = new CommandLineParser(logger, args);
             var actual = c.Parse();
             Assert.True(actual);
         }
@@ -130,7 +141,8 @@ namespace RealTimeKqlTests
         [InlineData("etw", "tcp", "--query:Assets\\test.kql")]
         public void Parse_InvalidQuery_ReturnFalse(params string[] args)
         {
-            var c = new CommandLineParser(args);
+            var logger = new ConsoleLogger();
+            var c = new CommandLineParser(logger, args);
             var actual = c.Parse();
             Assert.False(actual);
         }
@@ -141,7 +153,8 @@ namespace RealTimeKqlTests
         [InlineData("etw", "tcp", "json")]
         public void Parse_ValidArgPositions_ReturnTrue(params string[] args)
         {
-            var c = new CommandLineParser(args);
+            var logger = new ConsoleLogger();
+            var c = new CommandLineParser(logger, args);
             var actual = c.Parse();
             Assert.True(actual);
         }
@@ -153,7 +166,8 @@ namespace RealTimeKqlTests
         [InlineData("etw", "json", "tcp")]
         public void Parse_InvalidArgPositions_ReturnFalse(params string[] args)
         {
-            var c = new CommandLineParser(args);
+            var logger = new ConsoleLogger();
+            var c = new CommandLineParser(logger, args);
             var actual = c.Parse();
             Assert.False(actual);
         }
@@ -162,7 +176,8 @@ namespace RealTimeKqlTests
         public void Parse_OptAfterScmbWithOpts_ReturnTrue()
         {
             var args = new string[] { "etw", "tcp", "adx", "--adxcluster=cluster", "--adxdatabase=db", "--adxtable=tb", "--query=test.kql" };
-            var c = new CommandLineParser(args);
+            var logger = new ConsoleLogger();
+            var c = new CommandLineParser(logger, args);
             var actual = c.Parse();
             Assert.True(actual);
         }

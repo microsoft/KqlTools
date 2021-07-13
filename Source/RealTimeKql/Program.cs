@@ -16,11 +16,10 @@ namespace RealTimeKql
 #else
             logger = new ConsoleLogger();
 #endif
-
             logger.Log(LogLevel.INFORMATION, "Welcome to Real-Time KQL!");
 
             // Parsing command line arguments
-            var commandLineParser = new CommandLineParser(args);
+            var commandLineParser = new CommandLineParser(logger, args);
             if (!commandLineParser.Parse())
             {
                 logger.Log(LogLevel.ERROR, "Problem parsing command line arguments. Terminating program...");

@@ -1,6 +1,8 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Text;
+using RealTimeKqlLibrary;
 
 namespace RealTimeKql
 {
@@ -17,8 +19,12 @@ namespace RealTimeKql
         private readonly string[] _args;
         private int _currentIndex;
 
-        public CommandLineParser(string[] args)
+        private readonly BaseLogger _logger;
+        
+        public CommandLineParser(BaseLogger logger, string[] args)
         {
+            _logger = logger;
+
             Queries = new List<string>();
             _allInputSubcommands = new List<Subcommand>();
             _allOutputSubcommands = new List<Subcommand>();
@@ -43,7 +49,7 @@ namespace RealTimeKql
             // Parsing input
             if(_allInputSubcommands.Where(x => x.Name == _args[_currentIndex]).Count() == 0)
             {
-                Console.WriteLine($"ERROR! Input source {_args[_currentIndex]} not recognized.");
+                _logger.Log(LogLevel.ERROR, $"ERROR! Input source {_args[_currentIndex]} not recognized.");
                 return false;
             }
 
@@ -75,7 +81,7 @@ namespace RealTimeKql
                 }
                 else
                 {
-                    Console.WriteLine($"ERROR! Output source {_args[_currentIndex]} not recognized.");
+                    _logger.Log(LogLevel.ERROR, $"ERROR! Output source {_args[_currentIndex]} not recognized.");
                     return false;
                 }
             }
@@ -242,17 +248,17 @@ namespace RealTimeKql
 
         private void PrintMissingItemsError(Subcommand subcommand)
         {
-            Console.Write($"ERROR! Missing these required arguments or options for {subcommand.Name}:");
+            var strBuilder = new StringBuilder($"ERROR! Missing these required arguments or options for {subcommand.Name}:");
             if (subcommand.Argument != null
                 && subcommand.Argument.IsRequired
                 && subcommand.Argument.Value == null)
             {
-                Console.Write($"\t{subcommand.Argument.FriendlyName}");
+                strBuilder.Append($"\n{subcommand.Argument.FriendlyName}");
             }
 
             if (subcommand.Options == null)
             {
-                Console.WriteLine();
+                _logger.Log(LogLevel.ERROR, strBuilder.ToString());
                 return;
             }
 
@@ -260,10 +266,11 @@ namespace RealTimeKql
             {
                 if (opt.IsRequired && opt.Value == null)
                 {
-                    Console.Write($"\t{opt.LongName}");
+                    strBuilder.Append($"\n{opt.LongName}");
                 }
             }
-            Console.WriteLine();
+
+            _logger.Log(LogLevel.ERROR, strBuilder.ToString());
         }
 
         private bool ParseArgument(Subcommand subcommand, ref int requiredItemsRemaining)
@@ -273,7 +280,7 @@ namespace RealTimeKql
                 if (_allSubcommandNames.Contains(_args[_currentIndex]) || _args[_currentIndex].StartsWith("-"))
                 {
                     // Looks like user entered different subcommand or an option instead of the required argument
-                    Console.WriteLine($"ERROR! {subcommand.Argument.FriendlyName} for {subcommand.Name} is missing.");
+                    _logger.Log(LogLevel.ERROR, $"ERROR! {subcommand.Argument.FriendlyName} for {subcommand.Name} is missing.");
                     return false;
                 }
 
@@ -317,7 +324,7 @@ namespace RealTimeKql
                             }
                             else
                             {
-                                Console.WriteLine($"ERROR! Problem parsing option {opt.LongName}");
+                                _logger.Log(LogLevel.ERROR, $"ERROR! Problem parsing option {opt.LongName}");
                                 return false;
                             }
 
@@ -331,7 +338,7 @@ namespace RealTimeKql
                         // option specified is not part of this subcommand
                         if(requiredItemsRemaining > 0)
                         {
-                            Console.WriteLine($"ERROR! Missing required options for {subcommand.Name}");
+                            _logger.Log(LogLevel.ERROR, $"ERROR! Missing required options for {subcommand.Name}");
                             return false;
                         }
                         else
@@ -366,14 +373,14 @@ namespace RealTimeKql
         {
             if(!(_args[_currentIndex].StartsWith("--query") || _args[_currentIndex].StartsWith("-q")))
             {
-                Console.WriteLine($"ERROR! Unknown option specified: {_args[_currentIndex]}");
+                _logger.Log(LogLevel.ERROR, $"ERROR! Unknown option specified: {_args[_currentIndex]}");
                 return false;
             }
             if (ParseValueOption(out var query))
             {
                 if(!query.Contains(".kql"))
                 {
-                    Console.WriteLine($"ERROR! This item was passed in as a query file but doesn't appear to be a .kql file: {query}");
+                    _logger.Log(LogLevel.ERROR, $"ERROR! This item was passed in as a query file but doesn't appear to be a .kql file: {query}");
                     return false;
                 }
                 Queries.Add(query);
@@ -382,7 +389,7 @@ namespace RealTimeKql
                 {
                     if (!_args[_currentIndex].Contains(".kql"))
                     {
-                        Console.WriteLine($"ERROR! This item was passed in as a query file but doesn't appear to be a .kql file: {query}");
+                        _logger.Log(LogLevel.ERROR, $"ERROR! This item was passed in as a query file but doesn't appear to be a .kql file: {query}");
                         return false;
                     }
 
@@ -394,7 +401,7 @@ namespace RealTimeKql
             }
             else
             {
-                Console.WriteLine($"ERROR! Problem parsing query file from command line arguments.");
+                _logger.Log(LogLevel.ERROR, $"ERROR! Problem parsing query file from command line arguments.");
                 return false;
             }
         }
