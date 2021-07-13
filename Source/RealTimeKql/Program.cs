@@ -9,13 +9,21 @@ namespace RealTimeKql
     {
         static void Main(string[] args)
         {
-            Console.WriteLine("Welcome to Real-Time KQL!");
+            // Setting up logging
+            BaseLogger logger;
+#if NET472
+            logger = new WindowsLogger("RealTimeKqlLogging", "RealTimeKql");
+#else
+            logger = new ConsoleLogger();
+#endif
+
+            logger.Log(LogLevel.INFORMATION, "Welcome to Real-Time KQL!");
 
             // Parsing command line arguments
             var commandLineParser = new CommandLineParser(args);
             if (!commandLineParser.Parse())
             {
-                Console.WriteLine("Problem parsing command line arguments. Terminating program...");
+                logger.Log(LogLevel.ERROR, "Problem parsing command line arguments. Terminating program...");
                 return;
             }
             else if(commandLineParser.InputSubcommand == null)
@@ -39,13 +47,13 @@ namespace RealTimeKql
                     output = new ConsoleTableOutput();
                     break;
                 case "adx":
-                    output = GetAdxOutput(commandLineParser.OutputSubcommand.Options);
+                    output = GetAdxOutput(logger, commandLineParser.OutputSubcommand.Options);
                     break;
                 case "blob":
                     output = GetBlobOutput(commandLineParser.OutputSubcommand.Options);
                     break;
                 default:
-                    Console.WriteLine($"ERROR! Problem recognizing output method specified: {commandLineParser.OutputSubcommand.Name}");
+                    logger.Log(LogLevel.ERROR, $"ERROR! Problem recognizing output method specified: {commandLineParser.OutputSubcommand.Name}");
                     return;
             }
 
@@ -78,12 +86,12 @@ namespace RealTimeKql
                     eventComponent = GetSyslogServer(options, output, queries);
                     break;
                 default:
-                    Console.WriteLine($"Problem recognizing input method specified: {commandLineParser.InputSubcommand.Name}. Terminating program...");
+                    logger.Log(LogLevel.ERROR, $"Problem recognizing input method specified: {commandLineParser.InputSubcommand.Name}. Terminating program...");
                     return;
             }
             if (!eventComponent.Start())
             {
-                Console.WriteLine("Error starting up. Please review usage and examples. Terminating program...");
+                logger.Log(LogLevel.ERROR, "Error starting up. Please review usage and examples. Terminating program...");
                 return;
             }
 
@@ -108,7 +116,7 @@ namespace RealTimeKql
         }
 
         // Generates adx output object based off passed in options
-        static AdxOutput GetAdxOutput(List<Option> opts)
+        static AdxOutput GetAdxOutput(BaseLogger logger, List<Option> opts)
         {
             string auth = "";
             string clientId = "";
@@ -151,6 +159,7 @@ namespace RealTimeKql
             }
 
             return new AdxOutput(
+                logger,
                 auth,
                 clientId,
                 key,

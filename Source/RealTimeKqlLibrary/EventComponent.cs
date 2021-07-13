@@ -90,18 +90,22 @@ namespace RealTimeKqlLibrary
             return true;
         }
 
-        // Called when user terminates program with Ctrl + C
+        // Called when user terminates program with Ctrl + C or event stream completes
         public void Stop()
         {
             _running = false;
             _output.OutputCompleted();
 
             // Disposing subscriptions
+            if(_intermediateSubscription != null)
+            {
+                _intermediateSubscription.Dispose();
+            }
             if (_outputSubscription != null)
             {
                 _outputSubscription.Dispose();
             }
-            else if (_eventProcessor != null)
+            if (_eventProcessor != null)
             {
                 _eventProcessor.Stop();
             }

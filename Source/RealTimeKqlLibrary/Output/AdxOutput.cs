@@ -33,7 +33,10 @@ namespace RealTimeKqlLibrary
         private readonly int _batchSize;
         private bool _initializeTable;
 
+        private readonly BaseLogger _logger;
+
         public AdxOutput(
+            BaseLogger logger,
             string authority,
             string appclientId,
             string appKey,
@@ -43,6 +46,8 @@ namespace RealTimeKqlLibrary
             bool createOrResetTable=false,
             bool directIngest=false)
         {
+            _logger = logger;
+
             _table = table;
             _createOrResetTable = createOrResetTable;
 
@@ -84,7 +89,7 @@ namespace RealTimeKqlLibrary
             }
             else
             {
-                Console.WriteLine($"ERROR getting ADX connection strings. Please double check the information provided.");
+                _logger.Log(LogLevel.ERROR, "ERROR getting ADX connection strings. Please double check the information provided.");
                 _error = true;
             }
         }
@@ -98,64 +103,72 @@ namespace RealTimeKqlLibrary
         {
             if (_error) return;
 
-            if(_fields == null)
+            try
             {
-                // discover fields on first event
-                _fields = obj.Keys.ToArray();
-            }
-
-            if (kscbAdmin != null && _initializeTable == false && _createOrResetTable == true)
-            {
-                CreateOrResetTable(obj);
-                _initializeTable = true;
-            }
-
-            DateTime now = DateTime.UtcNow;
-            if (_nextBatch.Count >= _batchSize
-                || (_flushDuration != TimeSpan.MaxValue && now > _lastUploadTime + _flushDuration))
-            {
-                UploadBatch();
-            }
-
-            // Convert all System.Dynamic.ExpandoObject items into Dictionary<string, object> types
-            var keys = obj.Keys.ToArray();
-            for(int i=0; i<keys.Length; i++)
-            {
-                var key = keys[i];
-                var value = obj[key];
-                if (value != null && typeof(System.Dynamic.ExpandoObject) == value.GetType())
+                if (_fields == null)
                 {
-                    var dict = ((IDictionary<string, object>)(value)).ToDictionary(
-                        kvp => kvp.Key, kvp => kvp.Value);
-                    obj[key] = dict;
+                    // discover fields on first event
+                    _fields = obj.Keys.ToArray();
                 }
+
+                if (kscbAdmin != null && _initializeTable == false && _createOrResetTable == true)
+                {
+                    CreateOrResetTable(obj);
+                    _initializeTable = true;
+                }
+
+                DateTime now = DateTime.UtcNow;
+                if (_nextBatch.Count >= _batchSize
+                    || (_flushDuration != TimeSpan.MaxValue && now > _lastUploadTime + _flushDuration))
+                {
+                    UploadBatch();
+                }
+
+                // Convert all System.Dynamic.ExpandoObject items into Dictionary<string, object> types
+                var keys = obj.Keys.ToArray();
+                for (int i = 0; i < keys.Length; i++)
+                {
+                    var key = keys[i];
+                    var value = obj[key];
+                    if (value != null && typeof(System.Dynamic.ExpandoObject) == value.GetType())
+                    {
+                        var dict = ((IDictionary<string, object>)(value)).ToDictionary(
+                            kvp => kvp.Key, kvp => kvp.Value);
+                        obj[key] = dict;
+                    }
+                }
+
+                _nextBatch.Add(obj);
             }
-            
-            _nextBatch.Add(obj);
+            catch(Exception ex)
+            {
+                _error = true;
+                _logger.Log(LogLevel.ERROR, ex);
+            }
         }
 
         public void OutputError(Exception ex)
         {
             _error = true;
-            Console.WriteLine(ex.Message);
+            _logger.Log(LogLevel.ERROR, ex);
         }
 
         public void OutputCompleted()
         {
+            _logger.Log(LogLevel.INFORMATION, "Stopping RealTimeKql...");
+
             if (!_error)
             {
                 UploadBatch();
             }
 
             Completed.Set();
-            Console.WriteLine("\nCompleted!");
-            Console.WriteLine("Thank you for using RealTimeKql!");
         }
 
         public void Stop()
         {
             Completed.WaitOne();
-            System.Environment.Exit(0);
+            _logger.Log(LogLevel.INFORMATION, $"\nCompleted!\nThank you for using RealTimeKql!");
         }
 
         private void UploadBatch()
@@ -164,7 +177,9 @@ namespace RealTimeKqlLibrary
             {
                 if (_currentBatch != null)
                 {
-                    throw new Exception("Upload must not be called before the batch currently being uploaded is complete");
+                    _error = true;
+                    _logger.Log(LogLevel.ERROR, new Exception("Upload must not be called before the batch currently being uploaded is complete"));
+                    return;
                 }
 
                 _currentBatch = _nextBatch;
@@ -178,7 +193,7 @@ namespace RealTimeKqlLibrary
                         {
                             var data = new DictionaryDataReader(_currentBatch);
                             _ingestClient.IngestFromDataReader(data, _ingestionProperties);
-                            Console.Write($"{_currentBatch.Count}, ");
+                            _logger.Log(LogLevel.DEBUG, $"Current Batch Count: {_currentBatch.Count}");
                         }
                     }
 
@@ -187,7 +202,8 @@ namespace RealTimeKqlLibrary
                 }
                 catch (Exception e)
                 {
-                    Console.WriteLine(e);
+                    _error = true;
+                    _logger.Log(LogLevel.ERROR, e);
                 }
             }
         }
