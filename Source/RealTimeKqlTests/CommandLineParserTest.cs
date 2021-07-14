@@ -166,5 +166,120 @@ namespace RealTimeKqlTests
             var actual = c.Parse();
             Assert.True(actual);
         }
+
+        [Fact]
+        public void Parse_InputSubcommandWithArg()
+        {
+            var args = new string[] { "etw", "tcp" };
+            var c = new CommandLineParser(args);
+
+            var success = c.Parse();
+
+            Assert.True(success);
+            Assert.Equal("etw", c.InputSubcommand.Name);
+            Assert.Equal("tcp", c.InputSubcommand.Argument.Value);
+        }
+
+        [Fact]
+        public void Parse_InputSubcommandWithOpts()
+        {
+            var args = new string[] { "syslogserver", "--networkadapter", "all", "--udpport", "123" };
+            var c = new CommandLineParser(args);
+
+            var success = c.Parse();
+
+            Assert.True(success);
+            Assert.Equal("syslogserver", c.InputSubcommand.Name);
+            foreach (var opt in c.InputSubcommand.Options)
+            {
+                switch (opt.LongName)
+                {
+                    case "networkadapter":
+                        Assert.Equal("all", opt.Value);
+                        break;
+                    case "udpport":
+                        Assert.Equal("123", opt.Value);
+                        break;
+                    default:
+                        // There shouldn't be any other options, fail test if there is
+                        Assert.Equal("test", "fail");
+                        break;
+                }
+            }
+        }
+
+        [Fact]
+        public void Parse_OutputSubcommandWithArg()
+        {
+            var args = new string[] { "etw", "tcp", "json", "file.json" };
+            var c = new CommandLineParser(args);
+
+            var success = c.Parse();
+
+            Assert.True(success);
+            Assert.Equal("json", c.OutputSubcommand.Name);
+            Assert.Equal("file.json", c.OutputSubcommand.Argument.Value);
+        }
+
+        [Fact]
+        public void Parse_OutputSubcommandWithOpts()
+        {
+            var args = new string[] { "etw", "tcp", "adx", "-ad=test.com", "-aclid=val", "-akey=val", "-acl=cluster", "-adb=database", "-atb=table", "-acr", "-adi" };
+            var c = new CommandLineParser(args);
+
+            var success = c.Parse();
+
+            Assert.True(success);
+            Assert.Equal("adx", c.OutputSubcommand.Name);
+            foreach (var opt in c.OutputSubcommand.Options)
+            {
+                switch (opt.LongName)
+                {
+                    case "adxauthority":
+                        Assert.Equal("test.com", opt.Value);
+                        break;
+                    case "adxclientid":
+                        Assert.Equal("val", opt.Value);
+                        break;
+                    case "adxkey":
+                        Assert.Equal("val", opt.Value);
+                        break;
+                    case "adxcluster":
+                        Assert.Equal("cluster", opt.Value);
+                        break;
+                    case "adxdatabase":
+                        Assert.Equal("database", opt.Value);
+                        break;
+                    case "adxtable":
+                        Assert.Equal("table", opt.Value);
+                        break;
+                    case "adxdirectingest":
+                        Assert.True(opt.WasSet);
+                        break;
+                    case "adxcreatereset":
+                        Assert.True(opt.WasSet);
+                        break;
+                    default:
+                        // There shouldn't be any other options, fail test if there is
+                        Assert.Equal("test", "fail");
+                        break;
+                }
+            }
+        }
+
+        [Fact]
+        public void Parse_Queries()
+        {
+            var args = new string[] { "etw", "tcp", "-q", "Assets\\test.kql", "Assets\\test2.kql", "third.kql" };
+            var c = new CommandLineParser(args);
+
+            var success = c.Parse();
+
+            Assert.True(success);
+            Assert.Contains("Assets\\test.kql", c.Queries);
+            Assert.Contains("Assets\\test2.kql", c.Queries);
+            Assert.Contains("third.kql", c.Queries);
+        }
+
     }
 }
