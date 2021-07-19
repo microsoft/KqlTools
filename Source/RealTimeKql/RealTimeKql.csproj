@@ -13,6 +13,9 @@
   </ItemGroup>
 
   <ItemGroup>    
+    <None Update="RealTimeKql.conf">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>    
     <None Update="TestAssets\SampleCsv.csv">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>    

@@ -17,18 +17,24 @@ namespace RealTimeKql
         private readonly string[] _args;
         private int _currentIndex;
 
-        public CommandLineParser(string[] args)
+        public CommandLineParser(List<Subcommand> inputs, List<Subcommand> outputs, Option query, string[] args)
         {
             Queries = new List<string>();
-            _allInputSubcommands = new List<Subcommand>();
-            _allOutputSubcommands = new List<Subcommand>();
+            _allInputSubcommands = inputs;
+            _allOutputSubcommands = outputs;
             _allSubcommandNames = new List<string>();
-            _query = new Option("query", "q",
-                "Optional, apply this KQL query to the input stream. If omitted, the stream is propagated without processing to the output. eg, --query=file.kql");
+            _query = query;
             _args = args;
             _currentIndex = 0;
 
-            GetAllSubcommands();
+            foreach(var scmd in inputs)
+            {
+                _allSubcommandNames.Add(scmd.Name);
+            }
+            foreach(var scmd in outputs)
+            {
+                _allSubcommandNames.Add(scmd.Name);
+            }
         }
 
         public bool Parse()
@@ -399,115 +405,6 @@ namespace RealTimeKql
                 Console.WriteLine($"ERROR! Problem parsing query file from command line arguments.");
                 return false;
             }
-        }
-
-        private void GetAllSubcommands()
-        {
-            // Input subcommands
-            // etw
-            var sessionName = new Argument("session", "Name of the ETW Session to attach to", true);
-            var etw = new Subcommand("etw", "Listen to real-time ETW session. See Event Trace Sessions in Perfmon", sessionName);
-            _allInputSubcommands.Add(etw);
-            _allSubcommandNames.Add("etw");
-
-            // etl
-            var etlFile = new Argument("file.etl", "Path to the .etl file to read", true);
-            var etl = new Subcommand("etl", "Process the past event in Event Trace File (.etl) recorded via ETW", etlFile);
-            _allInputSubcommands.Add(etl);
-            _allSubcommandNames.Add("etl");
-
-            // log
-            var logName = new Argument("logname", "Name of the Windows log to attach to", true);
-            var winlog = new Subcommand("winlog", "Listen for new events in a Windows OS log. See Windows Logs in Eventvwr", logName);
-            _allInputSubcommands.Add(winlog);
-            _allSubcommandNames.Add("winlog");
-
-            // evtx
-            var evtxFile = new Argument("file.evtx", "Path to the .evtx file to read", true);
-            var evtx = new Subcommand("evtx", "Process the past events recorded in Windows log file on disk", evtxFile);
-            _allInputSubcommands.Add(evtx);
-            _allSubcommandNames.Add("evtx");
-
-            // csv
-            var csvFile = new Argument("file.csv", "Path to the .csv file to read", true);
-            var csv = new Subcommand("csv", "Process past events recorded in Comma Separated File", csvFile);
-            _allInputSubcommands.Add(csv);
-            _allSubcommandNames.Add("csv");
-
-            // syslog
-            var syslogFile = new Argument("filepath", "Path to the log file to read", true);
-            var syslog = new Subcommand("syslog", "Process real-time syslog messages written to local log file", syslogFile);
-            _allInputSubcommands.Add(syslog);
-            _allSubcommandNames.Add("syslog");
-
-            // syslog server
-            var syslogServerOptions = new List<Option>()
-            {
-                new Option("networkadapter", "na", 
-                "Network Adapter Name. Optional, when not specified, listner listens on all adapters. Used along with UDP Port."),
-                new Option("udpport", "p",
-                "Optional. Listen to a UDP port for syslog messages. Default is port 514. eg, --udpport=514.")
-                {
-                    Value = "514"
-                }
-            };
-            var syslogServer = new Subcommand("syslogserver", "Listen to syslog messages on a UDP port", null, syslogServerOptions);
-            _allInputSubcommands.Add(syslogServer);
-            _allSubcommandNames.Add("syslogserver");
-
-            // Output subcommands
-            // json
-            var jsonFile = new Argument("file.json", "The path to the .json file to write to");
-            var json = new Subcommand("json", 
-                "Optional and default. Events printed to console in JSON format. If filename is specified immediately after, events will be written to the file in JSON format.",
-                jsonFile);
-            _allOutputSubcommands.Add(json);
-            _allSubcommandNames.Add("json");
-            OutputSubcommand = json;
-
-            // table
-            var table = new Subcommand("table", "Optional, events printed to console in table format");
-            _allOutputSubcommands.Add(table);
-            _allSubcommandNames.Add("table");
-
-            // adx
-            var adxOptions = new List<Option>()
-            {
-                new Option("adxauthority", "ad",
-                "Azure Data Explorer (ADX) authority. Optional when not specified microsoft.com is used. eg, --adxauthority=microsoft.com")
-                {
-                    Value = "microsoft.com"
-                },
-                new Option("adxclientid", "aclid",
-                "Azure Data Explorer (ADX) ClientId. Optional ClientId that has permissions to access Azure Data Explorer."),
-                new Option("adxkey", "akey",
-                "Azure Data Explorer (ADX) Access Key. Used along with ClientId"),
-                new Option("adxcluster", "acl",
-                "Azure Data Explorer (ADX) cluster address. eg, --adxcluster=CDOC.kusto.windows.net", true),
-                new Option("adxdatabase", "adb",
-                "Azure Data Explorer (ADX) database name. eg, --adxdatabase=TestDb", true),
-                new Option("adxtable", "atb",
-                "Azure Data Explorer (ADX) table name. eg, --adxtable=OutputTable", true),
-                new Option("adxcreatereset", "acr",
-                "If table doesn't exist, it is created. If table exists, data in table is dropped before new data is logged. eg, --adxcreatereset", false, true),
-                new Option("adxdirectingest", "adi",
-                "Default upload to ADX is using queued ingest. Use this option to do a direct ingest to ADX. eg, --adxdirectingest", false, true)
-            };
-
-            var adx = new Subcommand("adx", "Ingest output to Azure Data Explorer", null, adxOptions);
-            _allOutputSubcommands.Add(adx);
-            _allSubcommandNames.Add("adx");
-
-            // blob
-            var blobOptions = new List<Option>()
-            {
-                new Option("blobconnectionstring", "bcs", "Azure Blob Storage Connection string.", true, false),
-                new Option("blobcontainername", "bcn", "Azure Blob Storage container name.", true, false)
-            };
-
-            var blob = new Subcommand("blob", "Ingest output to Azure Blob Storage", null, blobOptions);
-            _allOutputSubcommands.Add(blob);
-            _allSubcommandNames.Add("blob");
         }
     }
 
