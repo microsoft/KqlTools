@@ -10,7 +10,7 @@ namespace RealTimeKqlLibrary
 
         // TODO: add optional logging to kusto
 
-        public WindowsLogger(string source, string log) : base()
+        public WindowsLogger(string source, string log)
         {
             // create event log source and log if it does not exist
             _eventLog = new EventLog(log);
@@ -25,7 +25,7 @@ namespace RealTimeKqlLibrary
         public override void Log(LogLevel logLevel, object payload)
         {
             // Check if log level is enabled
-            if (!IsEnabled(logLevel)) return;
+            if (!IsEnabled(logLevel) || logLevel == LogLevel.NONE) return;
 
             // Log to console
             Console.WriteLine(payload);
@@ -36,16 +36,24 @@ namespace RealTimeKqlLibrary
 
             switch(logLevel)
             {
+                case LogLevel.CRITICAL:
+                    eventId = (int)logLevel;
+                    eventLogEntryType = EventLogEntryType.Error;
+                    break;
                 case LogLevel.ERROR:
                     eventId = (int)logLevel;
                     eventLogEntryType = EventLogEntryType.Error;
                     break;
-                case LogLevel.DEBUG:
+                case LogLevel.WARNING:
+                    eventId = (int)logLevel;
+                    eventLogEntryType = EventLogEntryType.Warning;
+                    break;
+                case LogLevel.INFORMATION:
                     eventId = (int)logLevel;
                     eventLogEntryType = EventLogEntryType.Information;
                     break;
                 default:
-                    eventId = 0;
+                    eventId = (int)logLevel;
                     eventLogEntryType = EventLogEntryType.Information;
                     break;
             }

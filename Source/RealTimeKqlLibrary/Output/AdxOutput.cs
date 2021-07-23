@@ -192,7 +192,7 @@ namespace RealTimeKqlLibrary
                         {
                             var data = new DictionaryDataReader(_currentBatch);
                             _ingestClient.IngestFromDataReader(data, _ingestionProperties);
-                            _logger.Log(LogLevel.DEBUG, $"Current Batch Count: {_currentBatch.Count}");
+                            _logger.Log(LogLevel.VERBOSE, $"Current Batch Count: {_currentBatch.Count}");
                         }
                     }
 

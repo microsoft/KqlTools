@@ -4,12 +4,28 @@ namespace RealTimeKqlLibrary
 {
     public class ConsoleLogger : BaseLogger
     {
-        public ConsoleLogger() : base() { }
-
         public override void Log(LogLevel logLevel, object payload)
         {
-            if (!IsEnabled(logLevel)) return;
-            Console.WriteLine(payload);
+            if (!IsEnabled(logLevel) || logLevel == LogLevel.NONE) return;
+
+            string level = "VERBOSE";
+            switch(logLevel)
+            {
+                case LogLevel.CRITICAL:
+                    level = "CRITICAL";
+                    break;
+                case LogLevel.ERROR:
+                    level = "ERROR";
+                    break;
+                case LogLevel.WARNING:
+                    level = "WARNING";
+                    break;
+                case LogLevel.INFORMATION:
+                    level = "INFORMATION";
+                    break;
+            }
+
+            Console.WriteLine($"{level}:{payload}");
         }
     }
 }
