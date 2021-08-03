@@ -1,47 +1,30 @@
-﻿using System;
-using System.Collections.Generic;
-
-namespace RealTimeKqlLibrary
+﻿namespace RealTimeKqlLibrary
 {
     public abstract class BaseLogger
     {
-        protected Dictionary<int, bool> _logLevels;
-        
-        public BaseLogger()
-        {
-            _logLevels = new Dictionary<int, bool>();
-            foreach(int level in Enum.GetValues(typeof(LogLevel)))
-            {
-                _logLevels.Add(level, true);
-            }
-        }
+        private int _maxVerbosityLevel = 5;
 
         public abstract void Log(LogLevel logLevel, object payload);
 
-        public void Disable(LogLevel logLevel)
+        public void SetMaxVerbosity(LogLevel logLevel)
         {
-            if (!_logLevels.ContainsKey((int)logLevel)) return;
-            _logLevels[(int)logLevel] = false;
-        }
-
-        public void Enable(LogLevel logLevel)
-        {
-            if (!_logLevels.ContainsKey((int)logLevel)) return;
-            _logLevels[(int)logLevel] = true;
+            _maxVerbosityLevel = (int)logLevel;
         }
 
         public bool IsEnabled(LogLevel logLevel)
         {
-            var success = _logLevels.TryGetValue((int)logLevel, out bool value);
-            if (!success) return false;
-            return value;
+            if ((int)logLevel > _maxVerbosityLevel) return false;
+            else return true;
         }
     }
 
     public enum LogLevel
     {
-        INFORMATION,
-        ERROR,
-        DEBUG
+        NONE = 0,
+        CRITICAL = 1,
+        ERROR = 2,
+        WARNING = 3,
+        INFORMATION = 4,
+        VERBOSE = 5
     };
 }
