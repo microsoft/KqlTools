@@ -221,7 +221,14 @@ namespace RealTimeKqlLibrary
             TableSchema tableSchema = new TableSchema(_table);
             foreach (var pair in value)
             {
-                tableSchema.AddColumnIfMissing(new ColumnSchema(pair.Key, _columnType[pair.Value != null ? pair.Value.GetType() : typeof(string)]));
+                if(pair.Value != null && !_columnType.ContainsKey(pair.Value.GetType()))
+                {
+                    tableSchema.AddColumnIfMissing(new ColumnSchema(pair.Key, typeof(JToken).ToString()));
+                }
+                else
+                {
+                        tableSchema.AddColumnIfMissing(new ColumnSchema(pair.Key, _columnType[pair.Value != null ? pair.Value.GetType() : typeof(JToken)]));
+                }
             }
 
             string createTable = CslCommandGenerator.GenerateTableCreateMergeCommand(tableSchema);
@@ -235,11 +242,13 @@ namespace RealTimeKqlLibrary
         {
             { typeof(string), typeof(string).ToString() },
             { typeof(bool), typeof(bool).ToString() },
+            { typeof(short), typeof(int).ToString() },
             { typeof(ushort), typeof(int).ToString() },
             { typeof(byte), typeof(int).ToString() },
             { typeof(int), typeof(int).ToString() },
             { typeof(uint), typeof(int).ToString() },
             { typeof(long), typeof(long).ToString() },
+            { typeof(ulong), typeof(long).ToString() },
             { typeof(DateTime), typeof(DateTime).ToString() },
             { typeof(TimeSpan), typeof(TimeSpan).ToString() },
             { typeof(Guid), typeof(Guid).ToString() },
