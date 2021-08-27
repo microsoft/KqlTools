@@ -69,7 +69,7 @@ namespace RealTimeKqlLibrary
                     var values = new List<object>();
                     foreach (var kv in obj)
                     {
-                        if (kv.Value.GetType() == typeof(System.Dynamic.ExpandoObject))
+                        if (kv.Value != null && kv.Value.GetType() == typeof(System.Dynamic.ExpandoObject))
                         {
                             foreach (var pair in (IDictionary<string, object>)kv.Value)
                             {
