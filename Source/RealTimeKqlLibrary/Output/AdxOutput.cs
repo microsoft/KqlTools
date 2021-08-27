@@ -176,12 +176,13 @@ namespace RealTimeKqlLibrary
             {
                 if (_currentBatch != null)
                 {
-                    _error = true;
-                    _logger.Log(LogLevel.ERROR, new Exception("Upload must not be called before the batch currently being uploaded is complete"));
-                    return;
+                    // Something went wrong with ingesting previous batch
+                    // Drop events in previous batch in an attempt to stay alive
+                    _logger.Log(LogLevel.ERROR, "Error ingesting current batch of events. Dropping events in current batch and moving onto next one.");
+                    _currentBatch = null;
                 }
 
-                _currentBatch = _nextBatch;
+                _currentBatch = _nextBatch; 
                 _nextBatch = new List<IDictionary<string, object>>();
 
                 try
@@ -197,11 +198,15 @@ namespace RealTimeKqlLibrary
                     }
 
                     _currentBatch = null;
-                    _lastUploadTime = DateTime.UtcNow;
                 }
                 catch (Exception ex)
                 {
                     OutputError(ex);
+                }
+                finally
+                {
+                    // Resetting flush timer
+                    _lastUploadTime = DateTime.UtcNow;
                 }
             }
         }
