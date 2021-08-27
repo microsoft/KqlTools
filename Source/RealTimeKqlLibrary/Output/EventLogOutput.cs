@@ -14,7 +14,7 @@ namespace RealTimeKqlLibrary
         private readonly EventLog _eventLog;
         private readonly bool _friendlyFormat;
         private readonly string _delimiter;
-        private readonly bool _setupError;
+        private bool _error;
 
         private readonly BaseLogger _logger;
 
@@ -26,7 +26,7 @@ namespace RealTimeKqlLibrary
             _eventLog = new EventLog(logName);
             _friendlyFormat = friendlyFormat;
             _delimiter = $": ";
-            _setupError = false;
+            _error = false;
 
             try
             {
@@ -47,7 +47,6 @@ namespace RealTimeKqlLibrary
             }
             catch(Exception ex)
             {
-                _setupError = true;
                 OutputError(ex);
             }
 
@@ -59,7 +58,7 @@ namespace RealTimeKqlLibrary
 
         public void OutputAction(IDictionary<string, object> obj)
         {
-            if (_setupError) return;
+            if (_error) return;
 
             try
             {
@@ -113,6 +112,7 @@ namespace RealTimeKqlLibrary
 
         public void OutputError(Exception ex)
         {
+            _error = true;
             _logger.Log(LogLevel.ERROR, ex);
         }
 
