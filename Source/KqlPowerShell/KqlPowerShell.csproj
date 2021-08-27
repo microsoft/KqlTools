@@ -13,7 +13,6 @@
 
   <ItemGroup>
     <ProjectReference Include="..\RealTimeKqlLibrary\RealTimeKqlLibrary.csproj" />
-    <ProjectReference Include="..\Rx.Kql\Rx.Kql.csproj" />
   </ItemGroup>
 
   <ItemGroup>
