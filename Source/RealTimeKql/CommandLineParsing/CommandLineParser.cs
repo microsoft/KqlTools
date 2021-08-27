@@ -513,6 +513,17 @@ namespace RealTimeKql
             var blob = new Subcommand("blob", "Ingest output to Azure Blob Storage", null, blobOptions);
             _allOutputSubcommands.Add(blob);
             _allSubcommandNames.Add("blob");
+
+            // event log
+            var eventlogOptions = new List<Option>()
+            {
+                new Option("logdefaultlog", "ldl", "Default log to use when writing to Windows Event Logs. When not specified, RealTimeKql is used."),
+                new Option("logdefaultsource", "lds", "Default source to use when writing to Windows Event Logs. When not specified, RealTimeKql is used."),
+                new Option("logfriendlyformat", "lff", "Writes events to log in friendly format. Default is JSON format.", false, true)
+            };
+            var eventlog = new Subcommand("eventlog", "Write output to a local Windows event log", null, eventlogOptions);
+            _allOutputSubcommands.Add(eventlog);
+            _allSubcommandNames.Add("eventlog");
         }
     }
 
