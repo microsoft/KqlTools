@@ -51,6 +51,9 @@ namespace RealTimeKql
                 case "blob":
                     output = GetBlobOutput(logger, commandLineParser.OutputSubcommand.Options);
                     break;
+                case "eventlog":
+                    output = GetEventLogOutput(logger, commandLineParser.OutputSubcommand.Options);
+                    break;
                 default:
                     logger.Log(LogLevel.ERROR, $"ERROR! Problem recognizing output method specified: {commandLineParser.OutputSubcommand.Name}");
                     return;
@@ -188,6 +191,31 @@ namespace RealTimeKql
             }
 
             return new BlobOutput(logger, connectionString, containerName);
+        }
+
+        static EventLogOutput GetEventLogOutput(BaseLogger logger, List<Option> opts)
+        {
+            string logName = "RealTimeKql";
+            string sourceName = "RealTimeKqlEvents";
+            bool friendlyFormat = false;
+
+            foreach(var opt in opts)
+            {
+                switch(opt.LongName)
+                {
+                    case "logdefaultlog":
+                        if(opt.Value != null) logName = opt.Value;
+                        break;
+                    case "logdefaultsource":
+                        if(opt.Value != null) sourceName = opt.Value;
+                        break;
+                    case "logfriendlyformat":
+                        friendlyFormat = opt.WasSet;
+                        break;
+                }
+            }
+
+            return new EventLogOutput(logger, logName, sourceName, friendlyFormat);
         }
 
         static SyslogServer GetSyslogServer(List<Option> opts, IOutput output, string[] queries)
