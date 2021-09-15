@@ -12,19 +12,17 @@ namespace RealTimeKqlLibrary
         private readonly string _logName;
         private readonly string _source;
         private readonly EventLog _eventLog;
-        private readonly bool _friendlyFormat;
         private readonly string _delimiter;
         private bool _error;
 
         private readonly BaseLogger _logger;
 
-        public EventLogOutput(BaseLogger logger, string logName, string sourceName, bool friendlyFormat = false)
+        public EventLogOutput(BaseLogger logger, string logName, string sourceName)
         {
             _logger = logger;
             _logName = logName;
             _source = sourceName;
             _eventLog = new EventLog(logName);
-            _friendlyFormat = friendlyFormat;
             _delimiter = $": ";
             _error = false;
 
@@ -62,41 +60,15 @@ namespace RealTimeKqlLibrary
 
             try
             {
-                // Setting event data & writing to log
-                if (_friendlyFormat)
+                // Serializing data
+                var json = JsonConvert.SerializeObject(obj, Formatting.Indented, new JsonSerializerSettings
                 {
-                    // Writing out string representation of data
-                    var values = new List<object>();
-                    foreach (var kv in obj)
-                    {
-                        if (kv.Value != null && kv.Value.GetType() == typeof(System.Dynamic.ExpandoObject))
-                        {
-                            foreach (var pair in (IDictionary<string, object>)kv.Value)
-                            {
-                                values.Add($"{pair.Key}{_delimiter}{pair.Value}");
-                            }
-                        }
-                        else
-                        {
-                            values.Add($"{kv.Key}{_delimiter}{kv.Value}");
-                        }
-                    }
-
-                    // Writing event to log
-                    _eventLog.WriteEvent(new EventInstance(0, 0, EventLogEntryType.Information), values.ToArray());
-                }
-                else
-                {
-                    // Serializing data
-                    var json = JsonConvert.SerializeObject(obj, Formatting.Indented, new JsonSerializerSettings
-                    {
-                        ReferenceLoopHandling = ReferenceLoopHandling.Ignore
-                    });
+                    ReferenceLoopHandling = ReferenceLoopHandling.Ignore
+                });
 
 
-                    // Writing event to log
-                    _eventLog.WriteEvent(new EventInstance(0, 0, EventLogEntryType.Information), json);
-                }
+                // Writing event to log
+                _eventLog.WriteEvent(new EventInstance(0, 0, EventLogEntryType.Information), json);
             }
             catch(Exception ex)
             {
