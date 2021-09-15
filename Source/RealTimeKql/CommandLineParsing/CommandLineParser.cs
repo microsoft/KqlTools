@@ -519,7 +519,6 @@ namespace RealTimeKql
             {
                 new Option("logdefaultlog", "ldl", "Default log to use when writing to Windows Event Logs. When not specified, RealTimeKql is used."),
                 new Option("logdefaultsource", "lds", "Default source to use when writing to Windows Event Logs. When not specified, RealTimeKql is used."),
-                new Option("logfriendlyformat", "lff", "Writes events to log in friendly format. Default is JSON format.", false, true)
             };
             var eventlog = new Subcommand("eventlog", "Write output to a local Windows event log", null, eventlogOptions);
             _allOutputSubcommands.Add(eventlog);

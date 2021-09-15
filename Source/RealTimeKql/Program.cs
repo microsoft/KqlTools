@@ -197,7 +197,6 @@ namespace RealTimeKql
         {
             string logName = "RealTimeKql";
             string sourceName = "RealTimeKqlEvents";
-            bool friendlyFormat = false;
 
             foreach(var opt in opts)
             {
@@ -209,13 +208,10 @@ namespace RealTimeKql
                     case "logdefaultsource":
                         if(opt.Value != null) sourceName = opt.Value;
                         break;
-                    case "logfriendlyformat":
-                        friendlyFormat = opt.WasSet;
-                        break;
                 }
             }
 
-            return new EventLogOutput(logger, logName, sourceName, friendlyFormat);
+            return new EventLogOutput(logger, logName, sourceName);
         }
 
         static SyslogServer GetSyslogServer(List<Option> opts, IOutput output, string[] queries)
