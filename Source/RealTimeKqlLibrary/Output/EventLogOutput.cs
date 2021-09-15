@@ -12,7 +12,7 @@ namespace RealTimeKqlLibrary
         private readonly string _logName;
         private readonly string _source;
         private readonly EventLog _eventLog;
-        private readonly string _delimiter;
+        private bool _firstEntry;
         private bool _error;
 
         private readonly BaseLogger _logger;
@@ -23,7 +23,7 @@ namespace RealTimeKqlLibrary
             _logName = logName;
             _source = sourceName;
             _eventLog = new EventLog(logName);
-            _delimiter = $": ";
+            _firstEntry = true;
             _error = false;
 
             try
@@ -57,6 +57,12 @@ namespace RealTimeKqlLibrary
         public void OutputAction(IDictionary<string, object> obj)
         {
             if (_error) return;
+
+            if(_firstEntry)
+            {
+                _logger.Log(LogLevel.INFORMATION, "Writing events to log...");
+                _firstEntry = false;
+            }
 
             try
             {
