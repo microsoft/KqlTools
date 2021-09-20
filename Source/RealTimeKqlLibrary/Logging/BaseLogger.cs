@@ -3,6 +3,7 @@
     public abstract class BaseLogger
     {
         private int _maxVerbosityLevel = 5;
+        public abstract bool Setup();
 
         public abstract void Log(LogLevel logLevel, object payload);
 
