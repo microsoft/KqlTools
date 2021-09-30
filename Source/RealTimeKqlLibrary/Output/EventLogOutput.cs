@@ -12,6 +12,7 @@ namespace RealTimeKqlLibrary
         private readonly string _logName;
         private readonly string _source;
         private readonly EventLog _eventLog;
+        private readonly int _eventId;
         private bool _firstEntry;
         private bool _error;
 
@@ -23,6 +24,7 @@ namespace RealTimeKqlLibrary
             _logName = logName;
             _source = sourceName;
             _eventLog = new EventLog(logName);
+            _eventId = 6;
             _firstEntry = true;
             _error = false;
 
@@ -74,7 +76,7 @@ namespace RealTimeKqlLibrary
 
 
                 // Writing event to log
-                _eventLog.WriteEvent(new EventInstance(0, 0, EventLogEntryType.Information), json);
+                _eventLog.WriteEvent(new EventInstance(_eventId, 0, EventLogEntryType.Information), json);
             }
             catch(Exception ex)
             {

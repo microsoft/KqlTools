@@ -4,6 +4,7 @@ namespace RealTimeKqlLibrary
 {
     public class ConsoleLogger : BaseLogger
     {
+        public override bool Setup() { return true;  }
         public override void Log(LogLevel logLevel, object payload)
         {
             if (!IsEnabled(logLevel) || logLevel == LogLevel.NONE) return;

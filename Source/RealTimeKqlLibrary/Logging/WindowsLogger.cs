@@ -6,20 +6,38 @@ namespace RealTimeKqlLibrary
 {
     public class WindowsLogger : BaseLogger
     {
-        private readonly EventLog _eventLog;
+        private readonly string _source;
+        private readonly string _log;
+        private EventLog _eventLog;
 
         // TODO: add optional logging to kusto
 
         public WindowsLogger(string source, string log)
         {
-            // create event log source and log if it does not exist
-            _eventLog = new EventLog(log);
-            if(!EventLog.SourceExists(source))
+            _source = source;
+            _log = log;
+        }
+
+        public override bool Setup()
+        {
+            try
             {
-                EventLog.CreateEventSource(source, log);
-                Thread.Sleep(10000);   
+                // create event log source and log if it does not exist
+                _eventLog = new EventLog(_log);
+                if (!EventLog.SourceExists(_source))
+                {
+                    EventLog.CreateEventSource(_source, _log);
+                    Thread.Sleep(10000);
+                }
+                _eventLog.Source = _source;
             }
-            _eventLog.Source = source;
+            catch (Exception ex)
+            {
+                Console.WriteLine(ex);
+                return false;
+            }
+
+            return true;
         }
 
         public override void Log(LogLevel logLevel, object payload)

@@ -12,10 +12,17 @@ namespace RealTimeKql
             // Setting up logging
             BaseLogger logger;
 #if NET472
-            logger = new WindowsLogger("RealTimeKqlLogging", "RealTimeKql");
+            logger = new WindowsLogger("RealTimeKql", "RealTimeKql");
 #else
             logger = new ConsoleLogger();
 #endif
+
+            if(!logger.Setup())
+            {
+                Console.WriteLine("Error instantiating logger. Terminating program...");
+                return;
+            }
+
             logger.Log(LogLevel.INFORMATION, "Welcome to Real-Time KQL!");
 
             // Parsing command line arguments
@@ -196,7 +203,7 @@ namespace RealTimeKql
         static EventLogOutput GetEventLogOutput(BaseLogger logger, List<Option> opts)
         {
             string logName = "RealTimeKql";
-            string sourceName = "RealTimeKqlEvents";
+            string sourceName = "RealTimeKql";
 
             foreach(var opt in opts)
             {
