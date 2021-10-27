@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Runtime.InteropServices;
 using System.Threading;
 using RealTimeKqlLibrary;
 
@@ -11,11 +12,15 @@ namespace RealTimeKql
         {
             // Setting up logging
             BaseLogger logger;
-#if NET472
-            logger = new WindowsLogger("RealTimeKql", "RealTimeKql");
-#else
-            logger = new ConsoleLogger();
-#endif
+
+            if(RuntimeInformation.IsOSPlatform(OSPlatform.Windows))
+            {
+                logger = new WindowsLogger("RealTimeKql", "RealTimeKql");
+            }
+            else
+            {
+                logger = new ConsoleLogger();
+            }
 
             if(!logger.Setup())
             {
