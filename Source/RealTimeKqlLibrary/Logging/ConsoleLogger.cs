@@ -26,7 +26,14 @@ namespace RealTimeKqlLibrary
                     break;
             }
 
-            Console.WriteLine($"{level}:{payload}");
+            if(logLevel != LogLevel.INFORMATION)
+            {
+                Console.WriteLine($"{level}: {payload}");
+            }
+            else
+            {
+                Console.WriteLine(payload);
+            }
         }
     }
 }
