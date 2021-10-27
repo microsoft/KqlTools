@@ -1,11 +1,9 @@
 EtwTcp 
 | where Provider == 'Microsoft-Windows-Kernel-Network' and EventId in (10, 11) 
 | extend ProcessName = getprocessname(EventData.PID)
-| extend SourceIpAddress = EventData.saddr, SourcePort = ntohs(EventData.sport) 
 | extend DestinationIpAddress = EventData.daddr, DestinationPort = ntohs(EventData.dport) 
 | extend Size = EventData.size 
 | extend ProcessId = EventData.PID 
-| summarize Count = count(), Bytes = sum(Size) by bin(TimeCreated, 10s), SourceIpAddress, SourcePort, DestinationIpAddress, DestinationPort, EventId, ProcessId, ProcessName
-
-
-
+| summarize Packets = count(), Bytes = sum(Size) 
+	by bin(TimeCreated, 1m), ProcessId, ProcessName, DestinationIpAddress, DestinationPort
+  
