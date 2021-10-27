@@ -76,7 +76,7 @@ RealTimeKql etw tcp json
 You can use one of the sample queries provided to simplify the TCP data:
 
 ```
-RealTimeKql etw tcp --query=SimplifyEtwTcp.kql table
+RealTimeKql etw tcp table --query=SimplifyEtwTcp.kql
 ```
 
 
@@ -86,7 +86,7 @@ RealTimeKql etw tcp --query=SimplifyEtwTcp.kql table
 To reduce the volume of events printing to your screen, you can apply a different query that aggregates events into 30-second windows:
 
 ```
-RealTimeKql etw tcp --query=SummarizeEtwTcp.kql table
+RealTimeKql etw tcp table --query=SummarizeEtwTcp.kql
 ```
 
 
@@ -140,7 +140,7 @@ While RealTimeKql is running in terminal A, use terminal B to try logging in, bo
 You can use one of the sample queries provided to simplify Syslog data. In terminal A, run:
 
 ```
-sudo ./RealTimeKql syslog /var/log/auth.log --query=SyslogLogin.kql table
+sudo ./RealTimeKql syslog /var/log/auth.log table --query=SyslogLogin.kql
 ```
 
 In terminal B, try logging in and out, successfully and unsuccessfully to see some output.
