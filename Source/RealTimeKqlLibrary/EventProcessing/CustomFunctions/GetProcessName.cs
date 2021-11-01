@@ -32,14 +32,14 @@ namespace RealTimeKqlLibrary
             }
             finally
             {
-                if (string.IsNullOrWhiteSpace(ret))
+                if (!string.IsNullOrWhiteSpace(ret))
                 {
-                    ret = pid.ToString();
+                    // If we got an actual name for the process, add it to the cache
+                    // Only keep the item in cache only for 10 seconds to avoid issues with process ID reuse.  
+                    processNameCache.Add(pid.ToString(), ret, DateTime.Now.AddSeconds(10));
                 }
             }
-
-            // Only keep the item in cache only for 10 seconds to avoid issues with process ID reuse.  
-            processNameCache.Add(pid.ToString(), ret, DateTime.Now.AddSeconds(10));
+            
             return ret;
         }
 
