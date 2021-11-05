@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Reactive.Kql;
 using System.IO;
+using System.Reactive.Kql.EventTypes;
 
 namespace RealTimeKqlLibrary
 {
@@ -68,6 +69,10 @@ namespace RealTimeKqlLibrary
             // return false if any queries failed
             if (_kqlNodeHub._node.FailedKqlQueryList.Count > 0) return false;
 
+            // set up error handling for any runtime query errors
+            _kqlNodeHub._node.KqlKqlQueryFailed += KqlQueryFailedEventHandler;
+            _kqlNodeHub._node.EnableFailedKqlQueryEvents = true;
+
             return true;
         }
 
@@ -77,6 +82,11 @@ namespace RealTimeKqlLibrary
             {
                 _kqlNodeHub._outputSubscription.Dispose();
             }
+        }
+
+        private void KqlQueryFailedEventHandler(object sender, KqlQueryFailedEventArgs e)
+        {
+            _output.OutputError(e.Exception);
         }
     }
 }
