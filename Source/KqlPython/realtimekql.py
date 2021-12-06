@@ -1,21 +1,27 @@
-﻿"""A script for viewing and transforming real-time event streams with KQL"""
+"""A script for viewing and transforming real-time event streams with KQL"""
 import os
 import sys
 import traceback
 import json
 import clr
+import struct
 
 # Adding reference C# DLL References
-REAL_TIME_KQL_LIBRARY = os.path.join(os.path.dirname(__file__), 'lib', 'RealTimeKqlLibrary.dll')
-NEWTON_SOFT = os.path.join(os.path.dirname(__file__), 'lib', 'Newtonsoft.Json.dll')
-clr.AddReference(REAL_TIME_KQL_LIBRARY)
-clr.AddReference(NEWTON_SOFT)
 
-# Importing classes from clr
-from RealTimeKqlLibrary import *
-from System.Collections.Generic import Dictionary;
-from System.Reactive.Kql.CustomTypes import KqlOutput;
-from Newtonsoft.Json import JsonConvert;
+calc = struct.calcsize(("P") * 8)
+if calc == "64":
+    REAL_TIME_KQL_LIBRARY = os.path.join(os.path.dirname(__file__), 'lib', 'RealTimeKqlLibrary.dll')
+    NEWTON_SOFT = os.path.join(os.path.dirname(__file__), 'lib', 'Newtonsoft.Json.dll')
+    clr.AddReference(REAL_TIME_KQL_LIBRARY)
+    clr.AddReference(NEWTON_SOFT)
+    # Importing classes from clr
+    from RealTimeKqlLibrary import *
+    from System.Collections.Generic import Dictionary;
+    from System.Reactive.Kql.CustomTypes import KqlOutput;
+    from Newtonsoft.Json import JsonConvert;
+else:
+    print("Error: This Python module must be run with Python 64 bit version")
+    sys.exit()
 
 # ADX output related imports
 import threading
