@@ -7,13 +7,16 @@ import clr
 import struct
 
 # Adding reference C# DLL References
-
 calc = struct.calcsize(("P") * 8)
 if calc == 64:
     REAL_TIME_KQL_LIBRARY = os.path.join(os.path.dirname(__file__), 'lib', 'RealTimeKqlLibrary.dll')
     NEWTON_SOFT = os.path.join(os.path.dirname(__file__), 'lib', 'Newtonsoft.Json.dll')
+    RX_KQL = os.path.join(os.path.dirname(__file__), 'lib', 'Rx.Kql.dll')
+    
     clr.AddReference(REAL_TIME_KQL_LIBRARY)
     clr.AddReference(NEWTON_SOFT)
+    clr.AddReference(RX_KQL)
+    
     # Importing classes from clr
     from RealTimeKqlLibrary import *
     from System.Collections.Generic import Dictionary;
