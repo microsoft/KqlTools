@@ -9,7 +9,7 @@ import struct
 # Adding reference C# DLL References
 
 calc = struct.calcsize(("P") * 8)
-if calc == "64":
+if calc == 64:
     REAL_TIME_KQL_LIBRARY = os.path.join(os.path.dirname(__file__), 'lib', 'RealTimeKqlLibrary.dll')
     NEWTON_SOFT = os.path.join(os.path.dirname(__file__), 'lib', 'Newtonsoft.Json.dll')
     clr.AddReference(REAL_TIME_KQL_LIBRARY)
