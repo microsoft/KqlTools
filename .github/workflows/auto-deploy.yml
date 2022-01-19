@@ -114,6 +114,7 @@ jobs:
         copy Source/KqlPython/* ${{ runner.temp }}\python\realtimekql
         cd ${{ runner.temp }}\python\realtimekql
         "${{ needs.setup.outputs.tag_name }}" | Out-File -FilePath VERSION.txt -Encoding ASCII -NoNewline
+        'directory = r"${{ runner.temp }}\python\realtimekql"' | Out-File -FilePath kqlpythondir.py -Encoding ASCII -NoNewline
 
     # Build python wheel
     - name: Build Python Wheel Step

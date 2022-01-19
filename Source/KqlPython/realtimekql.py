@@ -8,8 +8,10 @@ import clr
 # Adding reference C# DLL References
 REAL_TIME_KQL_LIBRARY = os.path.join(os.path.dirname(__file__), 'lib', 'RealTimeKqlLibrary.dll')
 NEWTON_SOFT = os.path.join(os.path.dirname(__file__), 'lib', 'Newtonsoft.Json.dll')
+RX_KQL = os.path.join(os.path.dirname(__file__), 'lib', 'Rx.Kql.dll')
 clr.AddReference(REAL_TIME_KQL_LIBRARY)
 clr.AddReference(NEWTON_SOFT)
+clr.AddReference(RX_KQL)
 
 # Importing classes from clr
 from RealTimeKqlLibrary import *
