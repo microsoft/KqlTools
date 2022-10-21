@@ -1,6 +1,5 @@
 ﻿using System;
 using System.IO;
-using System.Reactive.Linq;
 
 namespace RealTimeKqlLibrary
 {
@@ -21,8 +20,7 @@ namespace RealTimeKqlLibrary
                 return false;
             }
 
-            var eventStream = Tx.Windows.EvtxObservable.FromFiles(_fileName)
-                .Select(x => x.AsDictionary());
+            var eventStream = Tx.Windows.EtwTdhObservable.FromFiles(_fileName);
             var eventStreamName = _fileName.Split('.');
             return Start(eventStream, eventStreamName[0], false);
         }
